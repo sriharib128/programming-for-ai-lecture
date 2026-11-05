@@ -1,0 +1,23 @@
+<section class="slide light" id="vloop" data-steps="0" data-section="1 · Why it is hard" data-time="1.5" data-title="A model produces one token at a time">
+  <div class="hd">
+    <div class="eyebrow">Generation</div>
+    <h2>A model produces one token at a time</h2>
+  </div>
+  <div class="abs code vx-code" style="left:120px;top:250px;width:860px"><span class="ln">tokens = tokenizer.encode(prompt)</span><span class="ln"></span><span class="ln l-w"><span class="k">while not</span> done(tokens):</span><span class="ln l-a">    logits = model(tokens)</span><span class="ln l-a">    next_token = sample(logits[-<span class="n">1</span>])</span><span class="ln l-a">    tokens.append(next_token)</span></div>
+  <div class="abs card vl-seq" style="left:1020px;top:250px;width:780px;height:440px">
+    <small>The sequence</small>
+    <div class="vl-toks" id="vl-toks"></div>
+  </div>
+  <div class="abs vl-cnt" style="left:120px;top:590px;width:860px">
+    <div><b id="vl-n">0</b><span>forward passes so far</span></div>
+    <div><b id="vl-l">0</b><span>tokens read in this pass</span></div>
+    <div><b id="vl-s">0</b><span>tokens read in total</span></div>
+  </div>
+  <div class="abs" id="vl-pl" style="left:120px;top:960px;width:560px"></div>
+  <p class="abs t" style="left:120px;top:790px;width:1680px;font-size:32px">One forward pass gives one token, and every pass reads <span class="hi">the whole sequence again</span>.</p>
+  <aside class="notes">
+    <p>This is the loop you have probably written or seen. Encode the prompt. Then repeat: run the model on all the tokens, take the logits at the last position only, sample one token, and append it. Stop at an end token or a length limit.</p>
+    <p>Watch the counters as it plays. Each pass produces one token, and each pass reads one token more than the last. The total grows quadratically with the output length.</p>
+    <p>Ask the room: what work is being repeated here? The model computes something for each token, and for all the old tokens it computes the same thing again.</p>
+  </aside>
+</section>

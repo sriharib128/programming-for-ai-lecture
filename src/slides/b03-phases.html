@@ -1,0 +1,32 @@
+<section class="slide light" id="vphase" data-section="1 · Why it is hard" data-time="1.2" data-title="A request has two phases: prefill and decode">
+  <div class="hd">
+    <div class="eyebrow">Two phases</div>
+    <h2>A request has two phases: prefill and decode</h2>
+  </div>
+  <svg class="abs" viewBox="0 0 1680 300" style="left:120px;top:236px;width:1680px;height:300px">
+    <rect x="0" y="130" width="460" height="96" rx="14" fill="#FCE6CF" stroke="#F28C28" stroke-width="3"/>
+    <text x="230" y="172" text-anchor="middle" font-family="Sora" font-weight="700" font-size="28" fill="#B85C0A">Prefill</text>
+    <text x="230" y="206" text-anchor="middle" font-family="IBM Plex Sans" font-size="23" fill="#42506B">all 5 prompt tokens, one pass</text>
+    <g font-family="IBM Plex Sans" font-size="23" fill="#0E1A3A"><line x1="0" y1="98" x2="460" y2="98" stroke="#0E1A3A" stroke-width="2"/><line x1="0" y1="86" x2="0" y2="110" stroke="#0E1A3A" stroke-width="2"/><line x1="460" y1="86" x2="460" y2="110" stroke="#0E1A3A" stroke-width="2"/><text x="230" y="76" text-anchor="middle" font-weight="600">Time to first token (TTFT)</text></g>
+    <g data-s="1" class="fade">
+      <g font-family="IBM Plex Sans" font-size="23" fill="#1F4FA8" font-weight="600" text-anchor="middle">
+        <rect x="480" y="130" width="180" height="96" rx="14" fill="#E4ECFA" stroke="#2A63C9" stroke-width="3"/><text x="570" y="186">decode</text>
+        <rect x="680" y="130" width="180" height="96" rx="14" fill="#E4ECFA" stroke="#2A63C9" stroke-width="3"/><text x="770" y="186">decode</text>
+        <rect x="880" y="130" width="180" height="96" rx="14" fill="#E4ECFA" stroke="#2A63C9" stroke-width="3"/><text x="970" y="186">decode</text>
+        <rect x="1080" y="130" width="180" height="96" rx="14" fill="#E4ECFA" stroke="#2A63C9" stroke-width="3"/><text x="1170" y="186">decode</text>
+        <rect x="1280" y="130" width="180" height="96" rx="14" fill="#E4ECFA" stroke="#2A63C9" stroke-width="3"/><text x="1370" y="186">decode</text>
+      </g>
+      <g font-family="IBM Plex Sans" font-size="23" fill="#0E1A3A"><line x1="480" y1="98" x2="660" y2="98" stroke="#0E1A3A" stroke-width="2"/><line x1="480" y1="86" x2="480" y2="110" stroke="#0E1A3A" stroke-width="2"/><line x1="660" y1="86" x2="660" y2="110" stroke="#0E1A3A" stroke-width="2"/><text x="570" y="76" text-anchor="middle" font-weight="600">Inter-token latency (ITL)</text></g>
+      <g font-family="IBM Plex Mono" font-size="24" fill="#B85C0A" font-weight="600" text-anchor="middle"><text x="670" y="268">Paris</text><text x="870" y="268">,</text><text x="1070" y="268">a</text><text x="1270" y="268">city</text><text x="1470" y="268">on</text></g>
+    </g>
+    <text x="470" y="268" font-family="IBM Plex Mono" font-size="24" fill="#B85C0A" font-weight="600" text-anchor="middle">first token</text>
+  </svg>
+  <div class="abs card vp-c o" style="left:120px;top:570px;width:820px"><h3>Prefill</h3><p>A forward pass over every prompt token.</p><div class="vp-l"><small>Limited by</small><b>compute</b></div></div>
+  <div class="abs card vp-c b" data-s="1" style="left:980px;top:570px;width:820px"><h3>Decode</h3><p>A forward pass over the newest token only, using the cache.</p><div class="vp-l"><small>Limited by</small><b>memory bandwidth</b></div></div>
+  <p class="abs t" data-s="1" style="left:120px;top:880px;width:1680px;font-size:30px">Decode computes one token, but all the model weights still have to be read from memory.</p>
+  <div class="src">Source: A. Gordić, Inside vLLM (2025)</div>
+  <aside class="notes">
+    <p>The cache splits every request into two phases, and they behave very differently. Prefill is the first pass, over every token in the prompt. It is mostly limited by how fast the GPU can compute. At the end we sample one token, so its length sets the time to first token, which is what a user feels before anything appears.</p>
+    <p data-step="1">Decode is every pass after that: one new token, using the cache. You might expect this to be cheap, but the GPU still has to stream all the model weights out of its memory to compute that one token. So decode is limited by memory bandwidth. The gap between tokens is the inter-token latency. Two phases, two kinds of limit. That difference comes back several times.</p>
+  </aside>
+</section>

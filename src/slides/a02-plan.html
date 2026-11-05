@@ -1,0 +1,19 @@
+<section class="slide light" id="plan" data-section="Introduction" data-time="1.5" data-title="A model, the engine that runs it, and the system around it">
+  <div class="hd">
+    <div class="eyebrow">Today</div>
+    <h2>A model, its engine, and the system around it</h2>
+  </div>
+  <div class="abs pn-box pn-o" data-s="2" style="left:120px;top:240px;width:980px;height:740px"><b>Patram-Ingest</b><span>built by our team</span></div>
+  <div class="abs pn-box pn-m" data-s="1" style="left:190px;top:350px;width:840px;height:580px"><b>vLLM</b><span>built by many experts, open source</span></div>
+  <div class="abs pn-box pn-i" style="left:280px;top:490px;width:660px;height:360px"><b>The model</b><span>what you use in this course</span><code>logits = model(tokens)</code></div>
+  <div class="abs pn-r" style="left:1170px;top:300px;width:630px">
+    <div class="pn-row i"><small>The model</small><p>Turns tokens into the next token. On its own, it serves nobody.</p></div>
+    <div class="pn-row m" data-s="1"><small>Parts 1 to 4 · vLLM</small><p>Runs one model for many requests at once, using every byte of GPU memory.</p></div>
+    <div class="pn-row o" data-s="2"><small>Parts 5 to 8 · Patram-Ingest</small><p>Uses that engine for weeks to create training data, and keeps going when machines fail.</p></div>
+  </div>
+  <aside class="notes">
+    <p>Here is the plan as one picture. In this course you have used a model: you call it on some tokens, and you get logits back.</p>
+    <p data-step="1">Around the model sits an engine. vLLM is the one we use, built by a large community of experts. It takes many requests from many users and runs them on one model as efficiently as the hardware allows. Parts 1 to 4 open this box.</p>
+    <p data-step="2">Around that sits the system that actually uses the engine. Ours is Patram-Ingest. It decides which prompt to send, tracks every sample, and keeps a run going for weeks on a cluster where machines fail. Parts 5 to 8 are about this box. You are unlikely to rewrite vLLM, but you will very likely write a system like the outer one. Along the way you will see the same programming ideas in both.</p>
+  </aside>
+</section>

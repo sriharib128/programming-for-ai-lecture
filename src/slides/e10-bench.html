@@ -1,0 +1,17 @@
+<section class="slide light" id="vbench" data-steps="0" data-section="4 · Serving at scale" data-time="0.6" data-title="vLLM has a benchmark tool">
+  <div class="hd">
+    <div class="eyebrow">Benchmarks</div>
+    <h2>vLLM has a benchmark tool built in</h2>
+  </div>
+  <div class="abs" style="left:120px;top:240px;width:1680px;display:flex;flex-direction:column;gap:22px">
+    <div class="card vbn-c"><code>vllm bench latency</code><p>A short input and 128 output tokens, in a small batch. Reports end-to-end latency.</p></div>
+    <div class="card vbn-c"><code>vllm bench throughput</code><p>A fixed set of prompts, all at once. Reports tokens and requests per second.</p></div>
+    <div class="card vbn-c"><code>vllm bench serve</code><p>Starts a server and sends requests with realistic arrival times. Measures every metric from the last slide.</p></div>
+  </div>
+  <div class="abs code" style="left:120px;top:620px;width:1680px;font-size:28px">vllm bench latency --model &lt;model-name&gt; --input-tokens <span class="n">32</span> --output-tokens <span class="n">128</span> --batch-size <span class="n">8</span></div>
+  <p class="abs t" style="left:120px;top:750px;width:1680px;font-size:29px">An auto-tune script drives <code>serve</code> to find settings that meet a target, such as “maximize throughput with p99 end-to-end under 500 ms”.</p>
+  <div class="src">Source: A. Gordić, Inside vLLM (2025)</div>
+  <aside class="notes">
+    <p>You can measure all of this yourself, today, with no extra tools. The latency command uses a short input and small batch. The throughput command sends a fixed set of prompts at once. The serve command launches a server and simulates real traffic, with random gaps between requests. There is also an auto-tune script that searches for settings that meet a target you give it. A good exercise: run these on a small model and change one setting at a time.</p>
+  </aside>
+</section>

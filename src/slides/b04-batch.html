@@ -1,0 +1,16 @@
+<section class="slide light" id="vbatch" data-section="1 · Why it is hard" data-time="2" data-title="Requests finish at different times">
+  <div class="hd">
+    <div class="eyebrow">Batching</div>
+    <h2>Requests finish at different times</h2>
+  </div>
+  <div class="abs card vb-p" id="vb-s" style="left:120px;top:226px;width:1680px;height:352px"></div>
+  <div class="abs card vb-p" id="vb-c" data-s="1" style="left:120px;top:596px;width:1680px;height:352px"></div>
+  <div class="abs" id="vb-pl" style="left:120px;top:962px;width:560px"></div>
+  <div class="abs note" style="left:720px;top:962px;font-size:21px">Illustrative: 8 requests of different lengths, 4 slots.</div>
+  <aside class="notes">
+    <p>Reading the weights takes about the same time for one token or for many, so we want to batch: run many requests in one pass and share that cost. Here are 8 requests and a GPU with room for 4 at a time. Each column is one pass of the model. The first thing you would write is a fixed batch: take four, run until all are done, take the next four.</p>
+    <p>Watch the hatched cells. A short request finishes, but its slot stays idle until the longest one in the batch is done, because the batch was decided up front. In this example more than a third of the slots go to nothing.</p>
+    <p data-step="1">The fix is to decide the batch again at every pass. When a request finishes, the next one takes its slot straight away. This is called continuous batching. It came from a system called Orca, published at OSDI 2022, which reported 36.9 times the throughput of NVIDIA FasterTransformer at the same latency on a GPT-3 175B model. Same requests, same hardware, and the run ends much earlier.</p>
+    <p>But this creates a memory problem. If requests join and leave at every pass, each with a cache that grows, where does the cache go?</p>
+  </aside>
+</section>

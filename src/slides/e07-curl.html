@@ -1,0 +1,21 @@
+<section class="slide light" id="vcurl" data-steps="7" data-section="4 · Serving at scale" data-time="1.5" data-title="One curl, from start to finish">
+  <div class="hd">
+    <div class="eyebrow">Request lifecycle</div>
+    <h2>One curl, from start to finish</h2>
+  </div>
+  <div class="abs code" style="left:120px;top:222px;width:1680px;font-size:24px;line-height:1.4;padding:18px 32px">curl -X POST http://localhost:8000/v1/completions -H <span class="s">"Content-Type: application/json"</span> \
+  -d <span class="s">'{"model": "TinyLlama/TinyLlama-1.1B-Chat-v1.0", "prompt": "The capital of France is", "max_tokens": 50}'</span></div>
+  <div class="abs vx-rt" id="vx-rt" style="left:120px;top:340px;width:1680px;height:360px"></div>
+  <div class="abs card vx-d" id="vx-d" style="left:120px;top:730px;width:1680px;height:180px"></div>
+  <div class="src">Source: A. Gordić, Inside vLLM (2025)</div>
+  <aside class="notes">
+    <p>Now all of it together, following one request. Press next to step through it. You send one curl command from your terminal.</p>
+    <p data-step="1">It reaches FastAPI, served by Uvicorn, which handles the route on the event loop.</p>
+    <p data-step="2">The prompt is tokenized and packed with sampling settings and a request ID. Then AsyncLLM takes over, on the same path as the offline engine.</p>
+    <p data-step="3">Load balancing: the score from the last slide picks an engine, and the request is sent to that engine's socket.</p>
+    <p data-step="4">The engine's input thread wakes up, decodes the message and puts it on the input queue.</p>
+    <p data-step="5">The main thread picks it up and calls step repeatedly. Schedule, forward pass and postprocess: everything from Part 2, possibly with worker processes on many GPUs below it.</p>
+    <p data-step="6">The output thread sends results back through its socket.</p>
+    <p data-step="7">Two asyncio tasks in the API server receive them, and FastAPI returns the response to your terminal, with the finish reason and usage. A whole distributed machine, behind one curl. Any questions on this picture before we discuss how to measure it?</p>
+  </aside>
+</section>

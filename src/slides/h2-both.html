@@ -1,0 +1,22 @@
+<section class="slide light" id="both" data-steps="0" data-section="9 · Wrap-up" data-time="1.5" data-title="The same ideas in both systems">
+  <div class="hd">
+    <div class="eyebrow">Comparing the two</div>
+    <h2>The same ideas appear in both systems</h2>
+  </div>
+  <div class="abs card bh-t" style="left:120px;top:232px;width:1680px">
+    <table>
+      <tr><th></th><th>vLLM</th><th>Patram-Ingest</th></tr>
+      <tr><td>Where work waits</td><td>Waiting and running queues, in memory</td><td>A table in the DB, one row per sample</td></tr>
+      <tr><td>Who picks work</td><td>The scheduler, on every pass</td><td>Each node claims rows when it is free</td></tr>
+      <tr><td>Load balancing</td><td><code>waiting * 4 + running</code></td><td>A fast node simply takes more</td></tr>
+      <tr><td>Concurrency</td><td>Event loop, I/O threads, a process per GPU</td><td>Worker processes, threads for waiting, an event loop in each worker</td></tr>
+      <tr><td>Messages</td><td>Shared-memory queues and ZMQ sockets</td><td>A private inbox per worker; the DB between nodes</td></tr>
+      <tr><td>Bit masks</td><td>Which tokens are allowed next</td><td>Which models have finished a page</td></tr>
+      <tr><td>Optimized for</td><td>Each request, at high throughput</td><td>The whole run, through failures, for weeks</td></tr>
+    </table>
+  </div>
+  <aside class="notes">
+    <p>Here are the two systems side by side. You do not need to remember the table. The point is that the rows are the same. Both have to decide where work waits, who picks it up, how to balance load, which kind of concurrency to use and how pieces communicate. These are the questions of systems programming, and they do not change when the workload is AI.</p>
+    <p>The answers differ because the goals differ, as the last row shows. vLLM keeps its queues in memory because it must be fast for each request. We keep ours in a DB because a run has to survive machines dying. Neither is the right answer in general. Each one is right for its goal. When you design your next system, start with that last row.</p>
+  </aside>
+</section>

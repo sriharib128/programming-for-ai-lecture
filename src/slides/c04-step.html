@@ -1,0 +1,24 @@
+<section class="slide light" id="vstep" data-steps="4" data-section="2 · The vLLM engine" data-time="1.2" data-title="The engine is one loop with three steps">
+  <div class="hd">
+    <div class="eyebrow">The engine loop</div>
+    <h2>The engine is one loop with three steps</h2>
+  </div>
+  <div class="abs vt-row" style="left:120px;top:250px;width:1680px">
+    <div class="card vt-c c1"><i>1</i><h3>Schedule</h3><p>Pick the requests for this pass, and give them memory.</p></div>
+    <span class="vt-ar">→</span>
+    <div class="card vt-c c2"><i>2</i><h3>Forward pass</h3><p>Run the model and sample the next tokens.</p></div>
+    <span class="vt-ar">→</span>
+    <div class="card vt-c c3"><i>3</i><h3>Postprocess</h3><p>Append and detokenize. If a request is finished, free its blocks.</p></div>
+  </div>
+  <div class="abs vt-back" style="left:120px;top:560px;width:1680px"><span>repeat while any request is unfinished</span></div>
+  <div class="abs code vx-code" style="left:120px;top:650px;width:760px;font-size:28px"><span class="ln"><span class="k">while</span> engine.has_unfinished_requests():</span><span class="ln">    outputs = engine.step()</span></div>
+  <div class="abs card vt-stop" data-s="4" style="left:930px;top:650px;width:870px"><small>A request stops when</small><ul><li>it reaches its length limit</li><li>it samples the end token</li><li>it samples a token in <code>stop_token_ids</code></li><li>the output contains a stop string</li></ul></div>
+  <div class="src">Source: A. Gordić, Inside vLLM (2025)</div>
+  <aside class="notes">
+    <p>Now generate. It tokenizes each prompt, gives it an ID and an arrival time, and puts it in the waiting queue. Then the whole engine is this: while anything is unfinished, call step. Every call does three things. This is the same loop you wrote earlier, but for many requests at once.</p>
+    <p data-step="1">First, schedule: decide which requests take part in this pass, and make sure they have memory. This is the next two slides.</p>
+    <p data-step="2">Second, run the model and sample one token per request. In your loop this was the only line that mattered.</p>
+    <p data-step="3">Third, postprocess: append the tokens, turn them into text, and check whether each request is finished. A finished request gives back its blocks immediately, which is what makes room for the next one.</p>
+    <p data-step="4">These are the four ways a request can stop. Because the schedule is decided at every pass, a new request can join on the next one. Continuous batching is not a separate component; it follows from this loop.</p>
+  </aside>
+</section>

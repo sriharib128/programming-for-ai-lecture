@@ -1,0 +1,33 @@
+<section class="slide light" id="vthree" data-section="4 · Serving at scale" data-time="1.5" data-title="vLLM uses all three">
+  <div class="hd">
+    <div class="eyebrow">Concurrency in vLLM</div>
+    <h2>vLLM uses all three, each where it fits</h2>
+  </div>
+  <div class="abs vu-p api" style="left:120px;top:240px;width:540px;height:560px">
+    <small class="pc">Process · API server</small>
+    <div class="vu-el"><small class="ec">Event loop</small><ul><li>one task per client request</li><li><code>process_outputs_socket</code></li><li><code>output_handler</code></li><li><code>run_engine_stats_update_task</code></li></ul></div>
+    <p>Hundreds of open requests, mostly waiting.</p>
+  </div>
+  <div class="abs vu-ar" data-s="1" style="left:668px;top:470px">ZMQ<br>↔</div>
+  <div class="abs vu-p eng" data-s="1" style="left:740px;top:240px;width:540px;height:560px">
+    <small class="pc">Process · Engine core</small>
+    <div class="vu-th"><small class="tc">Input thread</small><span>blocks on the socket</span></div>
+    <div class="vu-d">↓ <code>input_queue</code></div>
+    <div class="vu-th m"><small class="tc">Main thread</small><span>runs the engine loop</span></div>
+    <div class="vu-d">↓ <code>output_queue</code></div>
+    <div class="vu-th"><small class="tc">Output thread</small><span>sends results back</span></div>
+  </div>
+  <div class="abs vu-ar" data-s="2" style="left:1288px;top:470px">shm<br>↔</div>
+  <div class="abs vu-w" data-s="2" style="left:1360px;top:240px;width:440px;height:560px">
+    <div class="vu-g"><b>Process</b><span>GPU 0</span></div><div class="vu-g"><b>Process</b><span>GPU 1</span></div><div class="vu-g"><b>Process</b><span>GPU 2</span></div><div class="vu-g"><b>Process</b><span>GPU 3</span></div>
+    <p>Real parallelism, and one owner per GPU.</p>
+  </div>
+  <div class="abs vu-leg" style="left:120px;top:830px;width:1680px"><span class="p"><i></i>Process: computing</span><span class="t"><i></i>Thread: waiting</span><span class="e"><i></i>Event loop: many waits</span></div>
+  <p class="abs t" data-s="2" style="left:120px;top:890px;width:1680px;font-size:29px">The threads exist so that <b>the engine loop never blocks on the network</b>.</p>
+  <div class="src">Source: A. Gordić, Inside vLLM (2025)</div>
+  <aside class="notes">
+    <p>Here is how vLLM uses those three tools. Start on the left: the API server. Each client request is a task on one asyncio event loop, because a request spends almost all of its time waiting for tokens. Remember: asyncio is concurrent, not parallel. One thread can hold hundreds of open requests.</p>
+    <p data-step="1">In the middle, the engine core process. The main thread runs the loop you already know. If it had to read and write network sockets it could stall, and a stalled loop is an idle GPU. So there are two more threads. The input thread blocks on the socket, and when something arrives it puts it on a queue. The output thread does the reverse. These threads spend their lives waiting, which is exactly what threads are good at in Python. Two plain queues join them to the main thread.</p>
+    <p data-step="2">On the right, one process per GPU. Heavy computation, full parallelism, and one owner per GPU. So: event loop for many waits, threads for waiting, processes for computing. These are the choices you would make from the rule of thumb on the last slide. Keep this picture in mind; in Part 6 you get to make these choices yourself.</p>
+  </aside>
+</section>

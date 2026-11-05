@@ -1,0 +1,22 @@
+<section class="slide light" id="vlb" data-steps="1" data-section="4 · Serving at scale" data-time="0.8" data-title="Your turn: which engine gets the next request?">
+  <div class="hd">
+    <div class="eyebrow">Your turn</div>
+    <h2>Which engine gets the next request?</h2>
+  </div>
+  <div class="abs code" style="left:120px;top:240px;width:1680px;font-size:34px;text-align:center">score = len(waiting) * <span class="n">4</span> + len(running)     <span class="c"># lowest score wins</span></div>
+  <div class="abs card vlb-t" style="left:120px;top:370px;width:1680px">
+    <table>
+      <tr><th>Engine</th><th>Waiting</th><th>Running</th><th class="vlb-s">Score</th></tr>
+      <tr><td>Engine 0</td><td>2</td><td>10</td><td class="vlb-s"><b data-s="1">18</b></td></tr>
+      <tr><td>Engine 1</td><td>0</td><td>20</td><td class="vlb-s"><b data-s="1">20</b></td></tr>
+      <tr class="win"><td>Engine 2</td><td>1</td><td>9</td><td class="vlb-s"><b data-s="1">13 ← chosen</b></td></tr>
+      <tr><td>Engine 3</td><td>3</td><td>2</td><td class="vlb-s"><b data-s="1">14</b></td></tr>
+    </table>
+  </div>
+  <p class="abs t" data-s="1" style="left:120px;top:800px;width:1680px;font-size:30px">A waiting request has not even started, so it counts four times as much. The coordinator keeps these numbers fresh.</p>
+  <div class="src">Source: A. Gordić, Inside vLLM (2025). Queue lengths are illustrative.</div>
+  <aside class="notes">
+    <p>With four engines, someone must choose one for each new request. The rule is one line. Here are four engines. Ask the room: which gets the next request? Give them a moment to do the sum. Some will pick engine 3 because it has the fewest running.</p>
+    <p data-step="1">Engine 2 wins with 13, ahead of engine 3 at 14, even though engine 3 has fewer running. A waiting request means that engine is out of room, so it is penalized heavily. This simple formula does useful work. Notice how much of a real distributed system comes down to a one-line heuristic. The DP coordinator process periodically sends the queue lengths to the API server.</p>
+  </aside>
+</section>

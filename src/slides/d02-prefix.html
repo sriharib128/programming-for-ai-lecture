@@ -1,0 +1,25 @@
+<section class="slide light" id="vprefix" data-section="3 · Engine features" data-time="1.8" data-title="Prefix caching reuses shared prompt starts">
+  <div class="hd">
+    <div class="eyebrow">2 · Prefix caching</div>
+    <h2>Prompts that start the same share their blocks</h2>
+  </div>
+  <div class="abs vr-row" style="left:120px;top:236px;width:1680px"><small>Request 1</small><div class="vr-s"><b class="vr-b r1">16 tokens</b><b class="vr-b r1">16 tokens</b><b class="vr-b r1">16 tokens</b><b class="vr-e r1">Hello, my name is</b></div></div>
+  <div class="abs vr-row" style="left:120px;top:342px;width:1680px"><small>Request 2</small><div class="vr-s"><b class="vr-b r2">16 tokens</b><b class="vr-b r2">16 tokens</b><b class="vr-b r2">16 tokens</b><b class="vr-e r2">The president of the United States is</b></div></div>
+  <div class="abs" data-s="1" style="left:120px;top:462px;width:1680px">
+    <div class="vr-h"><code>h0 = hash(None, tokens0, meta)</code><span>→</span><code>h1 = hash(h0, tokens1, meta)</code><span>→</span><code>h2 = hash(h1, tokens2, meta)</code></div>
+    <p class="vr-n">Each hash includes the previous one, so equal hashes mean an equal start, not just one equal block.</p>
+  </div>
+  <div class="abs card vr-t" data-s="2" style="left:120px;top:640px;width:760px"><small><code>cached_block_hash_to_block</code></small><table><tr><td>h0</td><td>→ block 12</td></tr><tr><td>h1</td><td>→ block 4</td></tr><tr><td>h2</td><td>→ block 31</td></tr></table></div>
+  <div class="abs vr-say" style="left:920px;top:640px;width:880px">
+    <p data-s="2" data-h="3"><b>Request 1:</b> no hashes found. It computes all three blocks and records them.</p>
+    <p data-s="3"><b>Request 2:</b> all three hashes found. It reuses those blocks and computes only its own last tokens.</p>
+    <p class="vr-c" data-s="3">Only complete blocks are cached. It speeds up prefill, not decode. On by default.</p>
+  </div>
+  <div class="src">Source: A. Gordić, Inside vLLM (2025). Block numbers are illustrative.</div>
+  <aside class="notes">
+    <p>Problem: many prompts begin the same way. Think of a system prompt, or the same instructions sent with every page. Without a cache, every request recomputes that prefix. Here two requests share three blocks of tokens.</p>
+    <p data-step="1">How do we know two prefixes match? vLLM hashes each complete block. The trick is that each hash also includes the previous block's hash. So a match on h2 tells you h0 and h1 matched as well: the whole prefix is equal. If you have seen git or a blockchain, it is the same chain. Metadata such as a LoRA ID or a cache salt also goes in, so requests that should not share do not.</p>
+    <p data-step="2">The first request finds no hashes, so it computes the three blocks and records which block holds each hash.</p>
+    <p data-step="3">The second request finds all three, reuses those blocks, and only computes what follows. Here is a nice detail: when a request finishes, its blocks go back to the free queue, but the hash entries remain. A block is only truly forgotten when the free queue hands it to someone else. So the free list is also a least-recently-used cache, at no extra cost. Keep this in mind for the second half, where every request in a step shares the same instructions.</p>
+  </aside>
+</section>

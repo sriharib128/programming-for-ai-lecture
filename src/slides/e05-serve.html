@@ -1,0 +1,17 @@
+<section class="slide light" id="vserve" data-steps="0" data-section="4 · Serving at scale" data-time="1" data-title="Two nodes, four engines">
+  <div class="hd">
+    <div class="eyebrow">Scaling out</div>
+    <h2>Two nodes, four engines of four GPUs each</h2>
+  </div>
+  <div class="abs card vv-n" style="left:120px;top:236px;width:820px;height:390px"><small>Node 1 · headless</small><div class="vv-eg" id="vv-1"></div></div>
+  <div class="abs card vv-n" style="left:980px;top:236px;width:820px;height:390px"><small>Node 2 · with the API server</small><div class="vv-eg" id="vv-2"></div><div class="vv-api"><b>API server</b><b>DP coordinator</b></div></div>
+  <div class="abs code" style="left:120px;top:650px;width:1680px;font-size:25px;line-height:1.5"><span class="c"># node 1</span>
+vllm serve &lt;model-name&gt; --tensor-parallel-size <span class="n">4</span> --data-parallel-size <span class="n">4</span> --data-parallel-size-local <span class="n">2</span> \
+  --data-parallel-start-rank <span class="n">0</span> --data-parallel-address &lt;master-ip&gt; --data-parallel-rpc-port <span class="n">13345</span> <span class="k">--headless</span>
+<span class="c"># node 2: the same command, with --data-parallel-start-rank 2 and without --headless</span></div>
+  <div class="src">Source: A. Gordić, Inside vLLM (2025). Example: two 8-GPU H100 nodes.</div>
+  <aside class="notes">
+    <p>Here is a concrete deployment. Two nodes with eight GPUs each, a model that needs tensor parallelism of 4, and four replicas. So TP 4 and DP 4, with two engines on each node. Each small group is one engine core process with its four GPU worker processes under it.</p>
+    <p>You start this with the same command on both machines. On the first node, add headless, so no API server runs there. On the second node, change the start rank to 2 and drop headless. The API server and a small DP coordinator run on that second node. The processes do a handshake over the network, then settle into the steady state we just drew.</p>
+  </aside>
+</section>

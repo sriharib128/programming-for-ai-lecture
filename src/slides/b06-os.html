@@ -1,0 +1,26 @@
+<section class="slide light" id="vos" data-section="1 · Why it is hard" data-time="1.5" data-title="Your turn: where have you seen this problem?">
+  <div class="hd">
+    <div class="eyebrow">Your turn</div>
+    <h2>Where have you seen this problem before?</h2>
+  </div>
+  <div class="abs card vo-q" style="left:120px;top:240px;width:680px;height:640px">
+    <ul>
+      <li>Many programs share one block of memory.</li>
+      <li>Nobody knows how much each one will need.</li>
+      <li>Each one grows a little at a time.</li>
+      <li>They start and finish at any moment.</li>
+    </ul>
+    <p class="vo-a" data-h="1">Which course taught you the answer?</p>
+    <div class="vo-ans" data-s="1"><small>Answer</small><b>Operating systems: virtual memory and paging.</b></div>
+  </div>
+  <div class="abs" data-s="1" style="left:850px;top:240px;width:950px">
+    <svg viewBox="0 0 950 330" style="width:950px;height:330px" id="vo-svg"></svg>
+    <table class="vo-t"><tr><th>Operating system</th><th>vLLM</th></tr><tr><td>Process</td><td>Request</td></tr><tr><td>Byte</td><td>Token</td></tr><tr><td>Page</td><td>KV block</td></tr></table>
+  </div>
+  <div class="src">Source: Kwon et al., PagedAttention, SOSP 2023</div>
+  <aside class="notes">
+    <p>Forget about GPUs for a moment and read these four lines. Many programs share one block of memory, nobody knows in advance how much each needs, each grows bit by bit, and they come and go at any time. Ask the room: you have met this exact problem before. In which course? Take a few answers.</p>
+    <p data-step="1">Operating systems. An OS solves it with virtual memory: split memory into fixed-size pages, and let a program's pages sit anywhere in physical memory, allocated only when needed. The program still sees one continuous range.</p>
+    <p>The vLLM authors applied that idea to attention, and called it PagedAttention. Requests are the processes, tokens are the bytes, and KV blocks are the pages. A request's blocks can sit anywhere in GPU memory, and a new block is allocated only when the previous one fills. Nothing is reserved in advance, so at most one partly filled block per request is unused. This is why operating systems is worth taking. A decades-old idea unlocked a large gain in a new field.</p>
+  </aside>
+</section>

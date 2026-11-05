@@ -1,0 +1,41 @@
+<section class="slide light" id="vanat" data-section="2 · The vLLM engine" data-time="1.5" data-title="What the constructor builds">
+  <div class="hd">
+    <div class="eyebrow">Engine anatomy</div>
+    <h2>What the constructor builds</h2>
+  </div>
+  <div class="abs card van-e" style="left:120px;top:226px;width:1680px;height:216px">
+    <small>LLM Engine</small>
+    <div class="van-row">
+      <div class="van-b"><b>Config</b><span>every setting</span></div>
+      <div class="van-b"><b>Processor</b><span>text → validated tokens</span></div>
+      <div class="van-b me"><b>Engine core client</b><span>talks to the core</span></div>
+      <div class="van-b"><b>Output processor</b><span>tokens → what you see</span></div>
+    </div>
+  </div>
+  <div class="abs van-link" data-s="1" style="left:1165px;top:442px"></div>
+  <div class="abs card van-c" data-s="1" style="left:120px;top:486px;width:1680px;height:440px">
+    <small>Engine core</small>
+    <div class="van-grid">
+      <div class="van-sch">
+        <h3>Scheduler</h3><span>picks the requests for the next pass</span>
+        <div class="van-in">
+          <div class="van-b"><b>Policy</b><span>first come, or priority</span></div>
+          <div class="van-b"><b>Waiting queue</b><span>not started</span></div>
+          <div class="van-b"><b>Running queue</b><span>in progress</span></div>
+          <div class="van-b km" data-s="2"><b>KV cache manager</b><span>free_block_queue: the pool of free blocks</span></div>
+          <div class="van-b km0" data-h="2"><b>KV cache manager</b><span>free_block_queue: the pool of free blocks</span></div>
+        </div>
+      </div>
+      <div class="van-side">
+        <div class="van-b big"><b>Model executor</b><span>runs the forward pass on a worker</span></div>
+        <div class="van-b big"><b>Structured output manager</b><span>for guided decoding, in Part 3</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="src">Source: A. Gordić, Inside vLLM (2025)</div>
+  <aside class="notes">
+    <p>The constructor builds the outer engine. The config holds every setting. The processor validates and tokenizes the input. The output processor turns raw results into what your program sees. In the middle is a client that talks to the engine core. In this example the core is in the same process; later it will be elsewhere, and this client is why nothing else has to change. That is a good design lesson by itself.</p>
+    <p data-step="1">The core has three parts. The model executor drives forward passes on a worker. The structured output manager is for later. The scheduler decides which requests go into the next pass. It has a policy, a waiting queue and a running queue.</p>
+    <p data-step="2">And it has the KV cache manager, the heart of paged attention. It keeps a free_block_queue: a pool of free blocks, often hundreds of thousands of them. If you remember the free list from your allocator lectures, this is one.</p>
+  </aside>
+</section>

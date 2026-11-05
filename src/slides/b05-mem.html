@@ -1,0 +1,19 @@
+<section class="slide light" id="vmem" data-section="1 · Why it is hard" data-time="1.2" data-title="Reserving for the longest answer wastes memory">
+  <div class="hd">
+    <div class="eyebrow">KV cache memory</div>
+    <h2>Reserving for the longest answer wastes memory</h2>
+  </div>
+  <div class="abs" style="left:120px;top:256px;width:1680px">
+    <div class="vm-lab">GPU memory for the KV cache</div>
+    <div class="vm-bar" id="vm-bar"></div>
+    <div class="vm-leg"><span><i class="u"></i>holds a token</span><span><i class="r"></i>reserved, unused</span><span><i class="f"></i>free</span></div>
+  </div>
+  <div class="abs vm-c" data-s="1" style="left:120px;top:510px;width:1680px"><div class="vm-new" id="vm-new"></div><p><b>Request C</b> needs room for 16 tokens in one piece. Only 8 are left, though most of the memory holds nothing.</p></div>
+  <div class="abs card vm-stat" data-s="2" style="left:120px;top:690px;width:1680px"><b>20.4% to 38.2%</b><p>of KV cache memory held actual token states, in the existing systems the vLLM authors profiled.</p></div>
+  <div class="src">Source: Kwon et al., PagedAttention, SOSP 2023</div>
+  <aside class="notes">
+    <p>The simple approach is what you would do for a tensor: one contiguous block per request. But we do not know how long an answer will be, so we must reserve room for the longest one it could be. Each request here reserves 16 slots. A has used 5 and B has used 6.</p>
+    <p data-step="1">Request C arrives. It needs 16 slots in one piece, and only 8 remain. So C has to wait, even though most of the memory holds nothing. Memory now limits the batch size, and the batch size limits throughput.</p>
+    <p data-step="2">This is not a small effect. The authors of vLLM profiled the existing systems and found that only about 20 to 38 percent of the cache memory held actual token states. The rest was wasted.</p>
+  </aside>
+</section>

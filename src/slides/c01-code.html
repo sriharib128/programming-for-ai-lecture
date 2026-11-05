@@ -1,0 +1,18 @@
+<section class="slide light" id="vcode" data-steps="2" data-section="2 · The vLLM engine" data-time="0.8" data-title="The program we will follow">
+  <div class="hd">
+    <div class="eyebrow">Running example</div>
+    <h2>The program we will follow</h2>
+  </div>
+  <div class="abs code vx-code" style="left:120px;top:240px;width:1020px;font-size:25px"><span class="ln"><span class="k">from</span> vllm <span class="k">import</span> LLM, SamplingParams</span><span class="ln"></span><span class="ln">prompts = [</span><span class="ln">    <span class="s">"Hello, my name is"</span>,</span><span class="ln">    <span class="s">"The president of the United States is"</span>,</span><span class="ln">]</span><span class="ln">sampling_params = SamplingParams(temperature=<span class="n">0.8</span>, top_p=<span class="n">0.95</span>)</span><span class="ln"></span><span class="ln l-1">llm = LLM(model=<span class="s">"TinyLlama/TinyLlama-1.1B-Chat-v1.0"</span>)</span><span class="ln l-2">outputs = llm.generate(prompts, sampling_params)</span></div>
+  <div class="abs" style="left:1190px;top:240px;width:610px;display:flex;flex-direction:column;gap:24px">
+    <div class="card vk-c c1"><i>1</i><div><h3>Build the engine</h3><p>Load the model, measure the memory, set up the queues.</p></div></div>
+    <div class="card vk-c c2"><i>2</i><div><h3>Run requests</h3><p>Add both prompts, then loop until they finish.</p></div></div>
+  </div>
+  <p class="abs t" style="left:120px;top:800px;width:1680px;font-size:30px">Offline, in one process, on one GPU. Later parts add the rest.</p>
+  <div class="src">Source: A. Gordić, Inside vLLM (2025), adapted from vLLM's basic.py</div>
+  <aside class="notes">
+    <p>This is the program. Two prompts, some sampling settings, and two calls. It looks like the loop from earlier, but it hides everything we just discussed. For now it runs offline, in one process, on one GPU. Later we add multiple GPUs and a web server, and the core stays the same.</p>
+    <p data-step="1">The first call builds the engine. That is where the model is loaded and the memory is measured.</p>
+    <p data-step="2">The second call adds the requests and runs the engine loop until they are all done. We take these two in turn.</p>
+  </aside>
+</section>

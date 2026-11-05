@@ -1,0 +1,20 @@
+<section class="slide light" id="vstart" data-steps="0" data-section="2 · The vLLM engine" data-time="1.2" data-title="At start-up the engine works out how many blocks fit">
+  <div class="hd">
+    <div class="eyebrow">Start-up</div>
+    <h2>The engine works out how many blocks fit</h2>
+  </div>
+  <div class="abs" style="left:120px;top:240px;width:1680px;display:grid;grid-template-columns:repeat(3,1fr);gap:30px">
+    <div class="card vs-c"><i>1</i><h3>Init device</h3><ul><li>Assign a GPU to the worker</li><li>Check there is enough memory for <code>gpu_memory_utilization</code></li></ul></div>
+    <div class="card vs-c"><i>2</i><h3>Load model</h3><ul><li>Build the architecture</li><li>Load the weights</li><li>Switch to inference mode</li></ul></div>
+    <div class="card vs-c me"><i>3</i><h3>Init KV cache</h3><ul><li>Run a dummy forward pass</li><li>Snapshot GPU memory</li><li>Divide what is left into blocks</li></ul></div>
+  </div>
+  <div class="abs code" style="left:120px;top:640px;width:1680px;font-size:30px;line-height:1.7">block_bytes = <span class="n">2</span> × block_size × num_kv_heads × head_size × dtype_bytes
+<span class="c"># for one layer, with example values:</span>
+            = <span class="n">2</span> × <span class="n">16</span> × <span class="n">8</span> × <span class="n">128</span> × <span class="n">2</span> = <span class="s">65,536 bytes = 64 KiB</span></div>
+  <div class="src">Source: A. Gordić, Inside vLLM (2025). Example head values are ours.</div>
+  <aside class="notes">
+    <p>Three things happen at start-up. The worker is assigned a GPU and checks that enough memory is available. The model is built and the weights are loaded. Then comes the interesting part. The engine runs a dummy forward pass, takes a snapshot of how much GPU memory is in use, and divides what remains into KV blocks.</p>
+    <p>The size of a block comes from a simple formula. The 2 is for the key and the value. A block holds 16 tokens by default. Then the number of heads, the size of each head, and the bytes per number. With example values of 8 heads of size 128 in 16-bit floats, that is 64 kilobytes per layer. So memory is decided once, at start-up, and from then on the engine only hands out blocks. No allocation happens while the model is running.</p>
+    <p>If asked: the engine also captures CUDA graphs at start-up unless told not to, for faster launches later. That is a detail you can look up in the blog.</p>
+  </aside>
+</section>

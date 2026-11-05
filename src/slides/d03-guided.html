@@ -1,0 +1,24 @@
+<section class="slide light" id="vguided" data-steps="2" data-section="3 · Engine features" data-time="1.5" data-title="Guided decoding restricts the next token">
+  <div class="hd">
+    <div class="eyebrow">3 · Guided decoding</div>
+    <h2>A grammar decides which tokens are allowed next</h2>
+  </div>
+  <div class="abs code" style="left:120px;top:236px;width:1680px;font-size:27px">GuidedDecodingParams(choice=[<span class="s">"Positive"</span>, <span class="s">"Negative"</span>])</div>
+  <div class="abs card vj-f" style="left:120px;top:356px;width:720px;height:510px">
+    <small>Finite state machine</small>
+    <svg id="vj-fsm" viewBox="0 0 660 400" style="width:660px;height:400px"></svg>
+  </div>
+  <div class="abs card vj-l" style="left:880px;top:356px;width:920px;height:510px">
+    <small>Logits for the next token</small>
+    <div class="vj-bars" id="vj-bars"></div>
+    <div class="vj-bits"><span>bit mask</span><code id="vj-bits"></code></div>
+  </div>
+  <p class="abs t" id="vj-say" style="left:120px;top:886px;width:1680px;font-size:29px"></p>
+  <div class="src">Source: A. Gordić, Inside vLLM (2025). Character tokens and an 8-token vocabulary, for drawing.</div>
+  <aside class="notes">
+    <p>Problem: you need the output to follow a format. A label from a fixed list, or valid JSON. You could ask nicely in the prompt and hope. Guided decoding makes it impossible to break the format. Here is the simplest case: the answer must be Positive or Negative. Imagine each character is a token, and our vocabulary has eight tokens.</p>
+    <p>A grammar is compiled into a finite state machine. At the start, only P or N are allowed. So a bit mask is built, with a 1 for each allowed token, and every disallowed logit is set to minus infinity. Whatever the model wants to say, it can only sample P or N.</p>
+    <p data-step="1">It samples P. The state machine moves, and now only o is allowed. The mask changes.</p>
+    <p data-step="2">Then s, and so on until the word is complete. This works for regular expressions and context-free grammars, so most programming languages and JSON. In vLLM the masks are arrays of 32-bit integers, and libraries such as xgrammar produce them. Remember this: one integer holding one yes or no per item. We use the same idea in Patram-Ingest for a completely different job.</p>
+  </aside>
+</section>

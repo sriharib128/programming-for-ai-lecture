@@ -1,0 +1,26 @@
+<section class="slide light" id="vslots" data-steps="4" data-section="2 · The vLLM engine" data-time="1.5" data-title="allocate_slots hands out blocks">
+  <div class="hd">
+    <div class="eyebrow">Allocating memory</div>
+    <h2>A request gets whole blocks from a free list</h2>
+  </div>
+  <div class="abs vz-req" style="left:120px;top:240px;width:1680px">
+    <div class="vz-lab">Request A: 17 new tokens</div>
+    <div class="vz-tk" id="vz-tk"></div>
+    <div class="vz-f" data-s="1"><code>blocks = ceil(17 / 16) = 2</code></div>
+  </div>
+  <div class="abs" style="left:120px;top:490px;width:1680px">
+    <div class="vz-lab"><code>free_block_queue</code></div>
+    <div class="vz-q" id="vz-q"></div>
+    <div class="vz-map" data-s="2" data-h="3"><code>req_to_blocks["A"] = [0, 1]</code> and the queue moves on.</div>
+  </div>
+  <div class="abs card vz-ask" data-s="3" data-h="4" style="left:120px;top:780px;width:1680px"><small>Your turn</small><p>Request B needs <b>3</b> blocks, and only <b>2</b> are free. What should the scheduler do?</p></div>
+  <div class="abs card vz-ask a" data-s="4" style="left:120px;top:760px;width:1680px"><p><b>Waiting request:</b> it stays in the waiting queue. <b>Running request:</b> the engine can preempt a lower-priority one, free its blocks, and recompute it later.</p></div>
+  <div class="src">Source: A. Gordić, Inside vLLM (2025)</div>
+  <aside class="notes">
+    <p>Here is the function at the centre of the memory design, allocate_slots. Request A has 17 new tokens.</p>
+    <p data-step="1">Blocks hold 16 tokens each, so it needs the ceiling of 17 over 16: 2 blocks. One slot-level detail: the last block is only partly full, and that is the only waste there is.</p>
+    <p data-step="2">It takes the first two blocks from the free queue and records them in req_to_blocks, a dictionary from request ID to its list of blocks. The queue is a doubly linked list, so both operations are constant time. When a request finishes, its blocks go back on the queue.</p>
+    <p data-step="3">Now time passes and the queue is nearly empty. Request B needs three blocks, and two are free. Ask the room: what should happen? There is more than one reasonable answer.</p>
+    <p data-step="4">It depends on the request. A request that has not started just stays in the waiting queue. A running request that needs one more block is a harder case: the engine can preempt a lower-priority request, free its blocks, and later compute it again from scratch. That is called recompute preemption. The older V0 engine could also swap a cache out; the V1 engine recomputes. Think about what that costs: the prefill has to be repeated.</p>
+  </aside>
+</section>

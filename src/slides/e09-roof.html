@@ -1,0 +1,19 @@
+<section class="slide light" id="vroof" data-section="4 · Serving at scale" data-time="1.5" data-title="Latency and throughput pull against each other">
+  <div class="hd">
+    <div class="eyebrow">The trade-off</div>
+    <h2>Latency and throughput pull against each other</h2>
+  </div>
+  <div class="abs card vo-ch" style="left:120px;top:236px;width:820px;height:560px"><h3>Time per decode step</h3><svg id="vr-a" viewBox="0 0 760 450"></svg></div>
+  <div class="abs card vo-ch" style="left:980px;top:236px;width:820px;height:560px"><h3>Throughput</h3><svg id="vr-b" viewBox="0 0 760 450"></svg></div>
+  <div class="abs" id="vr-pl" style="left:120px;top:960px;width:560px"></div>
+  <div class="abs note" style="left:720px;top:960px;font-size:21px">Illustrative shape, not a measurement. Simplified: short sequences.</div>
+  <div class="abs vr-cap" style="left:120px;top:822px;width:1680px">
+    <div data-s="1" class="c1"><b>Interactive use</b> needs low latency: stay at or below the saturation point.</div>
+    <div data-s="1" class="c2"><b>Offline batch work</b>, such as synthetic data generation, needs throughput: run at the saturation point.</div>
+  </div>
+  <div class="src">Source: A. Gordić, Inside vLLM (2025): roofline performance model</div>
+  <aside class="notes">
+    <p>Why do these compete? Look at one decode step as the batch size grows. Drag the slider or let it play. On the left, time per step. At small batches it is nearly flat, because most of the time is streaming weights from memory, and computing one token or ten takes about the same. Past a saturation point the GPU runs out of compute, and step time grows with the batch. On the right, throughput climbs while batching is free, and then flattens: the roof of what is called a roofline model.</p>
+    <p data-step="1">So what you choose depends on the job. A chatbot sits on the left, where tokens come quickly. Offline batch work does not care about any one request, only about the total. This is exactly the setting the blog names for high throughput: synthetic data generation and offline processing. That is our job, and it is what the second half is about.</p>
+  </aside>
+</section>
