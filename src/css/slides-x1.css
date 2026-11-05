@@ -417,3 +417,18 @@ code{font-family:'IBM Plex Mono',monospace;font-size:.92em}
 .nx-r b{display:block;font:600 30px Sora,sans-serif;color:var(--ink)}
 .nx-r span{display:block;font-size:24px;line-height:1.34;color:var(--body);margin-top:4px;word-break:break-word}
 .vq-r [data-h].off{display:none}
+
+/* agenda */
+.ag-c{padding:24px 34px 22px}
+.ag-c small{display:block;font-size:22px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase}
+.ag-c h3{font-size:31px;margin:6px 0 16px}
+.ag-c.b small,.ag-c.b h3{color:var(--blue)}.ag-c.o small,.ag-c.o h3{color:var(--orange-deep)}
+.ag-c ol{list-style:none;display:flex;flex-direction:column;gap:15px}
+.ag-c li{display:flex;gap:18px;align-items:center}
+.ag-c i,.ag-f i{flex:none;width:50px;height:50px;border-radius:50%;display:flex;align-items:center;justify-content:center;font:700 25px Sora,sans-serif;font-style:normal}
+.ag-c.b i{background:var(--blue-pale);color:var(--blue)}.ag-c.o i{background:var(--peach);color:var(--orange-deep)}
+.ag-c b{display:block;font-size:28px;font-weight:600;color:var(--ink);line-height:1.2}
+.ag-c span{display:block;font-size:24px;color:var(--body);line-height:1.25;margin-top:2px}
+.ag-f{display:flex;align-items:center;gap:18px;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:12px 34px}
+.ag-f i{background:#EDEFF4;color:var(--ink)}
+.ag-f p{font-size:28px;color:var(--body)}.ag-f b{color:var(--ink);font-weight:600}

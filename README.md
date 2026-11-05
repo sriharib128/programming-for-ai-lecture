@@ -1,6 +1,6 @@
 # Programming for AI guest lecture: vLLM and Patram-Ingest
 
-A 76-slide animated HTML deck (1920×1080). Core path about 76 minutes; the bit-mask deep dive adds about 8.
+A 77-slide animated HTML deck (1920×1080). Core path about 77 minutes; the bit-mask deep dive adds about 8.
 
 Present from **`dist/programming-for-ai-lecture.html`**. It is one self-contained file, so it works offline. Script: `SPEAKER_NOTES.md`.
 
@@ -15,7 +15,7 @@ Deep dive: the button on the "dynamic DAG" slide opens seven bit-mask slides; ne
 
 ## Structure
 
-Parts 1 to 4 are vLLM (Why it is hard, The vLLM engine, Engine features, Serving at scale). Parts 5 to 8 are Patram-Ingest (Around vLLM, Busy GPUs, Crash safe, Graphs). Part 9 is the wrap-up.
+An introduction (what we do, scale, one training example, the idea, the agenda) comes first. Parts 1 to 4 are vLLM (Why it is hard, The vLLM engine, Engine features, Serving at scale). Parts 5 to 8 are Patram-Ingest (Around vLLM, Busy GPUs, Crash safe, Graphs). Part 9 is the wrap-up.
 
 ## Editing
 

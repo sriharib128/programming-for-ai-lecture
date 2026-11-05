@@ -1,0 +1,32 @@
+<section class="slide light" id="agenda" data-steps="0" data-section="Introduction" data-time="1" data-title="What we will talk about today">
+  <div class="hd">
+    <div class="eyebrow">Agenda</div>
+    <h2>What we will talk about today</h2>
+  </div>
+  <div class="abs card ag-c b" style="left:120px;top:236px;width:820px">
+    <small>First half</small><h3>vLLM: the engine that runs the model</h3>
+    <ol>
+      <li><i>1</i><div><b>Why running a model is hard</b><span>Tokens, the KV cache, batching and memory</span></div></li>
+      <li><i>2</i><div><b>Inside the vLLM engine</b><span>The scheduler, paged memory, one engine loop</span></div></li>
+      <li><i>3</i><div><b>Five engine features</b><span>Prefix caching, guided and speculative decoding, and more</span></div></li>
+      <li><i>4</i><div><b>From one GPU to a service</b><span>Many GPUs, concurrency, serving and measuring</span></div></li>
+    </ol>
+  </div>
+  <div class="abs card ag-c o" style="left:980px;top:236px;width:820px">
+    <small>Second half</small><h3>Patram-Ingest: the system we built around it</h3>
+    <ol>
+      <li><i>5</i><div><b>The system around vLLM</b><span>What can interrupt a run that lasts for weeks</span></div></li>
+      <li><i>6</i><div><b>Keeping the GPUs busy</b><span>Processes, threads, event loops and queues</span></div></li>
+      <li><i>7</i><div><b>Crash safe</b><span>Losing no work when machines die</span></div></li>
+      <li><i>8</i><div><b>Graphs</b><span>Many models, and a different route for every page</span></div></li>
+    </ol>
+  </div>
+  <div class="abs ag-f" style="left:120px;top:716px;width:1680px"><i>9</i><p><b>Wrap-up:</b> what the two systems share, and exercises you can try.</p></div>
+  <p class="abs t" style="left:120px;top:816px;width:1680px;font-size:29px">Please stop us with questions at any time. A few slides will ask you for an answer.</p>
+  <aside class="notes">
+    <p>Here is the plan for the next hour and a quarter. There are two halves.</p>
+    <p>The first half is vLLM. We start with why running a model for many people is hard at all. Then we go inside the engine and follow one small program through it. Then five features built on top of that core, and then how it grows from one GPU into a service you can call over the network.</p>
+    <p>The second half is Patram-Ingest, the system we built around vLLM to generate the training data you just saw. We explain what can interrupt a run that lasts for weeks, and then three problems in turn: keeping the GPUs busy, losing no work when machines die, and sending each page through many models on its own route.</p>
+    <p>At the end we put the two systems side by side and leave you with some exercises. Please interrupt us at any time; this works better as a conversation. A few slides will ask you for an answer, so stay ready. Let us start with the first part.</p>
+  </aside>
+</section>

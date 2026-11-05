@@ -82,7 +82,7 @@
     </div>
   </div>
   <aside class="notes">
-    <p>We just said a run must keep going for weeks. On a real cluster, three things get in the way, and the engine has to handle all three by itself.</p>
+    <p>At the start we said a run must keep going for weeks. On a real cluster, three things get in the way, and the engine has to handle all three by itself.</p>
     <p>One: nodes die and restart. Over weeks, nodes crash, reboot, run out of memory or are taken back. The run has to recover on its own: notice what died, restart it, and carry on, without a person watching.</p>
     <p>Two: GPUs are lent out. The cluster is shared, so we sometimes lend GPUs to another team for a while. The run should carry on with fewer, and when the GPUs come back it should scale up and use them again on its own, without a restart.</p>
     <p>Three: complex workloads need pipeline parallelism. A page goes through several model steps, and we want every step running at the same time, with steps spread over different nodes.</p>

@@ -2437,10 +2437,25 @@ code{font-family:'IBM Plex Mono',monospace;font-size:.92em}
 .nx-r b{display:block;font:600 30px Sora,sans-serif;color:var(--ink)}
 .nx-r span{display:block;font-size:24px;line-height:1.34;color:var(--body);margin-top:4px;word-break:break-word}
 .vq-r [data-h].off{display:none}
+
+/* agenda */
+.ag-c{padding:24px 34px 22px}
+.ag-c small{display:block;font-size:22px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase}
+.ag-c h3{font-size:31px;margin:6px 0 16px}
+.ag-c.b small,.ag-c.b h3{color:var(--blue)}.ag-c.o small,.ag-c.o h3{color:var(--orange-deep)}
+.ag-c ol{list-style:none;display:flex;flex-direction:column;gap:15px}
+.ag-c li{display:flex;gap:18px;align-items:center}
+.ag-c i,.ag-f i{flex:none;width:50px;height:50px;border-radius:50%;display:flex;align-items:center;justify-content:center;font:700 25px Sora,sans-serif;font-style:normal}
+.ag-c.b i{background:var(--blue-pale);color:var(--blue)}.ag-c.o i{background:var(--peach);color:var(--orange-deep)}
+.ag-c b{display:block;font-size:28px;font-weight:600;color:var(--ink);line-height:1.2}
+.ag-c span{display:block;font-size:24px;color:var(--body);line-height:1.25;margin-top:2px}
+.ag-f{display:flex;align-items:center;gap:18px;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:12px 34px}
+.ag-f i{background:#EDEFF4;color:var(--ink)}
+.ag-f p{font-size:28px;color:var(--body)}.ag-f b{color:var(--ink);font-weight:600}
 </style></head>
 <body>
 <div id="stage-wrap"><div id="stage">
-<section data-nobrand class="slide dark" id="title" data-section="Introduction" data-time="0.5" data-title="vLLM and Patram-Ingest">
+<section data-nobrand class="slide dark" id="title" data-section="Introduction" data-time="0.3" data-title="vLLM and Patram-Ingest">
   <canvas class="abs" width="1920" height="1080" style="left:0;top:0;width:1920px;height:1080px"></canvas>
   <div class="abs" style="left:120px;top:140px;width:1340px">
     <div class="eyebrow">Guest lecture · Programming for AI</div>
@@ -2452,8 +2467,86 @@ code{font-family:'IBM Plex Mono',monospace;font-size:.92em}
     <img src="assets/bharatgen_logo_crop.png" style="height:66px" alt="BharatGen"><span style="width:2px;height:60px;background:#DCE2EE"></span><img src="assets/vllm_text_crop.png" style="height:50px" alt="vLLM">
   </div>
   <aside class="notes">
-    <p>Thank you for having us. We are from the Vision team at BharatGen, where we build foundation models that read documents. Most of our work is not training models. It is the programming around them.</p>
-    <p>So today is about that programming. We will look at two systems: vLLM, which runs a model, and Patram-Ingest, which we built around vLLM to actually use it.</p>
+    <p>Hello everyone, and thank you for having us. We are Anirudh and Srihari, from the Vision team at BharatGen. Before we get to the topic, a few minutes on what we do, because it explains why we care about it.</p>
+  </aside>
+</section>
+
+<section class="slide light" id="eco" data-steps="0" data-section="Introduction" data-time="0.8" data-title="What we do: the Patram stack">
+  <div class="hd">
+    <div class="eyebrow">What we do</div>
+    <h2>We build sovereign vision foundation models</h2>
+    <div class="sub">Patram: vision-language models for Indian documents, and the whole stack that builds them.</div>
+  </div>
+  <div class="abs py" style="left:120px;top:300px;width:1000px;height:690px">
+    <div class="py-t ev" style="top:0px;left:305px;width:390px;clip-path:polygon(55px 0,335px 0,100% 100%,0 100%)"><h3>Evaluation</h3><p>PatramBench · Patram-Eval</p></div>
+    <div class="py-t md" style="top:117px;left:244px;width:512px;clip-path:polygon(55px 0,457px 0,100% 100%,0 100%)"><h3>Models</h3><p><b>Patram Suite</b></p></div>
+    <div class="py-t tr" style="top:234px;left:183px;width:634px;clip-path:polygon(55px 0,579px 0,100% 100%,0 100%)"><h3>Training infrastructure</h3><p>Patram-Core</p></div>
+    <div class="py-t me" style="top:351px;left:122px;width:756px;clip-path:polygon(55px 0,701px 0,100% 100%,0 100%)"><h3>Training data generation</h3><p><b class="me">Patram-Ingest · today</b></p></div>
+    <div class="py-t raw" style="top:468px;left:61px;width:433px;clip-path:polygon(55px 0,100% 0,100% 100%,0 100%)"><h3>Raw data collection</h3><p>Patram-Scraper · Synthetic docs</p></div>
+    <div class="py-t an" style="top:468px;left:506px;width:433px;clip-path:polygon(0 0,378px 0,100% 100%,0 100%)"><h3>Annotation &amp; visualization</h3><p>DarshinAI</p></div>
+    <div class="py-t st" style="top:585px;left:0px;width:1000px;clip-path:polygon(55px 0,945px 0,100% 100%,0 100%)"><h3>Storage</h3><p>Patram-FS · Patram-DB</p></div>
+  </div>
+  <svg class="abs" style="left:0;top:0;width:1920px;height:1080px;pointer-events:none" viewBox="0 0 1920 1080"><g stroke="#7C9BD6" stroke-width="2.5" stroke-dasharray="3 9" stroke-linecap="round" fill="none"><path d="M823 417 L1300 300"/><path d="M878 522 L1300 990"/></g></svg>
+  <div class="abs ps" style="left:1300px;top:300px;width:500px;height:690px">
+    <h3>Patram Suite</h3>
+    <div class="ps-g"><small>Multi-task foundation models</small><p><b class="big">Patram series</b></p></div>
+    <div class="ps-g"><small>Task-specific models</small><p><b>Patram-Grounder</b><b>Patram-Layout</b><b>Patram-CoT</b></p></div>
+    <div class="ps-g"><small>Agents</small><p><b>PatramParse</b></p></div>
+  </div>
+  <aside class="notes">
+    <p>What we do: the Vision team at BharatGen builds sovereign vision foundation models for Indian documents. The model reads the page image directly, so layout, tables and stamps are not lost on the way.</p>
+    <p>This is our stack as a pyramid, read from the bottom up. At the base is storage: our own file system and database. On it, we collect raw data, scraped and synthetic documents, and beside that sits our annotation and visualization tool, DarshinAI. Above that is training data generation: that is Patram-Ingest, which is the second half of this lecture, which turns raw pages into training data. Then the training infrastructure. Then the models, the Patram Suite, shown on the right: multi-task foundation models, the Patram series, the current one covering 34 tasks and the next adding more than 22 Indian languages; task-specific models for grounding, layout and grounded reasoning; and agents such as PatramParse. At the top, evaluation measures all of it. Everything above the ETL layer is trained or measured on data Patram-Ingest produced.</p>
+  </aside>
+</section>
+
+<section class="slide light" id="weeks" data-steps="0" data-section="Introduction" data-time="0.6" data-title="The scale a foundation model needs">
+  <div class="hd">
+    <div class="eyebrow">Scale</div>
+    <h2>A foundation model needs data at this scale</h2>
+  </div>
+  <div class="abs" style="left:120px;top:290px;width:1680px;display:grid;grid-template-columns:repeat(4,1fr);gap:26px">
+    <div class="card wk-s"><b>100TB<em>+</em></b><span>of image data</span></div>
+    <div class="card wk-s"><b>100M<em>+</em></b><span>training examples</span></div>
+    <div class="card wk-s"><b>100B<em>+</em></b><span>tokens of model output</span></div>
+    <div class="card wk-s"><b>500<em>+</em></b><span>GPUs generating them</span></div>
+  </div>
+  <div class="abs card wk-tl" style="left:120px;top:590px;width:1680px">
+    <div class="wk-ticks"><span>Day 1</span><span>Week 1</span><span>Week 2</span><span>Week 3</span><span>Week 4</span></div>
+    <div class="wk-bar"><i></i><b>one data-generation run</b></div>
+    <p>One data-generation run takes <span class="hi">weeks, and must not stop</span>.</p>
+  </div>
+  <aside class="notes">
+    <p>This is the scale a foundation model needs, and the scale we work at: more than 100 terabytes of image data, more than 100 million training examples, more than 100 billion tokens of model output, generated on more than 500 GPUs. For Patram 1.5 alone it was more than 50 million examples and 41 billion tokens, and every release needs more.</p>
+    <p>At that size, generating the data is not a script you run overnight. It is a workflow that has to keep going, without interruption, for weeks. Hold on to that phrase; we come back to it in the second half.</p>
+  </aside>
+</section>
+
+<section class="slide light" id="egdata" data-steps="0" data-section="Introduction" data-time="1.2" data-title="What one training example looks like">
+  <div class="hd">
+    <div class="eyebrow">Training data</div>
+    <h2>What one training example looks like</h2>
+    <div class="sub">The model learns from millions of examples like this one.</div>
+  </div>
+  <div class="abs card egd-img" style="left:120px;top:292px;width:500px;height:690px">
+    <div class="egd-pg"><img src="assets/electricity_bill.jpg" alt="Scanned electricity bill"><i class="egd-box"></i></div>
+  </div>
+  <div class="abs card egd-ex" style="left:690px;top:292px;width:1110px">
+    <small class="egd-cap">One training example, for this page</small>
+    <div class="egd-r"><label>Question</label><span class="q">“What is the payment due date?”</span></div>
+    <div class="egd-r"><label>Answer</label><span class="a">“15 July 2015”</span></div>
+    <div class="egd-r"><label>Where</label><span><i class="sw"></i>the box on the page that shows it</span></div>
+  </div>
+  <div class="abs egd-how" style="left:690px;top:656px;width:1110px">
+    <small class="egd-cap">Made automatically, in a chain</small>
+    <div class="egd-ch"><span>Understand<em>an electricity bill</em></span><u>›</u><span>Ask<em>write a question</em></span><u>›</u><span>Answer<em>from the page</em></span><u>›</u><span>Verify<em>matches the page ✓</em></span></div>
+  </div>
+  <div class="abs egd-more" style="left:690px;top:892px;width:1110px">
+    <div class="egd-x">× <b>100 million+</b> pages, in 22+ languages.</div>
+  </div>
+  <aside class="notes">
+    <p>What does a model actually learn from? Examples, millions of them. Here is one. The input is the image of a page, here an electricity bill. The example pairs it with a question, "What is the payment due date?", the answer, "15 July 2015", and where on the page the answer is: the orange box. A model that sees millions of these learns to read documents and to point at its evidence.</p>
+    <p>Who writes these? Not people: there are far too many. They are made automatically, in a chain. One model understands what the page is. Another writes a question. Another answers it from the page. And a last one verifies the answer against the page. Each call needs the output of the one before.</p>
+    <p>The same page also teaches other things: reading all its text, finding the tables, turning a table into rows. Now multiply by a hundred million pages, in more than 22 languages. That is the workload behind today's lecture.</p>
   </aside>
 </section>
 
@@ -2471,9 +2564,42 @@ code{font-family:'IBM Plex Mono',monospace;font-size:.92em}
     <div class="pn-row o" data-s="2"><small>Parts 5 to 8 · Patram-Ingest</small><p>Uses that engine for weeks to create training data, and keeps going when machines fail.</p></div>
   </div>
   <aside class="notes">
-    <p>Here is the plan as one picture. In this course you have used a model: you call it on some tokens, and you get logits back.</p>
+    <p>So how do you get from a model to that scale? Here is the idea of the lecture as one picture. Start in the middle, with what you already know: you call a model on some tokens, and you get logits back.</p>
     <p data-step="1">Around the model sits an engine. vLLM is the one we use, built by a large community of experts. It takes many requests from many users and runs them on one model as efficiently as the hardware allows. Parts 1 to 4 open this box.</p>
-    <p data-step="2">Around that sits the system that actually uses the engine. Ours is Patram-Ingest. It decides which prompt to send, tracks every sample, and keeps a run going for weeks on a cluster where machines fail. Parts 5 to 8 are about this box. You are unlikely to rewrite vLLM, but you will very likely write a system like the outer one. Along the way you will see the same programming ideas in both.</p>
+    <p data-step="2">Around that sits the system that actually uses the engine. Ours is Patram-Ingest. It decides which prompt to send, tracks every sample, and keeps a run going for weeks on a cluster where machines fail. Parts 5 to 8 are about this box. You are unlikely to rewrite vLLM, but you will very likely write a system like the outer one. Along the way you will see the same programming ideas in both. Next, the agenda.</p>
+  </aside>
+</section>
+
+<section class="slide light" id="agenda" data-steps="0" data-section="Introduction" data-time="1" data-title="What we will talk about today">
+  <div class="hd">
+    <div class="eyebrow">Agenda</div>
+    <h2>What we will talk about today</h2>
+  </div>
+  <div class="abs card ag-c b" style="left:120px;top:236px;width:820px">
+    <small>First half</small><h3>vLLM: the engine that runs the model</h3>
+    <ol>
+      <li><i>1</i><div><b>Why running a model is hard</b><span>Tokens, the KV cache, batching and memory</span></div></li>
+      <li><i>2</i><div><b>Inside the vLLM engine</b><span>The scheduler, paged memory, one engine loop</span></div></li>
+      <li><i>3</i><div><b>Five engine features</b><span>Prefix caching, guided and speculative decoding, and more</span></div></li>
+      <li><i>4</i><div><b>From one GPU to a service</b><span>Many GPUs, concurrency, serving and measuring</span></div></li>
+    </ol>
+  </div>
+  <div class="abs card ag-c o" style="left:980px;top:236px;width:820px">
+    <small>Second half</small><h3>Patram-Ingest: the system we built around it</h3>
+    <ol>
+      <li><i>5</i><div><b>The system around vLLM</b><span>What can interrupt a run that lasts for weeks</span></div></li>
+      <li><i>6</i><div><b>Keeping the GPUs busy</b><span>Processes, threads, event loops and queues</span></div></li>
+      <li><i>7</i><div><b>Crash safe</b><span>Losing no work when machines die</span></div></li>
+      <li><i>8</i><div><b>Graphs</b><span>Many models, and a different route for every page</span></div></li>
+    </ol>
+  </div>
+  <div class="abs ag-f" style="left:120px;top:716px;width:1680px"><i>9</i><p><b>Wrap-up:</b> what the two systems share, and exercises you can try.</p></div>
+  <p class="abs t" style="left:120px;top:816px;width:1680px;font-size:29px">Please stop us with questions at any time. A few slides will ask you for an answer.</p>
+  <aside class="notes">
+    <p>Here is the plan for the next hour and a quarter. There are two halves.</p>
+    <p>The first half is vLLM. We start with why running a model for many people is hard at all. Then we go inside the engine and follow one small program through it. Then five features built on top of that core, and then how it grows from one GPU into a service you can call over the network.</p>
+    <p>The second half is Patram-Ingest, the system we built around vLLM to generate the training data you just saw. We explain what can interrupt a run that lasts for weeks, and then three problems in turn: keeping the GPUs busy, losing no work when machines die, and sending each page through many models on its own route.</p>
+    <p>At the end we put the two systems side by side and leave you with some exercises. Please interrupt us at any time; this works better as a conversation. A few slides will ask you for an answer, so stay ready. Let us start with the first part.</p>
   </aside>
 </section>
 
@@ -3317,86 +3443,7 @@ vllm serve &lt;model-name&gt; --tensor-parallel-size <span class="n">4</span> --
   <div class="dv-h">The system around vLLM</div>
   <div class="dv-line"></div>
   <div class="dv-q">What does it take to use vLLM for weeks at a time?</div>
-  <aside class="notes"><p>The rest of the lecture is about one real system built around vLLM. It comes from our own work: first what we do, then why it needs more than a fast model server, and then the design, in three parts.</p></aside>
-</section>
-
-<section class="slide light" id="eco" data-steps="0" data-section="5 · The system around vLLM" data-time="0.8" data-title="What we do: the Patram stack">
-  <div class="hd">
-    <div class="eyebrow">What we do</div>
-    <h2>We build sovereign vision foundation models</h2>
-    <div class="sub">Patram: vision-language models for Indian documents, and the whole stack that builds them.</div>
-  </div>
-  <div class="abs py" style="left:120px;top:300px;width:1000px;height:690px">
-    <div class="py-t ev" style="top:0px;left:305px;width:390px;clip-path:polygon(55px 0,335px 0,100% 100%,0 100%)"><h3>Evaluation</h3><p>PatramBench · Patram-Eval</p></div>
-    <div class="py-t md" style="top:117px;left:244px;width:512px;clip-path:polygon(55px 0,457px 0,100% 100%,0 100%)"><h3>Models</h3><p><b>Patram Suite</b></p></div>
-    <div class="py-t tr" style="top:234px;left:183px;width:634px;clip-path:polygon(55px 0,579px 0,100% 100%,0 100%)"><h3>Training infrastructure</h3><p>Patram-Core</p></div>
-    <div class="py-t me" style="top:351px;left:122px;width:756px;clip-path:polygon(55px 0,701px 0,100% 100%,0 100%)"><h3>Training data generation</h3><p><b class="me">Patram-Ingest · today</b></p></div>
-    <div class="py-t raw" style="top:468px;left:61px;width:433px;clip-path:polygon(55px 0,100% 0,100% 100%,0 100%)"><h3>Raw data collection</h3><p>Patram-Scraper · Synthetic docs</p></div>
-    <div class="py-t an" style="top:468px;left:506px;width:433px;clip-path:polygon(0 0,378px 0,100% 100%,0 100%)"><h3>Annotation &amp; visualization</h3><p>DarshinAI</p></div>
-    <div class="py-t st" style="top:585px;left:0px;width:1000px;clip-path:polygon(55px 0,945px 0,100% 100%,0 100%)"><h3>Storage</h3><p>Patram-FS · Patram-DB</p></div>
-  </div>
-  <svg class="abs" style="left:0;top:0;width:1920px;height:1080px;pointer-events:none" viewBox="0 0 1920 1080"><g stroke="#7C9BD6" stroke-width="2.5" stroke-dasharray="3 9" stroke-linecap="round" fill="none"><path d="M823 417 L1300 300"/><path d="M878 522 L1300 990"/></g></svg>
-  <div class="abs ps" style="left:1300px;top:300px;width:500px;height:690px">
-    <h3>Patram Suite</h3>
-    <div class="ps-g"><small>Multi-task foundation models</small><p><b class="big">Patram series</b></p></div>
-    <div class="ps-g"><small>Task-specific models</small><p><b>Patram-Grounder</b><b>Patram-Layout</b><b>Patram-CoT</b></p></div>
-    <div class="ps-g"><small>Agents</small><p><b>PatramParse</b></p></div>
-  </div>
-  <aside class="notes">
-    <p>What we do: the Vision team at BharatGen builds sovereign vision foundation models for Indian documents. The model reads the page image directly, so layout, tables and stamps are not lost on the way.</p>
-    <p>This is our stack as a pyramid, read from the bottom up. At the base is storage: our own file system and database. On it, we collect raw data, scraped and synthetic documents, and beside that sits our annotation and visualization tool, DarshinAI. Above that is training data generation: that is Patram-Ingest, what the rest of this lecture is about, which turns raw pages into training data. Then the training infrastructure. Then the models, the Patram Suite, shown on the right: multi-task foundation models, the Patram series, the current one covering 34 tasks and the next adding more than 22 Indian languages; task-specific models for grounding, layout and grounded reasoning; and agents such as PatramParse. At the top, evaluation measures all of it. Everything above the ETL layer is trained or measured on data Patram-Ingest produced.</p>
-  </aside>
-</section>
-
-<section class="slide light" id="weeks" data-steps="0" data-section="5 · The system around vLLM" data-time="0.6" data-title="The scale a foundation model needs">
-  <div class="hd">
-    <div class="eyebrow">Scale</div>
-    <h2>A foundation model needs data at this scale</h2>
-  </div>
-  <div class="abs" style="left:120px;top:290px;width:1680px;display:grid;grid-template-columns:repeat(4,1fr);gap:26px">
-    <div class="card wk-s"><b>100TB<em>+</em></b><span>of image data</span></div>
-    <div class="card wk-s"><b>100M<em>+</em></b><span>training examples</span></div>
-    <div class="card wk-s"><b>100B<em>+</em></b><span>tokens of model output</span></div>
-    <div class="card wk-s"><b>500<em>+</em></b><span>GPUs generating them</span></div>
-  </div>
-  <div class="abs card wk-tl" style="left:120px;top:590px;width:1680px">
-    <div class="wk-ticks"><span>Day 1</span><span>Week 1</span><span>Week 2</span><span>Week 3</span><span>Week 4</span></div>
-    <div class="wk-bar"><i></i><b>one data-generation run</b></div>
-    <p>One data-generation run takes <span class="hi">weeks, and must not stop</span>.</p>
-  </div>
-  <aside class="notes">
-    <p>This is the scale a foundation model needs, and the scale we work at: more than 100 terabytes of image data, more than 100 million training examples, more than 100 billion tokens of model output, generated on more than 500 GPUs. For Patram 1.5 alone it was more than 50 million examples and 41 billion tokens, and every release needs more.</p>
-    <p>At that size, generating the data is not a script you run overnight. It is a workflow that has to keep going, without interruption, for weeks. Hold on to that phrase, because the rest of the lecture is about what gets in its way.</p>
-  </aside>
-</section>
-
-<section class="slide light" id="egdata" data-steps="0" data-section="5 · The system around vLLM" data-time="1.2" data-title="What one training example looks like">
-  <div class="hd">
-    <div class="eyebrow">Training data</div>
-    <h2>What one training example looks like</h2>
-    <div class="sub">The model learns from millions of examples like this one.</div>
-  </div>
-  <div class="abs card egd-img" style="left:120px;top:292px;width:500px;height:690px">
-    <div class="egd-pg"><img src="assets/electricity_bill.jpg" alt="Scanned electricity bill"><i class="egd-box"></i></div>
-  </div>
-  <div class="abs card egd-ex" style="left:690px;top:292px;width:1110px">
-    <small class="egd-cap">One training example, for this page</small>
-    <div class="egd-r"><label>Question</label><span class="q">“What is the payment due date?”</span></div>
-    <div class="egd-r"><label>Answer</label><span class="a">“15 July 2015”</span></div>
-    <div class="egd-r"><label>Where</label><span><i class="sw"></i>the box on the page that shows it</span></div>
-  </div>
-  <div class="abs egd-how" style="left:690px;top:656px;width:1110px">
-    <small class="egd-cap">Made automatically, in a chain</small>
-    <div class="egd-ch"><span>Understand<em>an electricity bill</em></span><u>›</u><span>Ask<em>write a question</em></span><u>›</u><span>Answer<em>from the page</em></span><u>›</u><span>Verify<em>matches the page ✓</em></span></div>
-  </div>
-  <div class="abs egd-more" style="left:690px;top:892px;width:1110px">
-    <div class="egd-x">× <b>100 million+</b> pages, in 22+ languages.</div>
-  </div>
-  <aside class="notes">
-    <p>Before the problems, what does a model actually learn from? Examples, millions of them. Here is one. The input is the image of a page, here an electricity bill. The example pairs it with a question, "What is the payment due date?", the answer, "15 July 2015", and where on the page the answer is: the orange box. A model that sees millions of these learns to read documents and to point at its evidence.</p>
-    <p>Who writes these? Not people: there are far too many. They are made automatically, in a chain. One model understands what the page is. Another writes a question. Another answers it from the page. And a last one verifies the answer against the page. Each call needs the output of the one before.</p>
-    <p>The same page also teaches other things: reading all its text, finding the tables, turning a table into rows. Now multiply by a hundred million pages, in more than 22 languages. That is the workload the rest of this lecture is about.</p>
-  </aside>
+  <aside class="notes"><p>The rest of the lecture is about one real system built around vLLM. You saw at the start what we use it for: training data at a very large scale. First, why that needs more than a fast model server, and then the design, in three parts.</p></aside>
 </section>
 
 <section class="slide light" id="probs" data-steps="0" data-section="5 · The system around vLLM" data-time="1.2" data-title="Three things that interrupt a weeks-long run">
@@ -3483,7 +3530,7 @@ vllm serve &lt;model-name&gt; --tensor-parallel-size <span class="n">4</span> --
     </div>
   </div>
   <aside class="notes">
-    <p>We just said a run must keep going for weeks. On a real cluster, three things get in the way, and the engine has to handle all three by itself.</p>
+    <p>At the start we said a run must keep going for weeks. On a real cluster, three things get in the way, and the engine has to handle all three by itself.</p>
     <p>One: nodes die and restart. Over weeks, nodes crash, reboot, run out of memory or are taken back. The run has to recover on its own: notice what died, restart it, and carry on, without a person watching.</p>
     <p>Two: GPUs are lent out. The cluster is shared, so we sometimes lend GPUs to another team for a while. The run should carry on with fewer, and when the GPUs come back it should scale up and use them again on its own, without a restart.</p>
     <p>Three: complex workloads need pipeline parallelism. A page goes through several model steps, and we want every step running at the same time, with steps spread over different nodes.</p>

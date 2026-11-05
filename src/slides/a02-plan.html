@@ -12,8 +12,8 @@
     <div class="pn-row o" data-s="2"><small>Parts 5 to 8 · Patram-Ingest</small><p>Uses that engine for weeks to create training data, and keeps going when machines fail.</p></div>
   </div>
   <aside class="notes">
-    <p>Here is the plan as one picture. In this course you have used a model: you call it on some tokens, and you get logits back.</p>
+    <p>So how do you get from a model to that scale? Here is the idea of the lecture as one picture. Start in the middle, with what you already know: you call a model on some tokens, and you get logits back.</p>
     <p data-step="1">Around the model sits an engine. vLLM is the one we use, built by a large community of experts. It takes many requests from many users and runs them on one model as efficiently as the hardware allows. Parts 1 to 4 open this box.</p>
-    <p data-step="2">Around that sits the system that actually uses the engine. Ours is Patram-Ingest. It decides which prompt to send, tracks every sample, and keeps a run going for weeks on a cluster where machines fail. Parts 5 to 8 are about this box. You are unlikely to rewrite vLLM, but you will very likely write a system like the outer one. Along the way you will see the same programming ideas in both.</p>
+    <p data-step="2">Around that sits the system that actually uses the engine. Ours is Patram-Ingest. It decides which prompt to send, tracks every sample, and keeps a run going for weeks on a cluster where machines fail. Parts 5 to 8 are about this box. You are unlikely to rewrite vLLM, but you will very likely write a system like the outer one. Along the way you will see the same programming ideas in both. Next, the agenda.</p>
   </aside>
 </section>
