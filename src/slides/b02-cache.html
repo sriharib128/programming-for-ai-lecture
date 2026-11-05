@@ -1,7 +1,7 @@
-<section class="slide light" id="vcache" data-section="1 · Why it is hard" data-time="1.5" data-title="The KV cache stops the repeated work">
+<section class="slide light" id="vcache" data-section="1 · Why it is hard" data-time="2" data-title="Saving earlier work avoids repeating it">
   <div class="hd">
     <div class="eyebrow">KV cache</div>
-    <h2>The KV cache stops the repeated work</h2>
+    <h2>Saving earlier work avoids repeating it</h2>
   </div>
   <div class="abs card vc-p" style="left:120px;top:240px;width:820px;height:560px">
     <h3>Without a cache</h3><div class="vc-g" id="vc-a"></div>
@@ -14,7 +14,7 @@
   <div class="abs vc-leg" style="left:120px;top:822px"><i class="c"></i>computed in this pass<span data-s="1" style="display:inline-flex;align-items:center;gap:12px;margin-left:36px"><i class="r"></i>read from the cache</span></div>
   <p class="abs t" data-s="1" style="left:120px;top:890px;width:1680px;font-size:32px">The cost: the cache lives in GPU memory, and <span class="hi">it grows with every token</span>.</p>
   <aside class="notes">
-    <p>Attention needs a key and a value vector for every earlier token. Those depend only on earlier tokens, so they do not change once computed. On the left, a five-token prompt and six new tokens, with nothing saved. The passes read 5, then 6, up to 10 tokens: 45 in total.</p>
-    <p data-step="1">So we save them. That saved data is the KV cache, for keys and values. Now the first pass computes the five prompt tokens, and every later pass computes only the single new token: 10 in total. Keep the last line in mind. The cache is large, it lives in GPU memory, and it grows while the request runs. Most of the next few slides are about this one piece of memory.</p>
+<p>For each token, the model works out some numbers. The numbers for old tokens never change, so working them out again is a waste. On the left, nothing is saved: 45 computations for 6 new tokens.</p>
+    <p data-step="1">So we save them, like taking notes instead of re-reading the book. Those numbers are called keys and values, so this is the KV cache. You do not need the details, only this: the same 6 tokens now take 10 computations. Keep the last line in mind. The cache lives in GPU memory, and it grows with every token. Most of what follows is about this one piece of memory.</p>
   </aside>
 </section>

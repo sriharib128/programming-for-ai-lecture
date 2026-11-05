@@ -8,9 +8,9 @@
   <div class="abs" id="vb-pl" style="left:120px;top:962px;width:560px"></div>
   <div class="abs note" style="left:720px;top:962px;font-size:21px">Illustrative: 8 requests of different lengths, 4 slots.</div>
   <aside class="notes">
-    <p>Reading the weights takes about the same time for one token or for many, so we want to batch: run many requests in one pass and share that cost. Here are 8 requests and a GPU with room for 4 at a time. Each column is one pass of the model. The first thing you would write is a fixed batch: take four, run until all are done, take the next four.</p>
-    <p>Watch the hatched cells. A short request finishes, but its slot stays idle until the longest one in the batch is done, because the batch was decided up front. In this example more than a third of the slots go to nothing.</p>
-    <p data-step="1">The fix is to decide the batch again at every pass. When a request finishes, the next one takes its slot straight away. This is called continuous batching. It came from a system called Orca, published at OSDI 2022, which reported 36.9 times the throughput of NVIDIA FasterTransformer at the same latency on a GPT-3 175B model. Same requests, same hardware, and the run ends much earlier.</p>
-    <p>But this creates a memory problem. If requests join and leave at every pass, each with a cache that grows, where does the cache go?</p>
+<p>A GPU can work on many requests at once, so we batch them. Here are 8 requests and room for 4 at a time. Each column is one pass of the model. The first idea: take four, run until all four are done, then take the next four.</p>
+    <p>Watch the hatched cells. A short request finishes, but its place stays empty until the longest one is done. Think of a restaurant that seats nobody new until the whole room has finished eating.</p>
+    <p data-step="1">The fix: when a request finishes, the next one takes its place straight away, like seating the next guest as soon as a table is free. This is called continuous batching. The same requests finish much earlier on the same hardware.</p>
+    <p>But requests now come and go at every pass, and each one has a cache that grows. Where does all that memory go?</p>
   </aside>
 </section>

@@ -1,4 +1,4 @@
-<section class="slide light" data-deep id="bmcrash" data-steps="2" data-section="8 · Graphs of stages" data-time="1.2" data-title="A crash between writes never loses a page">
+<section class="slide light" data-deep id="bmcrash" data-steps="2" data-section="6 · Graphs of stages" data-time="1.2" data-title="A crash between writes never loses a page">
   <div class="hd">
     <div class="eyebrow">How the engine runs a graph</div>
     <h2>A crash between writes never loses a page</h2>
@@ -30,7 +30,7 @@
   <div class="abs bm-cap g" data-s="2" style="left:120px;top:850px;width:1680px"><b>Hand the page on first, mark yourself finished last</b>, and make every write safe to repeat.</div>
   <aside class="notes">
     <p>One more thing we need: crashes. When a stage finishes a page it makes three writes to the DB. It puts the page in the next stage's queue. It switches on Ready for that stage. And it switches on its own Finished. A machine can die between any two of them, so which order do we use? On the right is the reverse order, for comparison.</p>
-    <p data-step="1">Suppose the machine crashes in the middle. In our order, on the left, the page has been handed on but the stage's own Finished is still off. Remember the recovery rule from Part 7: anything not marked finished is picked up and run again. So after the restart the page is run again and the three writes repeat. That is fine because every write is safe to repeat: the queue row already exists, the Ready switch is already on, and switching on a switch twice changes nothing. On the right, Finished is switched on first. Crash straight after, and the record says this stage is finished, so nobody runs it again, while the next stage was never given the page. The page is lost. The same ordering applies when the sweep starts a stage: queue first, then Ready, so a crash between them just means the next sweep does it again.</p>
-    <p data-step="2">So the rule is: hand the page on first, mark yourself finished last, and make every write safe to repeat. It is the same save-first rule from Part 7, applied between stages.</p>
+    <p data-step="1">Suppose the machine crashes in the middle. In our order, on the left, the page has been handed on but the stage's own Finished is still off. Remember the recovery rule from Part 5: anything not marked finished is picked up and run again. So after the restart the page is run again and the three writes repeat. That is fine because every write is safe to repeat: the queue row already exists, the Ready switch is already on, and switching on a switch twice changes nothing. On the right, Finished is switched on first. Crash straight after, and the record says this stage is finished, so nobody runs it again, while the next stage was never given the page. The page is lost. The same ordering applies when the sweep starts a stage: queue first, then Ready, so a crash between them just means the next sweep does it again.</p>
+    <p data-step="2">So the rule is: hand the page on first, mark yourself finished last, and make every write safe to repeat. It is the same save-first rule from Part 5, applied between stages.</p>
   </aside>
 </section>

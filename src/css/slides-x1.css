@@ -432,3 +432,11 @@ code{font-family:'IBM Plex Mono',monospace;font-size:.92em}
 .ag-f{display:flex;align-items:center;gap:18px;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:12px 34px}
 .ag-f i{background:#EDEFF4;color:var(--ink)}
 .ag-f p{font-size:28px;color:var(--body)}.ag-f b{color:var(--ink);font-weight:600}
+.ag-c ol.ag-w{gap:44px;margin-top:40px}
+.vu-l{font-size:26px;font-weight:600;color:var(--ink);margin-bottom:14px}
+.vu-c{font-size:27px;height:400px}
+.vf-f{display:flex;flex-direction:column;gap:18px}
+.vf-s{display:flex;align-items:center;gap:22px;padding:18px 26px;transition:background .3s,border-color .3s}
+.vf-s i{flex:none;width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--blue-pale);color:var(--blue);font:700 26px Sora,sans-serif;font-style:normal}
+.vf-s p{font-size:31px;font-weight:500;color:var(--ink)}
+.vf-s.hl{border-color:var(--orange)}

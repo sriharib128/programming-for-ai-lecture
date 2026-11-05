@@ -1,4 +1,4 @@
-<section class="slide light" id="eco2" data-steps="2" data-section="9 · Wrap-up" data-time="1.2" data-title="Where Patram-Ingest sits in the stack">
+<section class="slide light" id="eco2" data-steps="2" data-section="7 · Wrap-up" data-time="1.2" data-title="Where Patram-Ingest sits in the stack">
   <div class="hd">
     <div class="eyebrow">Context</div>
     <h2>Where Patram-Ingest sits in the stack</h2>
@@ -13,12 +13,12 @@
     <div class="py-t st" style="top:585px;left:0px;width:1000px;clip-path:polygon(55px 0,945px 0,100% 100%,0 100%)"><h3>Storage</h3><p>Patram-FS · Patram-DB</p></div>
   </div>
   <div class="abs eco2-col" style="left:1220px;top:300px;width:580px">
-    <div class="card eco2-c me"><small>Parts 5 to 8</small><b>Patram-Ingest</b><span>turns raw pages into training data, on a shared cluster, for weeks at a time.</span></div>
+    <div class="card eco2-c me"><small>Parts 3 to 6</small><b>Patram-Ingest</b><span>turns raw pages into training data, on a shared cluster, for weeks at a time.</span></div>
     <div class="card eco2-c" data-s="1"><small>Below it</small><b>Storage and raw data</b><span>Patram-FS and Patram-DB hold everything. The scraper and synthetic docs feed it; DarshinAI lets us annotate and look at it.</span></div>
     <div class="card eco2-c" data-s="2"><small>Above it</small><b>From corpus to models</b><span>Patram-Core turns that data into our training corpus, and trains the Patram Suite of foundation models.</span></div>
   </div>
   <aside class="notes">
-    <p>To step back: Patram-Ingest, everything in the second half, is just one part of the infrastructure we have.</p>
+    <p>To step back: Patram-Ingest, everything after vLLM, is just one part of the infrastructure we have.</p>
     <p data-step="1">There is a lot supporting it from below: our storage layer, Patram-FS and Patram-DB, the scraper and our synthetic documents that bring raw data in, and DarshinAI for annotation and visualization.</p>
     <p data-step="2">And above it, Patram-Core takes this data, our training corpus, and makes it possible to train models. Using all of this, we have trained many foundation models, the Patram Suite, and evaluated them on our own benchmarks. These are internal models as of now; we plan to release the Patram series soon, and the sign-up form is on the next slide.</p>
   </aside>

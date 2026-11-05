@@ -1,4 +1,4 @@
-<section class="slide light" id="vos" data-section="1 · Why it is hard" data-time="1.5" data-title="Your turn: where have you seen this problem?">
+<section class="slide light" id="vos" data-section="1 · Why it is hard" data-time="2" data-title="Your turn: where have you seen this problem?">
   <div class="hd">
     <div class="eyebrow">Your turn</div>
     <h2>Where have you seen this problem before?</h2>
@@ -19,8 +19,8 @@
   </div>
   <div class="src">Source: Kwon et al., PagedAttention, SOSP 2023</div>
   <aside class="notes">
-    <p>Forget about GPUs for a moment and read these four lines. Many programs share one block of memory, nobody knows in advance how much each needs, each grows bit by bit, and they come and go at any time. Ask the room: you have met this exact problem before. In which course? Take a few answers.</p>
-    <p data-step="1">Operating systems. An OS solves it with virtual memory: split memory into fixed-size pages, and let a program's pages sit anywhere in physical memory, allocated only when needed. The program still sees one continuous range.</p>
-    <p>The vLLM authors applied that idea to attention, and called it PagedAttention. Requests are the processes, tokens are the bytes, and KV blocks are the pages. A request's blocks can sit anywhere in GPU memory, and a new block is allocated only when the previous one fills. Nothing is reserved in advance, so at most one partly filled block per request is unused. This is why operating systems is worth taking. A decades-old idea unlocked a large gain in a new field.</p>
+<p>Forget about GPUs for a moment and read these four lines. Ask the room: you have met this exact problem before. In which course? Take a few answers.</p>
+    <p data-step="1">Operating systems. An OS splits memory into small pages. A program's pages can sit anywhere, and it gets a new page only when it needs one. The program still sees one continuous range.</p>
+    <p>The vLLM authors used the same idea for the KV cache. A request's memory is split into small blocks that can sit anywhere, and it takes a new block only when the last one is full. Nothing is reserved in advance. They called it PagedAttention. So an idea from your operating systems course made a large difference in AI.</p>
   </aside>
 </section>

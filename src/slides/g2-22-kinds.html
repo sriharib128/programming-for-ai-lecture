@@ -1,4 +1,4 @@
-<section class="slide light" id="kinds" data-steps="0" data-section="4 · From one GPU to a service" data-time="1.5" data-title="Processes, threads and event loops">
+<section class="slide light" id="kinds" data-steps="0" data-section="4 · Keeping the GPUs busy" data-time="1.5" data-title="Processes, threads and event loops">
   <div class="hd">
     <div class="eyebrow">Background</div>
     <h2>Three kinds of concurrency in Python</h2>
@@ -65,7 +65,7 @@
     <div class="e"><small>Rule of thumb</small>many waits → <em>event loop</em></div>
   </div>
   <aside class="notes">
-    <p>vLLM is now many pieces running at the same time, and this is the part of the lecture that is most directly about programming. Before we look at how vLLM arranges those pieces, the first principles. There are three ways to have a computer do many things at once, and each is good at one thing. We will use these three again for Patram-Ingest.</p>
+    <p>This is the part of the lecture that is most directly about programming. First, the basics. There are three ways to have a computer do many things at once, and each is good at one thing.</p>
     <p>A process is a separate program with its own memory and its own Python interpreter. Processes really run in parallel, even Python code, and if one crashes the others keep going. The cost: they are heavier, and data has to be copied between them. So processes are for CPU-heavy work, for anything that might crash, and for anything that owns a GPU.</p>
     <p>Threads are helpers inside one program. They are the easy option, because they share memory: handing a result to another thread is just passing an object, nothing is copied. The catch in Python is the GIL: only one thread runs Python at a time. That is fine while a thread is waiting on the disk, the network or the database, because waiting releases the GIL, but it is bad for CPU work. And a crash takes the whole program down. So threads are for waiting.</p>
     <p>An event loop is one thread that juggles many waits. Each call starts, waits for its answer, and while it waits the loop runs the others. Hundreds of calls can be in flight almost for free, and there are no locks because only one thing runs at a time. But one slow step that does not wait properly blocks every call. So event loops are for many model calls at once.</p>

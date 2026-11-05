@@ -5,14 +5,14 @@
   </div>
   <img class="abs" src="assets/vllm-logo-text-light.png" alt="vLLM" style="right:120px;top:120px;height:84px">
   <div class="abs" style="left:120px;top:270px;width:1680px;display:grid;grid-template-columns:repeat(3,1fr);gap:30px">
-    <div class="card va-c"><b>2 to 4×</b><p>throughput at the same latency, compared with FasterTransformer and Orca, in the original paper</p></div>
-    <div class="card va-c"><b>UC Berkeley</b><p>where it started, in the Sky Computing Lab. The PagedAttention paper appeared at SOSP 2023</p></div>
+    <div class="card va-c"><b>2 to 4×</b><p>more requests per second than earlier systems, at the same speed per request, in the original paper</p></div>
+    <div class="card va-c"><b>UC Berkeley</b><p>where it started. The paper appeared at SOSP 2023</p></div>
     <div class="card va-c"><b>2000+</b><p>contributors today, from many dozens of academic institutions and companies</p></div>
   </div>
-  <div class="abs card va-g" style="left:120px;top:640px;width:1680px"><small>Our guide for the next three parts</small><p>Aleksa Gordić, <b>Inside vLLM: Anatomy of a High-Throughput LLM Inference System</b> (August 2025, commit 42172ad). We follow its order. Class names may have changed since; the ideas have not.</p></div>
+  <div class="abs card va-g" style="left:120px;top:640px;width:1680px"><small>To read more</small><p>Aleksa Gordić, <b>Inside vLLM: Anatomy of a High-Throughput LLM Inference System</b> (August 2025). It goes much deeper than we will today.</p></div>
   <div class="src">Sources: Kwon et al., SOSP 2023 · github.com/vllm-project/vllm · aleksagordic.com/blog/vllm</div>
   <aside class="notes">
-    <p>That idea became vLLM. The original paper reported two to four times the throughput of the best systems of the time at the same latency, and the gain was larger for longer sequences and larger models. It started in the Sky Computing Lab at UC Berkeley, and today more than two thousand people have contributed to it, from many dozens of institutions and companies. This is the system built by experts that we mentioned at the start.</p>
-    <p>For the next three parts we follow an excellent public walkthrough by Aleksa Gordić. We recommend reading it after this lecture. It was written against a specific commit in August 2025, so some class names may have changed by the time you read the code. The structure and ideas are what we want you to take away.</p>
+<p>That idea became vLLM. The original paper reported two to four times the throughput of the best systems of the time, without making each request slower. It started at UC Berkeley, and today more than two thousand people have contributed to it. This is the system built by experts that we mentioned at the start.</p>
+    <p>If you want the details, read the walkthrough by Aleksa Gordić after this lecture. We leave out almost all of it today.</p>
   </aside>
 </section>

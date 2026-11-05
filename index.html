@@ -2452,6 +2452,14 @@ code{font-family:'IBM Plex Mono',monospace;font-size:.92em}
 .ag-f{display:flex;align-items:center;gap:18px;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:12px 34px}
 .ag-f i{background:#EDEFF4;color:var(--ink)}
 .ag-f p{font-size:28px;color:var(--body)}.ag-f b{color:var(--ink);font-weight:600}
+.ag-c ol.ag-w{gap:44px;margin-top:40px}
+.vu-l{font-size:26px;font-weight:600;color:var(--ink);margin-bottom:14px}
+.vu-c{font-size:27px;height:400px}
+.vf-f{display:flex;flex-direction:column;gap:18px}
+.vf-s{display:flex;align-items:center;gap:22px;padding:18px 26px;transition:background .3s,border-color .3s}
+.vf-s i{flex:none;width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--blue-pale);color:var(--blue);font:700 26px Sora,sans-serif;font-style:normal}
+.vf-s p{font-size:31px;font-weight:500;color:var(--ink)}
+.vf-s.hl{border-color:var(--orange)}
 </style></head>
 <body>
 <div id="stage-wrap"><div id="stage">
@@ -2495,7 +2503,7 @@ code{font-family:'IBM Plex Mono',monospace;font-size:.92em}
   </div>
   <aside class="notes">
     <p>What we do: the Vision team at BharatGen builds sovereign vision foundation models for Indian documents. The model reads the page image directly, so layout, tables and stamps are not lost on the way.</p>
-    <p>This is our stack as a pyramid, read from the bottom up. At the base is storage: our own file system and database. On it, we collect raw data, scraped and synthetic documents, and beside that sits our annotation and visualization tool, DarshinAI. Above that is training data generation: that is Patram-Ingest, which is the second half of this lecture, which turns raw pages into training data. Then the training infrastructure. Then the models, the Patram Suite, shown on the right: multi-task foundation models, the Patram series, the current one covering 34 tasks and the next adding more than 22 Indian languages; task-specific models for grounding, layout and grounded reasoning; and agents such as PatramParse. At the top, evaluation measures all of it. Everything above the ETL layer is trained or measured on data Patram-Ingest produced.</p>
+    <p>This is our stack as a pyramid, read from the bottom up. At the base is storage: our own file system and database. On it, we collect raw data, scraped and synthetic documents, and beside that sits our annotation and visualization tool, DarshinAI. Above that is training data generation: that is Patram-Ingest, which we cover after vLLM, which turns raw pages into training data. Then the training infrastructure. Then the models, the Patram Suite, shown on the right: multi-task foundation models, the Patram series, the current one covering 34 tasks and the next adding more than 22 Indian languages; task-specific models for grounding, layout and grounded reasoning; and agents such as PatramParse. At the top, evaluation measures all of it. Everything above the ETL layer is trained or measured on data Patram-Ingest produced.</p>
   </aside>
 </section>
 
@@ -2517,7 +2525,7 @@ code{font-family:'IBM Plex Mono',monospace;font-size:.92em}
   </div>
   <aside class="notes">
     <p>This is the scale a foundation model needs, and the scale we work at: more than 100 terabytes of image data, more than 100 million training examples, more than 100 billion tokens of model output, generated on more than 500 GPUs. For Patram 1.5 alone it was more than 50 million examples and 41 billion tokens, and every release needs more.</p>
-    <p>At that size, generating the data is not a script you run overnight. It is a workflow that has to keep going, without interruption, for weeks. Hold on to that phrase; we come back to it in the second half.</p>
+    <p>At that size, generating the data is not a script you run overnight. It is a workflow that has to keep going, without interruption, for weeks. Hold on to that phrase; we come back to it after vLLM.</p>
   </aside>
 </section>
 
@@ -2557,16 +2565,16 @@ code{font-family:'IBM Plex Mono',monospace;font-size:.92em}
   </div>
   <div class="abs pn-box pn-o" data-s="2" style="left:120px;top:240px;width:980px;height:740px"><b>Patram-Ingest</b><span>built by our team</span></div>
   <div class="abs pn-box pn-m" data-s="1" style="left:190px;top:350px;width:840px;height:580px"><b>vLLM</b><span>built by many experts, open source</span></div>
-  <div class="abs pn-box pn-i" style="left:280px;top:490px;width:660px;height:360px"><b>The model</b><span>what you use in this course</span><code>logits = model(tokens)</code></div>
+  <div class="abs pn-box pn-i" style="left:280px;top:490px;width:660px;height:360px"><b>The model</b><span>what you use in this course</span><code>tokens in, next token out</code></div>
   <div class="abs pn-r" style="left:1170px;top:300px;width:630px">
     <div class="pn-row i"><small>The model</small><p>Turns tokens into the next token. On its own, it serves nobody.</p></div>
-    <div class="pn-row m" data-s="1"><small>Parts 1 to 4 · vLLM</small><p>Runs one model for many requests at once, using every byte of GPU memory.</p></div>
-    <div class="pn-row o" data-s="2"><small>Parts 5 to 8 · Patram-Ingest</small><p>Uses that engine for weeks to create training data, and keeps going when machines fail.</p></div>
+    <div class="pn-row m" data-s="1"><small>Parts 1 and 2 · vLLM</small><p>Runs one model for many requests at once, without wasting GPU memory.</p></div>
+    <div class="pn-row o" data-s="2"><small>Parts 3 to 6 · Patram-Ingest</small><p>Uses that engine for weeks to create training data, and keeps going when machines fail.</p></div>
   </div>
   <aside class="notes">
-    <p>So how do you get from a model to that scale? Here is the idea of the lecture as one picture. Start in the middle, with what you already know: you call a model on some tokens, and you get logits back.</p>
-    <p data-step="1">Around the model sits an engine. vLLM is the one we use, built by a large community of experts. It takes many requests from many users and runs them on one model as efficiently as the hardware allows. Parts 1 to 4 open this box.</p>
-    <p data-step="2">Around that sits the system that actually uses the engine. Ours is Patram-Ingest. It decides which prompt to send, tracks every sample, and keeps a run going for weeks on a cluster where machines fail. Parts 5 to 8 are about this box. You are unlikely to rewrite vLLM, but you will very likely write a system like the outer one. Along the way you will see the same programming ideas in both. Next, the agenda.</p>
+    <p>So how do you get from a model to that scale? Here is the idea of the lecture as one picture. Start in the middle, with what you already know: you give a model some tokens, and it gives you the next one.</p>
+    <p data-step="1">Around the model sits an engine. vLLM is the one we use, built by a large community of experts. It takes many requests from many users and runs them on one model without wasting the hardware. Parts 1 and 2 look inside this box, briefly.</p>
+    <p data-step="2">Around that sits the system that actually uses the engine. Ours is Patram-Ingest. It decides which prompt to send, tracks every sample, and keeps a run going for weeks on a cluster where machines fail. Parts 3 to 6 are about this box. You are unlikely to rewrite vLLM, but you will very likely write a system like the outer one. Next, the agenda.</p>
   </aside>
 </section>
 
@@ -2575,31 +2583,28 @@ code{font-family:'IBM Plex Mono',monospace;font-size:.92em}
     <div class="eyebrow">Agenda</div>
     <h2>What we will talk about today</h2>
   </div>
-  <div class="abs card ag-c b" style="left:120px;top:236px;width:820px">
-    <small>First half</small><h3>vLLM: the engine that runs the model</h3>
-    <ol>
-      <li><i>1</i><div><b>Why running a model is hard</b><span>Tokens, the KV cache, batching and memory</span></div></li>
-      <li><i>2</i><div><b>Inside the vLLM engine</b><span>The scheduler, paged memory, one engine loop</span></div></li>
-      <li><i>3</i><div><b>Five engine features</b><span>Prefix caching, guided and speculative decoding, and more</span></div></li>
-      <li><i>4</i><div><b>From one GPU to a service</b><span>Many GPUs, concurrency, serving and measuring</span></div></li>
+  <div class="abs card ag-c b" style="left:120px;top:236px;width:820px;height:444px">
+    <small>First</small><h3>vLLM: the engine that runs the model</h3>
+    <ol class="ag-w">
+      <li><i>1</i><div><b>Why running a model is hard</b><span>One token at a time, batching and memory</span></div></li>
+      <li><i>2</i><div><b>How vLLM works</b><span>One loop, and memory in small blocks</span></div></li>
     </ol>
   </div>
-  <div class="abs card ag-c o" style="left:980px;top:236px;width:820px">
-    <small>Second half</small><h3>Patram-Ingest: the system we built around it</h3>
+  <div class="abs card ag-c o" style="left:980px;top:236px;width:820px;height:444px">
+    <small>Then</small><h3>Patram-Ingest: the system we built around it</h3>
     <ol>
-      <li><i>5</i><div><b>The system around vLLM</b><span>What can interrupt a run that lasts for weeks</span></div></li>
-      <li><i>6</i><div><b>Keeping the GPUs busy</b><span>Processes, threads, event loops and queues</span></div></li>
-      <li><i>7</i><div><b>Crash safe</b><span>Losing no work when machines die</span></div></li>
-      <li><i>8</i><div><b>Graphs</b><span>Many models, and a different route for every page</span></div></li>
+      <li><i>3</i><div><b>The system around vLLM</b><span>What can interrupt a run that lasts for weeks</span></div></li>
+      <li><i>4</i><div><b>Keeping the GPUs busy</b><span>Processes, threads, event loops and queues</span></div></li>
+      <li><i>5</i><div><b>Crash safe</b><span>Losing no work when machines die</span></div></li>
+      <li><i>6</i><div><b>Graphs</b><span>Many models, and a different route for every page</span></div></li>
     </ol>
   </div>
-  <div class="abs ag-f" style="left:120px;top:716px;width:1680px"><i>9</i><p><b>Wrap-up:</b> what the two systems share, and exercises you can try.</p></div>
+  <div class="abs ag-f" style="left:120px;top:716px;width:1680px"><i>7</i><p><b>Wrap-up:</b> the main lessons from both.</p></div>
   <p class="abs t" style="left:120px;top:816px;width:1680px;font-size:29px">Please stop us with questions at any time. A few slides will ask you for an answer.</p>
   <aside class="notes">
-    <p>Here is the plan for the next hour and a quarter. There are two halves.</p>
-    <p>The first half is vLLM. We start with why running a model for many people is hard at all. Then we go inside the engine and follow one small program through it. Then five features built on top of that core, and then how it grows from one GPU into a service you can call over the network.</p>
-    <p>The second half is Patram-Ingest, the system we built around vLLM to generate the training data you just saw. We explain what can interrupt a run that lasts for weeks, and then three problems in turn: keeping the GPUs busy, losing no work when machines die, and sending each page through many models on its own route.</p>
-    <p>At the end we put the two systems side by side and leave you with some exercises. Please interrupt us at any time; this works better as a conversation. A few slides will ask you for an answer, so stay ready. Let us start with the first part.</p>
+    <p>Here is the plan. We start with vLLM, and we keep it short. Why is running a model for many people hard at all, and how does vLLM solve that? We leave out most of its features, because the ideas are what matter.</p>
+    <p>Then comes most of the lecture: Patram-Ingest, the system we built around vLLM to generate the training data you just saw. We explain what can interrupt a run that lasts for weeks, and then three problems in turn: keeping the GPUs busy, losing no work when machines die, and sending each page through many models on its own route.</p>
+    <p>Please interrupt us at any time; this works better as a conversation. A few slides will ask you for an answer, so stay ready. Let us start with Part 1.</p>
   </aside>
 </section>
 
@@ -2609,7 +2614,7 @@ code{font-family:'IBM Plex Mono',monospace;font-size:.92em}
   <div class="dv-h">Why running a model is hard</div>
   <div class="dv-line"></div>
   <div class="dv-q">What happens between a prompt and its answer?</div>
-  <aside class="notes"><p>We start from what you already know: a model and a Python loop. Then we see why that loop falls apart as soon as more than one person wants to use it.</p></aside>
+  <aside class="notes"><p>Part 1. We start with how a model writes an answer. Then we see why that gets hard as soon as many people want to use it.</p></aside>
 </section>
 
 <section class="slide light" id="vloop" data-steps="0" data-section="1 · Why it is hard" data-time="1.5" data-title="A model produces one token at a time">
@@ -2617,29 +2622,34 @@ code{font-family:'IBM Plex Mono',monospace;font-size:.92em}
     <div class="eyebrow">Generation</div>
     <h2>A model produces one token at a time</h2>
   </div>
-  <div class="abs code vx-code" style="left:120px;top:250px;width:860px"><span class="ln">tokens = tokenizer.encode(prompt)</span><span class="ln"></span><span class="ln l-w"><span class="k">while not</span> done(tokens):</span><span class="ln l-a">    logits = model(tokens)</span><span class="ln l-a">    next_token = sample(logits[-<span class="n">1</span>])</span><span class="ln l-a">    tokens.append(next_token)</span></div>
+  <div class="abs vf-f" style="left:120px;top:250px;width:860px">
+    <div class="card vf-s l-a"><i>1</i><p>Read all the tokens so far</p></div>
+    <div class="card vf-s l-a"><i>2</i><p>Predict one new token</p></div>
+    <div class="card vf-s l-a"><i>3</i><p>Add it to the end, and go back to 1</p></div>
+  </div>
   <div class="abs card vl-seq" style="left:1020px;top:250px;width:780px;height:440px">
     <small>The sequence</small>
     <div class="vl-toks" id="vl-toks"></div>
   </div>
   <div class="abs vl-cnt" style="left:120px;top:590px;width:860px">
-    <div><b id="vl-n">0</b><span>forward passes so far</span></div>
-    <div><b id="vl-l">0</b><span>tokens read in this pass</span></div>
+    <div><b id="vl-n">0</b><span>passes through the model</span></div>
+    <div><b id="vl-l">0</b><span>tokens read this time</span></div>
     <div><b id="vl-s">0</b><span>tokens read in total</span></div>
   </div>
+  <div class="abs note" style="left:720px;top:960px;font-size:21px">A token is a word or a piece of a word.</div>
   <div class="abs" id="vl-pl" style="left:120px;top:960px;width:560px"></div>
-  <p class="abs t" style="left:120px;top:790px;width:1680px;font-size:32px">One forward pass gives one token, and every pass reads <span class="hi">the whole sequence again</span>.</p>
+  <p class="abs t" style="left:120px;top:790px;width:1680px;font-size:32px">One pass gives one token, and every pass reads <span class="hi">the whole sequence again</span>.</p>
   <aside class="notes">
-    <p>This is the loop you have probably written or seen. Encode the prompt. Then repeat: run the model on all the tokens, take the logits at the last position only, sample one token, and append it. Stop at an end token or a length limit.</p>
-    <p>Watch the counters as it plays. Each pass produces one token, and each pass reads one token more than the last. The total grows quadratically with the output length.</p>
-    <p>Ask the room: what work is being repeated here? The model computes something for each token, and for all the old tokens it computes the same thing again.</p>
+    <p>This is how a model writes an answer. A token is a word or a piece of a word. The model reads everything so far, predicts one new token, adds it to the end, and starts again until the answer is done.</p>
+    <p>Watch the counters. Each pass gives one token, and each pass reads everything again. It is like re-reading a whole book from page one before writing every new word.</p>
+    <p>Ask the room: what work is being repeated here?</p>
   </aside>
 </section>
 
-<section class="slide light" id="vcache" data-section="1 · Why it is hard" data-time="1.5" data-title="The KV cache stops the repeated work">
+<section class="slide light" id="vcache" data-section="1 · Why it is hard" data-time="2" data-title="Saving earlier work avoids repeating it">
   <div class="hd">
     <div class="eyebrow">KV cache</div>
-    <h2>The KV cache stops the repeated work</h2>
+    <h2>Saving earlier work avoids repeating it</h2>
   </div>
   <div class="abs card vc-p" style="left:120px;top:240px;width:820px;height:560px">
     <h3>Without a cache</h3><div class="vc-g" id="vc-a"></div>
@@ -2652,41 +2662,8 @@ code{font-family:'IBM Plex Mono',monospace;font-size:.92em}
   <div class="abs vc-leg" style="left:120px;top:822px"><i class="c"></i>computed in this pass<span data-s="1" style="display:inline-flex;align-items:center;gap:12px;margin-left:36px"><i class="r"></i>read from the cache</span></div>
   <p class="abs t" data-s="1" style="left:120px;top:890px;width:1680px;font-size:32px">The cost: the cache lives in GPU memory, and <span class="hi">it grows with every token</span>.</p>
   <aside class="notes">
-    <p>Attention needs a key and a value vector for every earlier token. Those depend only on earlier tokens, so they do not change once computed. On the left, a five-token prompt and six new tokens, with nothing saved. The passes read 5, then 6, up to 10 tokens: 45 in total.</p>
-    <p data-step="1">So we save them. That saved data is the KV cache, for keys and values. Now the first pass computes the five prompt tokens, and every later pass computes only the single new token: 10 in total. Keep the last line in mind. The cache is large, it lives in GPU memory, and it grows while the request runs. Most of the next few slides are about this one piece of memory.</p>
-  </aside>
-</section>
-
-<section class="slide light" id="vphase" data-section="1 · Why it is hard" data-time="1.2" data-title="A request has two phases: prefill and decode">
-  <div class="hd">
-    <div class="eyebrow">Two phases</div>
-    <h2>A request has two phases: prefill and decode</h2>
-  </div>
-  <svg class="abs" viewBox="0 0 1680 300" style="left:120px;top:236px;width:1680px;height:300px">
-    <rect x="0" y="130" width="460" height="96" rx="14" fill="#FCE6CF" stroke="#F28C28" stroke-width="3"/>
-    <text x="230" y="172" text-anchor="middle" font-family="Sora" font-weight="700" font-size="28" fill="#B85C0A">Prefill</text>
-    <text x="230" y="206" text-anchor="middle" font-family="IBM Plex Sans" font-size="23" fill="#42506B">all 5 prompt tokens, one pass</text>
-    <g font-family="IBM Plex Sans" font-size="23" fill="#0E1A3A"><line x1="0" y1="98" x2="460" y2="98" stroke="#0E1A3A" stroke-width="2"/><line x1="0" y1="86" x2="0" y2="110" stroke="#0E1A3A" stroke-width="2"/><line x1="460" y1="86" x2="460" y2="110" stroke="#0E1A3A" stroke-width="2"/><text x="230" y="76" text-anchor="middle" font-weight="600">Time to first token (TTFT)</text></g>
-    <g data-s="1" class="fade">
-      <g font-family="IBM Plex Sans" font-size="23" fill="#1F4FA8" font-weight="600" text-anchor="middle">
-        <rect x="480" y="130" width="180" height="96" rx="14" fill="#E4ECFA" stroke="#2A63C9" stroke-width="3"/><text x="570" y="186">decode</text>
-        <rect x="680" y="130" width="180" height="96" rx="14" fill="#E4ECFA" stroke="#2A63C9" stroke-width="3"/><text x="770" y="186">decode</text>
-        <rect x="880" y="130" width="180" height="96" rx="14" fill="#E4ECFA" stroke="#2A63C9" stroke-width="3"/><text x="970" y="186">decode</text>
-        <rect x="1080" y="130" width="180" height="96" rx="14" fill="#E4ECFA" stroke="#2A63C9" stroke-width="3"/><text x="1170" y="186">decode</text>
-        <rect x="1280" y="130" width="180" height="96" rx="14" fill="#E4ECFA" stroke="#2A63C9" stroke-width="3"/><text x="1370" y="186">decode</text>
-      </g>
-      <g font-family="IBM Plex Sans" font-size="23" fill="#0E1A3A"><line x1="480" y1="98" x2="660" y2="98" stroke="#0E1A3A" stroke-width="2"/><line x1="480" y1="86" x2="480" y2="110" stroke="#0E1A3A" stroke-width="2"/><line x1="660" y1="86" x2="660" y2="110" stroke="#0E1A3A" stroke-width="2"/><text x="570" y="76" text-anchor="middle" font-weight="600">Inter-token latency (ITL)</text></g>
-      <g font-family="IBM Plex Mono" font-size="24" fill="#B85C0A" font-weight="600" text-anchor="middle"><text x="670" y="268">Paris</text><text x="870" y="268">,</text><text x="1070" y="268">a</text><text x="1270" y="268">city</text><text x="1470" y="268">on</text></g>
-    </g>
-    <text x="470" y="268" font-family="IBM Plex Mono" font-size="24" fill="#B85C0A" font-weight="600" text-anchor="middle">first token</text>
-  </svg>
-  <div class="abs card vp-c o" style="left:120px;top:570px;width:820px"><h3>Prefill</h3><p>A forward pass over every prompt token.</p><div class="vp-l"><small>Limited by</small><b>compute</b></div></div>
-  <div class="abs card vp-c b" data-s="1" style="left:980px;top:570px;width:820px"><h3>Decode</h3><p>A forward pass over the newest token only, using the cache.</p><div class="vp-l"><small>Limited by</small><b>memory bandwidth</b></div></div>
-  <p class="abs t" data-s="1" style="left:120px;top:880px;width:1680px;font-size:30px">Decode computes one token, but all the model weights still have to be read from memory.</p>
-  <div class="src">Source: A. Gordić, Inside vLLM (2025)</div>
-  <aside class="notes">
-    <p>The cache splits every request into two phases, and they behave very differently. Prefill is the first pass, over every token in the prompt. It is mostly limited by how fast the GPU can compute. At the end we sample one token, so its length sets the time to first token, which is what a user feels before anything appears.</p>
-    <p data-step="1">Decode is every pass after that: one new token, using the cache. You might expect this to be cheap, but the GPU still has to stream all the model weights out of its memory to compute that one token. So decode is limited by memory bandwidth. The gap between tokens is the inter-token latency. Two phases, two kinds of limit. That difference comes back several times.</p>
+<p>For each token, the model works out some numbers. The numbers for old tokens never change, so working them out again is a waste. On the left, nothing is saved: 45 computations for 6 new tokens.</p>
+    <p data-step="1">So we save them, like taking notes instead of re-reading the book. Those numbers are called keys and values, so this is the KV cache. You do not need the details, only this: the same 6 tokens now take 10 computations. Keep the last line in mind. The cache lives in GPU memory, and it grows with every token. Most of what follows is about this one piece of memory.</p>
   </aside>
 </section>
 
@@ -2700,14 +2677,14 @@ code{font-family:'IBM Plex Mono',monospace;font-size:.92em}
   <div class="abs" id="vb-pl" style="left:120px;top:962px;width:560px"></div>
   <div class="abs note" style="left:720px;top:962px;font-size:21px">Illustrative: 8 requests of different lengths, 4 slots.</div>
   <aside class="notes">
-    <p>Reading the weights takes about the same time for one token or for many, so we want to batch: run many requests in one pass and share that cost. Here are 8 requests and a GPU with room for 4 at a time. Each column is one pass of the model. The first thing you would write is a fixed batch: take four, run until all are done, take the next four.</p>
-    <p>Watch the hatched cells. A short request finishes, but its slot stays idle until the longest one in the batch is done, because the batch was decided up front. In this example more than a third of the slots go to nothing.</p>
-    <p data-step="1">The fix is to decide the batch again at every pass. When a request finishes, the next one takes its slot straight away. This is called continuous batching. It came from a system called Orca, published at OSDI 2022, which reported 36.9 times the throughput of NVIDIA FasterTransformer at the same latency on a GPT-3 175B model. Same requests, same hardware, and the run ends much earlier.</p>
-    <p>But this creates a memory problem. If requests join and leave at every pass, each with a cache that grows, where does the cache go?</p>
+<p>A GPU can work on many requests at once, so we batch them. Here are 8 requests and room for 4 at a time. Each column is one pass of the model. The first idea: take four, run until all four are done, then take the next four.</p>
+    <p>Watch the hatched cells. A short request finishes, but its place stays empty until the longest one is done. Think of a restaurant that seats nobody new until the whole room has finished eating.</p>
+    <p data-step="1">The fix: when a request finishes, the next one takes its place straight away, like seating the next guest as soon as a table is free. This is called continuous batching. The same requests finish much earlier on the same hardware.</p>
+    <p>But requests now come and go at every pass, and each one has a cache that grows. Where does all that memory go?</p>
   </aside>
 </section>
 
-<section class="slide light" id="vmem" data-section="1 · Why it is hard" data-time="1.2" data-title="Reserving for the longest answer wastes memory">
+<section class="slide light" id="vmem" data-section="1 · Why it is hard" data-time="1.5" data-title="Reserving for the longest answer wastes memory">
   <div class="hd">
     <div class="eyebrow">KV cache memory</div>
     <h2>Reserving for the longest answer wastes memory</h2>
@@ -2718,16 +2695,16 @@ code{font-family:'IBM Plex Mono',monospace;font-size:.92em}
     <div class="vm-leg"><span><i class="u"></i>holds a token</span><span><i class="r"></i>reserved, unused</span><span><i class="f"></i>free</span></div>
   </div>
   <div class="abs vm-c" data-s="1" style="left:120px;top:510px;width:1680px"><div class="vm-new" id="vm-new"></div><p><b>Request C</b> needs room for 16 tokens in one piece. Only 8 are left, though most of the memory holds nothing.</p></div>
-  <div class="abs card vm-stat" data-s="2" style="left:120px;top:690px;width:1680px"><b>20.4% to 38.2%</b><p>of KV cache memory held actual token states, in the existing systems the vLLM authors profiled.</p></div>
+  <div class="abs card vm-stat" data-s="2" style="left:120px;top:690px;width:1680px"><b>20.4% to 38.2%</b><p>of the KV cache memory actually held data, in the existing systems the vLLM authors measured.</p></div>
   <div class="src">Source: Kwon et al., PagedAttention, SOSP 2023</div>
   <aside class="notes">
-    <p>The simple approach is what you would do for a tensor: one contiguous block per request. But we do not know how long an answer will be, so we must reserve room for the longest one it could be. Each request here reserves 16 slots. A has used 5 and B has used 6.</p>
-    <p data-step="1">Request C arrives. It needs 16 slots in one piece, and only 8 remain. So C has to wait, even though most of the memory holds nothing. Memory now limits the batch size, and the batch size limits throughput.</p>
-    <p data-step="2">This is not a small effect. The authors of vLLM profiled the existing systems and found that only about 20 to 38 percent of the cache memory held actual token states. The rest was wasted.</p>
+<p>The simple approach is one piece of memory per request. But we do not know how long an answer will be, so we reserve room for the longest it could be. It is like booking a hall for 16 people every time, even if 5 turn up. A has used 5 places and B has used 6.</p>
+    <p data-step="1">Request C arrives. It needs 16 places in one piece, and only 8 are left. So C waits, even though most of the memory holds nothing.</p>
+    <p data-step="2">This is not a small effect. The authors of vLLM measured existing systems, and only about 20 to 38 percent of this memory held real data.</p>
   </aside>
 </section>
 
-<section class="slide light" id="vos" data-section="1 · Why it is hard" data-time="1.5" data-title="Your turn: where have you seen this problem?">
+<section class="slide light" id="vos" data-section="1 · Why it is hard" data-time="2" data-title="Your turn: where have you seen this problem?">
   <div class="hd">
     <div class="eyebrow">Your turn</div>
     <h2>Where have you seen this problem before?</h2>
@@ -2748,9 +2725,9 @@ code{font-family:'IBM Plex Mono',monospace;font-size:.92em}
   </div>
   <div class="src">Source: Kwon et al., PagedAttention, SOSP 2023</div>
   <aside class="notes">
-    <p>Forget about GPUs for a moment and read these four lines. Many programs share one block of memory, nobody knows in advance how much each needs, each grows bit by bit, and they come and go at any time. Ask the room: you have met this exact problem before. In which course? Take a few answers.</p>
-    <p data-step="1">Operating systems. An OS solves it with virtual memory: split memory into fixed-size pages, and let a program's pages sit anywhere in physical memory, allocated only when needed. The program still sees one continuous range.</p>
-    <p>The vLLM authors applied that idea to attention, and called it PagedAttention. Requests are the processes, tokens are the bytes, and KV blocks are the pages. A request's blocks can sit anywhere in GPU memory, and a new block is allocated only when the previous one fills. Nothing is reserved in advance, so at most one partly filled block per request is unused. This is why operating systems is worth taking. A decades-old idea unlocked a large gain in a new field.</p>
+<p>Forget about GPUs for a moment and read these four lines. Ask the room: you have met this exact problem before. In which course? Take a few answers.</p>
+    <p data-step="1">Operating systems. An OS splits memory into small pages. A program's pages can sit anywhere, and it gets a new page only when it needs one. The program still sees one continuous range.</p>
+    <p>The vLLM authors used the same idea for the KV cache. A request's memory is split into small blocks that can sit anywhere, and it takes a new block only when the last one is full. Nothing is reserved in advance. They called it PagedAttention. So an idea from your operating systems course made a large difference in AI.</p>
   </aside>
 </section>
 
@@ -2761,670 +2738,77 @@ code{font-family:'IBM Plex Mono',monospace;font-size:.92em}
   </div>
   <img class="abs" src="assets/vllm-logo-text-light.png" alt="vLLM" style="right:120px;top:120px;height:84px">
   <div class="abs" style="left:120px;top:270px;width:1680px;display:grid;grid-template-columns:repeat(3,1fr);gap:30px">
-    <div class="card va-c"><b>2 to 4×</b><p>throughput at the same latency, compared with FasterTransformer and Orca, in the original paper</p></div>
-    <div class="card va-c"><b>UC Berkeley</b><p>where it started, in the Sky Computing Lab. The PagedAttention paper appeared at SOSP 2023</p></div>
+    <div class="card va-c"><b>2 to 4×</b><p>more requests per second than earlier systems, at the same speed per request, in the original paper</p></div>
+    <div class="card va-c"><b>UC Berkeley</b><p>where it started. The paper appeared at SOSP 2023</p></div>
     <div class="card va-c"><b>2000+</b><p>contributors today, from many dozens of academic institutions and companies</p></div>
   </div>
-  <div class="abs card va-g" style="left:120px;top:640px;width:1680px"><small>Our guide for the next three parts</small><p>Aleksa Gordić, <b>Inside vLLM: Anatomy of a High-Throughput LLM Inference System</b> (August 2025, commit 42172ad). We follow its order. Class names may have changed since; the ideas have not.</p></div>
+  <div class="abs card va-g" style="left:120px;top:640px;width:1680px"><small>To read more</small><p>Aleksa Gordić, <b>Inside vLLM: Anatomy of a High-Throughput LLM Inference System</b> (August 2025). It goes much deeper than we will today.</p></div>
   <div class="src">Sources: Kwon et al., SOSP 2023 · github.com/vllm-project/vllm · aleksagordic.com/blog/vllm</div>
   <aside class="notes">
-    <p>That idea became vLLM. The original paper reported two to four times the throughput of the best systems of the time at the same latency, and the gain was larger for longer sequences and larger models. It started in the Sky Computing Lab at UC Berkeley, and today more than two thousand people have contributed to it, from many dozens of institutions and companies. This is the system built by experts that we mentioned at the start.</p>
-    <p>For the next three parts we follow an excellent public walkthrough by Aleksa Gordić. We recommend reading it after this lecture. It was written against a specific commit in August 2025, so some class names may have changed by the time you read the code. The structure and ideas are what we want you to take away.</p>
+<p>That idea became vLLM. The original paper reported two to four times the throughput of the best systems of the time, without making each request slower. It started at UC Berkeley, and today more than two thousand people have contributed to it. This is the system built by experts that we mentioned at the start.</p>
+    <p>If you want the details, read the walkthrough by Aleksa Gordić after this lecture. We leave out almost all of it today.</p>
   </aside>
 </section>
 
-<section class="slide dark" id="vsec2" data-section="2 · The vLLM engine" data-time="0.2" data-title="Part 2 · Inside the vLLM engine">
+<section class="slide dark" id="vsec2" data-section="2 · How vLLM works" data-time="0.2" data-title="Part 2 · How vLLM works">
   <div class="dv-num">2</div>
   <div class="dv-eb">Part 2</div>
-  <div class="dv-h">Inside the vLLM engine</div>
+  <div class="dv-h">How vLLM works</div>
   <div class="dv-line"></div>
-  <div class="dv-q">We follow one small program from start to finish.</div>
-  <aside class="notes"><p>Now we open the box. We will follow a small Python program through the engine, on one GPU, in one process. No web server yet.</p></aside>
+  <div class="dv-q">What does the engine actually do?</div>
+  <aside class="notes"><p>We now know the problems. Here is how vLLM puts the answers together. We keep this simple: one loop, and memory in small blocks.</p></aside>
 </section>
 
-<section class="slide light" id="vcode" data-steps="2" data-section="2 · The vLLM engine" data-time="0.8" data-title="The program we will follow">
-  <div class="hd">
-    <div class="eyebrow">Running example</div>
-    <h2>The program we will follow</h2>
-  </div>
-  <div class="abs code vx-code" style="left:120px;top:240px;width:1020px;font-size:25px"><span class="ln"><span class="k">from</span> vllm <span class="k">import</span> LLM, SamplingParams</span><span class="ln"></span><span class="ln">prompts = [</span><span class="ln">    <span class="s">"Hello, my name is"</span>,</span><span class="ln">    <span class="s">"The president of the United States is"</span>,</span><span class="ln">]</span><span class="ln">sampling_params = SamplingParams(temperature=<span class="n">0.8</span>, top_p=<span class="n">0.95</span>)</span><span class="ln"></span><span class="ln l-1">llm = LLM(model=<span class="s">"TinyLlama/TinyLlama-1.1B-Chat-v1.0"</span>)</span><span class="ln l-2">outputs = llm.generate(prompts, sampling_params)</span></div>
-  <div class="abs" style="left:1190px;top:240px;width:610px;display:flex;flex-direction:column;gap:24px">
-    <div class="card vk-c c1"><i>1</i><div><h3>Build the engine</h3><p>Load the model, measure the memory, set up the queues.</p></div></div>
-    <div class="card vk-c c2"><i>2</i><div><h3>Run requests</h3><p>Add both prompts, then loop until they finish.</p></div></div>
-  </div>
-  <p class="abs t" style="left:120px;top:800px;width:1680px;font-size:30px">Offline, in one process, on one GPU. Later parts add the rest.</p>
-  <div class="src">Source: A. Gordić, Inside vLLM (2025), adapted from vLLM's basic.py</div>
-  <aside class="notes">
-    <p>This is the program. Two prompts, some sampling settings, and two calls. It looks like the loop from earlier, but it hides everything we just discussed. For now it runs offline, in one process, on one GPU. Later we add multiple GPUs and a web server, and the core stays the same.</p>
-    <p data-step="1">The first call builds the engine. That is where the model is loaded and the memory is measured.</p>
-    <p data-step="2">The second call adds the requests and runs the engine loop until they are all done. We take these two in turn.</p>
-  </aside>
-</section>
-
-<section class="slide light" id="vanat" data-section="2 · The vLLM engine" data-time="1.5" data-title="What the constructor builds">
-  <div class="hd">
-    <div class="eyebrow">Engine anatomy</div>
-    <h2>What the constructor builds</h2>
-  </div>
-  <div class="abs card van-e" style="left:120px;top:226px;width:1680px;height:216px">
-    <small>LLM Engine</small>
-    <div class="van-row">
-      <div class="van-b"><b>Config</b><span>every setting</span></div>
-      <div class="van-b"><b>Processor</b><span>text → validated tokens</span></div>
-      <div class="van-b me"><b>Engine core client</b><span>talks to the core</span></div>
-      <div class="van-b"><b>Output processor</b><span>tokens → what you see</span></div>
-    </div>
-  </div>
-  <div class="abs van-link" data-s="1" style="left:1165px;top:442px"></div>
-  <div class="abs card van-c" data-s="1" style="left:120px;top:486px;width:1680px;height:440px">
-    <small>Engine core</small>
-    <div class="van-grid">
-      <div class="van-sch">
-        <h3>Scheduler</h3><span>picks the requests for the next pass</span>
-        <div class="van-in">
-          <div class="van-b"><b>Policy</b><span>first come, or priority</span></div>
-          <div class="van-b"><b>Waiting queue</b><span>not started</span></div>
-          <div class="van-b"><b>Running queue</b><span>in progress</span></div>
-          <div class="van-b km" data-s="2"><b>KV cache manager</b><span>free_block_queue: the pool of free blocks</span></div>
-          <div class="van-b km0" data-h="2"><b>KV cache manager</b><span>free_block_queue: the pool of free blocks</span></div>
-        </div>
-      </div>
-      <div class="van-side">
-        <div class="van-b big"><b>Model executor</b><span>runs the forward pass on a worker</span></div>
-        <div class="van-b big"><b>Structured output manager</b><span>for guided decoding, in Part 3</span></div>
-      </div>
-    </div>
-  </div>
-  <div class="src">Source: A. Gordić, Inside vLLM (2025)</div>
-  <aside class="notes">
-    <p>The constructor builds the outer engine. The config holds every setting. The processor validates and tokenizes the input. The output processor turns raw results into what your program sees. In the middle is a client that talks to the engine core. In this example the core is in the same process; later it will be elsewhere, and this client is why nothing else has to change. That is a good design lesson by itself.</p>
-    <p data-step="1">The core has three parts. The model executor drives forward passes on a worker. The structured output manager is for later. The scheduler decides which requests go into the next pass. It has a policy, a waiting queue and a running queue.</p>
-    <p data-step="2">And it has the KV cache manager, the heart of paged attention. It keeps a free_block_queue: a pool of free blocks, often hundreds of thousands of them. If you remember the free list from your allocator lectures, this is one.</p>
-  </aside>
-</section>
-
-<section class="slide light" id="vstart" data-steps="0" data-section="2 · The vLLM engine" data-time="1.2" data-title="At start-up the engine works out how many blocks fit">
-  <div class="hd">
-    <div class="eyebrow">Start-up</div>
-    <h2>The engine works out how many blocks fit</h2>
-  </div>
-  <div class="abs" style="left:120px;top:240px;width:1680px;display:grid;grid-template-columns:repeat(3,1fr);gap:30px">
-    <div class="card vs-c"><i>1</i><h3>Init device</h3><ul><li>Assign a GPU to the worker</li><li>Check there is enough memory for <code>gpu_memory_utilization</code></li></ul></div>
-    <div class="card vs-c"><i>2</i><h3>Load model</h3><ul><li>Build the architecture</li><li>Load the weights</li><li>Switch to inference mode</li></ul></div>
-    <div class="card vs-c me"><i>3</i><h3>Init KV cache</h3><ul><li>Run a dummy forward pass</li><li>Snapshot GPU memory</li><li>Divide what is left into blocks</li></ul></div>
-  </div>
-  <div class="abs code" style="left:120px;top:640px;width:1680px;font-size:30px;line-height:1.7">block_bytes = <span class="n">2</span> × block_size × num_kv_heads × head_size × dtype_bytes
-<span class="c"># for one layer, with example values:</span>
-            = <span class="n">2</span> × <span class="n">16</span> × <span class="n">8</span> × <span class="n">128</span> × <span class="n">2</span> = <span class="s">65,536 bytes = 64 KiB</span></div>
-  <div class="src">Source: A. Gordić, Inside vLLM (2025). Example head values are ours.</div>
-  <aside class="notes">
-    <p>Three things happen at start-up. The worker is assigned a GPU and checks that enough memory is available. The model is built and the weights are loaded. Then comes the interesting part. The engine runs a dummy forward pass, takes a snapshot of how much GPU memory is in use, and divides what remains into KV blocks.</p>
-    <p>The size of a block comes from a simple formula. The 2 is for the key and the value. A block holds 16 tokens by default. Then the number of heads, the size of each head, and the bytes per number. With example values of 8 heads of size 128 in 16-bit floats, that is 64 kilobytes per layer. So memory is decided once, at start-up, and from then on the engine only hands out blocks. No allocation happens while the model is running.</p>
-    <p>If asked: the engine also captures CUDA graphs at start-up unless told not to, for faster launches later. That is a detail you can look up in the blog.</p>
-  </aside>
-</section>
-
-<section class="slide light" id="vstep" data-steps="4" data-section="2 · The vLLM engine" data-time="1.2" data-title="The engine is one loop with three steps">
+<section class="slide light" id="vstep" data-steps="0" data-section="2 · How vLLM works" data-time="1" data-title="The engine is one loop with three steps">
   <div class="hd">
     <div class="eyebrow">The engine loop</div>
     <h2>The engine is one loop with three steps</h2>
   </div>
   <div class="abs vt-row" style="left:120px;top:250px;width:1680px">
-    <div class="card vt-c c1"><i>1</i><h3>Schedule</h3><p>Pick the requests for this pass, and give them memory.</p></div>
+    <div class="card vt-c c1"><i>1</i><h3>Pick</h3><p>Choose which requests run in this pass, and give them memory.</p></div>
     <span class="vt-ar">→</span>
-    <div class="card vt-c c2"><i>2</i><h3>Forward pass</h3><p>Run the model and sample the next tokens.</p></div>
+    <div class="card vt-c c2"><i>2</i><h3>Run the model</h3><p>Get one new token for each request.</p></div>
     <span class="vt-ar">→</span>
-    <div class="card vt-c c3"><i>3</i><h3>Postprocess</h3><p>Append and detokenize. If a request is finished, free its blocks.</p></div>
+    <div class="card vt-c c3"><i>3</i><h3>Clean up</h3><p>Add the new tokens. If a request is finished, free its memory.</p></div>
   </div>
   <div class="abs vt-back" style="left:120px;top:560px;width:1680px"><span>repeat while any request is unfinished</span></div>
-  <div class="abs code vx-code" style="left:120px;top:650px;width:760px;font-size:28px"><span class="ln"><span class="k">while</span> engine.has_unfinished_requests():</span><span class="ln">    outputs = engine.step()</span></div>
-  <div class="abs card vt-stop" data-s="4" style="left:930px;top:650px;width:870px"><small>A request stops when</small><ul><li>it reaches its length limit</li><li>it samples the end token</li><li>it samples a token in <code>stop_token_ids</code></li><li>the output contains a stop string</li></ul></div>
+  <p class="abs t" style="left:120px;top:690px;width:1680px;font-size:34px">It is the same idea you saw earlier, <span class="hi">now for many requests at once</span>.</p>
   <div class="src">Source: A. Gordić, Inside vLLM (2025)</div>
   <aside class="notes">
-    <p>Now generate. It tokenizes each prompt, gives it an ID and an arrival time, and puts it in the waiting queue. Then the whole engine is this: while anything is unfinished, call step. Every call does three things. This is the same loop you wrote earlier, but for many requests at once.</p>
-    <p data-step="1">First, schedule: decide which requests take part in this pass, and make sure they have memory. This is the next two slides.</p>
-    <p data-step="2">Second, run the model and sample one token per request. In your loop this was the only line that mattered.</p>
-    <p data-step="3">Third, postprocess: append the tokens, turn them into text, and check whether each request is finished. A finished request gives back its blocks immediately, which is what makes room for the next one.</p>
-    <p data-step="4">These are the four ways a request can stop. Because the schedule is decided at every pass, a new request can join on the next one. Continuous batching is not a separate component; it follows from this loop.</p>
+    <p>The whole engine is this one loop, and it is the same idea you saw at the start of Part 1, only for many requests at once.</p>
+    <p>First it picks: which requests take part in this pass, and do they have memory? Then it runs the model and gets one new token for each. Then it cleans up: it adds the tokens and checks whether any request is finished. A finished request gives its memory back immediately.</p>
+    <p>Because the picking happens again on every pass, a new request can join on the very next one. That is continuous batching, and you can see it needs no special machinery. It follows from this loop.</p>
   </aside>
 </section>
 
-<section class="slide light" id="vsched" data-steps="3" data-section="2 · The vLLM engine" data-time="1.5" data-title="The scheduler spends a token budget">
+<section class="slide light" id="vpaged" data-steps="0" data-section="2 · How vLLM works" data-time="2" data-title="Memory is handed out in small blocks">
   <div class="hd">
-    <div class="eyebrow">Scheduler</div>
-    <h2>The scheduler spends a token budget on each pass</h2>
-  </div>
-  <div class="abs card vq-c" style="left:120px;top:236px;width:820px;height:216px"><small>Running queue</small><div class="vq-r"><span class="vq-t b">A</span><span class="vq-t b">B</span><span class="vq-t b">C</span><span class="vq-t o" data-s="2">D</span><span class="vq-t o half" data-s="3">E</span></div></div>
-  <div class="abs card vq-c" style="left:980px;top:236px;width:820px;height:216px"><small>Waiting queue</small><div class="vq-r"><span class="vq-t o" data-h="2">D · 40 tokens</span><span class="vq-t o" data-h="3">E · 30 tokens</span><span class="vq-t g">F · 25 tokens</span></div></div>
-  <div class="abs vq-b" style="left:120px;top:490px;width:1680px">
-    <div class="vq-lab"><b>Token budget for this pass</b><span>64 tokens</span></div>
-    <div class="vq-bar">
-      <i class="d" data-s="1" style="width:4.69%">A B C</i>
-      <i class="p" data-s="2" style="width:62.5%">D · prefill 40</i>
-      <i class="e" data-s="3" style="width:32.81%">E · first 21 of 30</i>
-    </div>
-  </div>
-  <div class="abs vq-say" style="left:120px;top:660px;width:1680px">
-    <p class="s0" data-h="1">Each pass has a limit on how many tokens it can process.</p>
-    <p class="s1" data-s="1" data-h="2"><b>Decode comes first.</b> Running requests A, B and C each take one token.</p>
-    <p class="s2" data-s="2" data-h="3"><b>Then prefill.</b> D gets its blocks and moves to the running queue.</p>
-    <p class="s3" data-s="3"><b>The budget runs out.</b> E takes what is left, and the rest of its prompt waits for the next pass. F waits.</p>
-  </div>
-  <div class="abs note" style="left:120px;top:812px;width:1680px;font-size:24px">Waiting requests are taken in arrival order, or by priority. The V1 engine can mix prefill and decode in the same pass. Numbers here are illustrative.</div>
-  <div class="src">Source: A. Gordić, Inside vLLM (2025)</div>
-  <aside class="notes">
-    <p>Each pass has a budget: the maximum number of tokens it may process. Three requests are running, and three are waiting. How would you spend the budget?</p>
-    <p data-step="1">vLLM serves decode first. Requests already running each take one token. A user already reading an answer should not see it stall because someone else arrived.</p>
-    <p data-step="2">Then it turns to the waiting queue. D has 40 tokens in its prompt. It gets its blocks, and moves to running.</p>
-    <p data-step="3">Now E. There are 21 tokens left in the budget and E needs 30. It takes 21 and finishes its prompt on a later pass. F keeps waiting. The older V0 engine could only run prefill or decode in one pass; the V1 engine mixes them. The next slide looks at how a request gets its blocks.</p>
-  </aside>
-</section>
-
-<section class="slide light" id="vslots" data-steps="4" data-section="2 · The vLLM engine" data-time="1.5" data-title="allocate_slots hands out blocks">
-  <div class="hd">
-    <div class="eyebrow">Allocating memory</div>
-    <h2>A request gets whole blocks from a free list</h2>
-  </div>
-  <div class="abs vz-req" style="left:120px;top:240px;width:1680px">
-    <div class="vz-lab">Request A: 17 new tokens</div>
-    <div class="vz-tk" id="vz-tk"></div>
-    <div class="vz-f" data-s="1"><code>blocks = ceil(17 / 16) = 2</code></div>
-  </div>
-  <div class="abs" style="left:120px;top:490px;width:1680px">
-    <div class="vz-lab"><code>free_block_queue</code></div>
-    <div class="vz-q" id="vz-q"></div>
-    <div class="vz-map" data-s="2" data-h="3"><code>req_to_blocks["A"] = [0, 1]</code> and the queue moves on.</div>
-  </div>
-  <div class="abs card vz-ask" data-s="3" data-h="4" style="left:120px;top:780px;width:1680px"><small>Your turn</small><p>Request B needs <b>3</b> blocks, and only <b>2</b> are free. What should the scheduler do?</p></div>
-  <div class="abs card vz-ask a" data-s="4" style="left:120px;top:760px;width:1680px"><p><b>Waiting request:</b> it stays in the waiting queue. <b>Running request:</b> the engine can preempt a lower-priority one, free its blocks, and recompute it later.</p></div>
-  <div class="src">Source: A. Gordić, Inside vLLM (2025)</div>
-  <aside class="notes">
-    <p>Here is the function at the centre of the memory design, allocate_slots. Request A has 17 new tokens.</p>
-    <p data-step="1">Blocks hold 16 tokens each, so it needs the ceiling of 17 over 16: 2 blocks. One slot-level detail: the last block is only partly full, and that is the only waste there is.</p>
-    <p data-step="2">It takes the first two blocks from the free queue and records them in req_to_blocks, a dictionary from request ID to its list of blocks. The queue is a doubly linked list, so both operations are constant time. When a request finishes, its blocks go back on the queue.</p>
-    <p data-step="3">Now time passes and the queue is nearly empty. Request B needs three blocks, and two are free. Ask the room: what should happen? There is more than one reasonable answer.</p>
-    <p data-step="4">It depends on the request. A request that has not started just stays in the waiting queue. A running request that needs one more block is a harder case: the engine can preempt a lower-priority request, free its blocks, and later compute it again from scratch. That is called recompute preemption. The older V0 engine could also swap a cache out; the V1 engine recomputes. Think about what that costs: the prefill has to be repeated.</p>
-  </aside>
-</section>
-
-<section class="slide light" id="vpaged" data-steps="0" data-section="2 · The vLLM engine" data-time="2" data-title="Continuous batching on paged memory">
-  <div class="hd">
-    <div class="eyebrow">Putting it together</div>
-    <h2>Continuous batching on paged memory</h2>
+    <div class="eyebrow">vLLM running</div>
+    <h2>Memory is handed out in small blocks</h2>
   </div>
   <div class="abs card vg-r" id="vg-r" style="left:120px;top:236px;width:640px;height:610px"></div>
   <div class="abs card vg-m" style="left:800px;top:236px;width:1000px;height:610px">
-    <div class="vg-top"><small>GPU memory: KV blocks</small><span id="vg-st"></span></div>
+    <div class="vg-top"><small>GPU memory, split into blocks</small><span id="vg-st"></span></div>
     <div class="vg-g" id="vg-g"></div>
   </div>
-  <p class="abs t" style="left:120px;top:870px;width:1680px;font-size:29px">A finished request frees its blocks at once, and a waiting request joins on the next pass. A request's blocks need not be adjacent.</p>
+  <p class="abs t" style="left:120px;top:870px;width:1680px;font-size:30px">A finished request frees its blocks at once, and a waiting request joins on the next pass.</p>
   <div class="abs" id="vg-pl" style="left:120px;top:960px;width:560px"></div>
   <div class="abs note" style="left:720px;top:960px;font-size:21px">Simulated. Blocks hold 4 tokens here for drawing; the default is 16.</div>
   <aside class="notes">
-    <p>Here are the last few slides running together. On the left are five requests. On the right is GPU memory divided into blocks, and each dot is one token's keys and values. Each tick of the player is one call to step.</p>
-    <p>A, B and C arrive at the start and each get the blocks they need for their prompts. As they decode, each takes one more dot per pass, and takes a new block when one fills. Watch the colours mix: a request's blocks are not next to each other, and that does not matter.</p>
-    <p>When C finishes, its blocks go back to the free queue immediately. D and E arrive while others are running, and they join on the next pass. No request ever waited for a batch to end, and no memory was reserved for tokens that do not exist yet. Pause here and ask if anyone has questions, because everything in Part 3 builds on this picture.</p>
+    <p>Here is everything together. On the left are five requests. On the right is GPU memory, split into blocks, and each dot is one token's saved work. Each tick is one pass of the loop.</p>
+    <p>Each request takes a block only when it needs one. Watch the colours mix: a request's blocks are not next to each other, and that does not matter.</p>
+    <p>When a request finishes, its blocks are free immediately, and a waiting request joins on the next pass. Nobody waits for a batch to end, and no memory is reserved for tokens that do not exist yet. Those were our two problems, and this one picture solves both.</p>
   </aside>
 </section>
 
-<section class="slide light" id="vflat" data-section="2 · The vLLM engine" data-time="1.5" data-title="The batch is one long sequence">
+<section class="slide light" id="vbridge" data-section="2 · How vLLM works" data-time="1" data-title="What vLLM handles, and what is left to you">
   <div class="hd">
-    <div class="eyebrow">The forward pass</div>
-    <h2>The batch is one long sequence, with no padding</h2>
-  </div>
-  <div class="abs card vf-a" style="left:120px;top:236px;width:640px;height:400px">
-    <small>A usual batch: a rectangle</small>
-    <div class="vf-rect" id="vf-rect"></div>
-    <p><b class="hr">8 of 15</b> cells are padding.</p>
-  </div>
-  <div class="abs card vf-b" data-s="1" style="left:800px;top:236px;width:1000px;height:400px">
-    <small>In vLLM: one flat sequence</small>
-    <div class="vf-rows" id="vf-rows"></div>
-    <p class="vf-c1">Positions tell each token where it is in its own request.</p>
-  </div>
-  <div class="abs card vf-s" data-s="2" style="left:120px;top:660px;width:1680px">
-    <div class="vf-bl"><small>Blocks held</small><span><b class="a">A</b> [3, 7]</span><span><b class="b">B</b> [1, 5, 9]</span><span><b class="c">C</b> [0, 6]</span></div>
-    <p><code>slot_mapping</code> says where in GPU memory each token's keys and values go. For B at position 9: block index 9 // 4 = 2, which is block 9, offset 1, so slot <b>9 × 4 + 1 = 37</b>.</p>
-  </div>
-  <div class="src">Source: A. Gordić, Inside vLLM (2025). Block size 4 for drawing; the default is 16.</div>
-  <aside class="notes">
-    <p>One more piece, and this one is about tensors. A is prefilling five tokens. B and C are decoding, so they each contribute a single token. In ordinary PyTorch you would make a rectangle, and pad. Here more than half the cells are padding, and in a real batch, with long prompts, far more.</p>
-    <p data-step="1">vLLM does not make a rectangle. It concatenates everything into one long sequence: seven tokens, no padding. A positions array records where each token sits in its own request, which is why B's token says 9. Attention masks ensure each token attends only to its own request's tokens. This is why requests can join and leave at every pass: nothing about the shape of the tensor depends on who is in the batch. Custom attention kernels make this efficient.</p>
-    <p data-step="2">The last piece connects to paging. Every token has to write its keys and values somewhere, and slot_mapping is the address. Take B: position 9, blocks of size 4, so it is in the third block, block number 9, offset 1, which is slot 37. This is exactly virtual-to-physical address translation, computed for every token in the batch. That is the core of vLLM. Next, what it builds on top of this.</p>
-  </aside>
-</section>
-
-<section class="slide dark" id="vsec3" data-section="3 · Engine features" data-time="0.2" data-title="Part 3 · Five engine features">
-  <div class="dv-num">3</div>
-  <div class="dv-eb">Part 3</div>
-  <div class="dv-h">Five engine features</div>
-  <div class="dv-line"></div>
-  <div class="dv-q">Each one starts from a practical problem and adds little to the core.</div>
-  <aside class="notes"><p>With the core in place, five features. For each one we ask the same two questions: what problem does it solve, and how little does it have to add to the loop you just saw?</p></aside>
-</section>
-
-<section class="slide light" id="vchunk" data-section="3 · Engine features" data-time="1" data-title="Chunked prefill splits a long prompt">
-  <div class="hd">
-    <div class="eyebrow">1 · Chunked prefill</div>
-    <h2>A long prompt can hold up everyone else</h2>
-  </div>
-  <div class="abs card vh-p" style="left:120px;top:240px;width:820px;height:440px">
-    <h3>Whole prompt in one pass</h3>
-    <div class="vh-r"><small>Pass 1</small><i class="p" style="width:100%">long prompt P</i></div>
-    <div class="vh-r"><small>Pass 2</small><i class="q" style="width:30%">Q</i><i class="r" style="width:30%">R</i></div>
-    <p>Q and R wait a whole pass before they start.</p>
-  </div>
-  <div class="abs card vh-p" data-s="1" style="left:980px;top:240px;width:820px;height:440px">
-    <h3>Prompt split into chunks</h3>
-    <div class="vh-r"><small>Pass 1</small><i class="p" style="width:38%">P: chunk x</i><i class="q" style="width:30%">Q</i></div>
-    <div class="vh-r"><small>Pass 2</small><i class="p" style="width:38%">P: chunk y</i><i class="r" style="width:30%">R</i></div>
-    <div class="vh-r"><small>Pass 3</small><i class="p" style="width:24%">P: chunk z</i></div>
-    <p>Q and R start early. P samples its first token only after chunk z.</p>
-  </div>
-  <div class="abs code" data-s="2" style="left:120px;top:720px;width:1680px;font-size:30px"><span class="c"># the whole change: cap the new tokens per pass</span>
-num_new_tokens = min(num_new_tokens, long_prefill_token_threshold)</div>
-  <div class="src">Source: A. Gordić, Inside vLLM (2025)</div>
-  <aside class="notes">
-    <p>Problem: one very long prompt takes over an entire pass. Everyone else waits for it, and their time to first token gets worse.</p>
-    <p data-step="1">Fix: split the prompt across several passes, and let others share each one. P takes three passes now, so its own first token comes a little later, and everyone else's comes earlier. You choose who waits. This is the same thing an operating system does with a time slice.</p>
-    <p data-step="2">Look at how small the change is. If the new tokens exceed a threshold, cap them. The block indexing we already built takes care of the rest. In vLLM you enable it by setting long_prefill_token_threshold to a positive number. A good core design makes features small.</p>
-  </aside>
-</section>
-
-<section class="slide light" id="vprefix" data-section="3 · Engine features" data-time="1.8" data-title="Prefix caching reuses shared prompt starts">
-  <div class="hd">
-    <div class="eyebrow">2 · Prefix caching</div>
-    <h2>Prompts that start the same share their blocks</h2>
-  </div>
-  <div class="abs vr-row" style="left:120px;top:236px;width:1680px"><small>Request 1</small><div class="vr-s"><b class="vr-b r1">16 tokens</b><b class="vr-b r1">16 tokens</b><b class="vr-b r1">16 tokens</b><b class="vr-e r1">Hello, my name is</b></div></div>
-  <div class="abs vr-row" style="left:120px;top:342px;width:1680px"><small>Request 2</small><div class="vr-s"><b class="vr-b r2">16 tokens</b><b class="vr-b r2">16 tokens</b><b class="vr-b r2">16 tokens</b><b class="vr-e r2">The president of the United States is</b></div></div>
-  <div class="abs" data-s="1" style="left:120px;top:462px;width:1680px">
-    <div class="vr-h"><code>h0 = hash(None, tokens0, meta)</code><span>→</span><code>h1 = hash(h0, tokens1, meta)</code><span>→</span><code>h2 = hash(h1, tokens2, meta)</code></div>
-    <p class="vr-n">Each hash includes the previous one, so equal hashes mean an equal start, not just one equal block.</p>
-  </div>
-  <div class="abs card vr-t" data-s="2" style="left:120px;top:640px;width:760px"><small><code>cached_block_hash_to_block</code></small><table><tr><td>h0</td><td>→ block 12</td></tr><tr><td>h1</td><td>→ block 4</td></tr><tr><td>h2</td><td>→ block 31</td></tr></table></div>
-  <div class="abs vr-say" style="left:920px;top:640px;width:880px">
-    <p data-s="2" data-h="3"><b>Request 1:</b> no hashes found. It computes all three blocks and records them.</p>
-    <p data-s="3"><b>Request 2:</b> all three hashes found. It reuses those blocks and computes only its own last tokens.</p>
-    <p class="vr-c" data-s="3">Only complete blocks are cached. It speeds up prefill, not decode. On by default.</p>
-  </div>
-  <div class="src">Source: A. Gordić, Inside vLLM (2025). Block numbers are illustrative.</div>
-  <aside class="notes">
-    <p>Problem: many prompts begin the same way. Think of a system prompt, or the same instructions sent with every page. Without a cache, every request recomputes that prefix. Here two requests share three blocks of tokens.</p>
-    <p data-step="1">How do we know two prefixes match? vLLM hashes each complete block. The trick is that each hash also includes the previous block's hash. So a match on h2 tells you h0 and h1 matched as well: the whole prefix is equal. If you have seen git or a blockchain, it is the same chain. Metadata such as a LoRA ID or a cache salt also goes in, so requests that should not share do not.</p>
-    <p data-step="2">The first request finds no hashes, so it computes the three blocks and records which block holds each hash.</p>
-    <p data-step="3">The second request finds all three, reuses those blocks, and only computes what follows. Here is a nice detail: when a request finishes, its blocks go back to the free queue, but the hash entries remain. A block is only truly forgotten when the free queue hands it to someone else. So the free list is also a least-recently-used cache, at no extra cost. Keep this in mind for the second half, where every request in a step shares the same instructions.</p>
-  </aside>
-</section>
-
-<section class="slide light" id="vguided" data-steps="2" data-section="3 · Engine features" data-time="1.5" data-title="Guided decoding restricts the next token">
-  <div class="hd">
-    <div class="eyebrow">3 · Guided decoding</div>
-    <h2>A grammar decides which tokens are allowed next</h2>
-  </div>
-  <div class="abs code" style="left:120px;top:236px;width:1680px;font-size:27px">GuidedDecodingParams(choice=[<span class="s">"Positive"</span>, <span class="s">"Negative"</span>])</div>
-  <div class="abs card vj-f" style="left:120px;top:356px;width:720px;height:510px">
-    <small>Finite state machine</small>
-    <svg id="vj-fsm" viewBox="0 0 660 400" style="width:660px;height:400px"></svg>
-  </div>
-  <div class="abs card vj-l" style="left:880px;top:356px;width:920px;height:510px">
-    <small>Logits for the next token</small>
-    <div class="vj-bars" id="vj-bars"></div>
-    <div class="vj-bits"><span>bit mask</span><code id="vj-bits"></code></div>
-  </div>
-  <p class="abs t" id="vj-say" style="left:120px;top:886px;width:1680px;font-size:29px"></p>
-  <div class="src">Source: A. Gordić, Inside vLLM (2025). Character tokens and an 8-token vocabulary, for drawing.</div>
-  <aside class="notes">
-    <p>Problem: you need the output to follow a format. A label from a fixed list, or valid JSON. You could ask nicely in the prompt and hope. Guided decoding makes it impossible to break the format. Here is the simplest case: the answer must be Positive or Negative. Imagine each character is a token, and our vocabulary has eight tokens.</p>
-    <p>A grammar is compiled into a finite state machine. At the start, only P or N are allowed. So a bit mask is built, with a 1 for each allowed token, and every disallowed logit is set to minus infinity. Whatever the model wants to say, it can only sample P or N.</p>
-    <p data-step="1">It samples P. The state machine moves, and now only o is allowed. The mask changes.</p>
-    <p data-step="2">Then s, and so on until the word is complete. This works for regular expressions and context-free grammars, so most programming languages and JSON. In vLLM the masks are arrays of 32-bit integers, and libraries such as xgrammar produce them. Remember this: one integer holding one yes or no per item. We use the same idea in Patram-Ingest for a completely different job.</p>
-  </aside>
-</section>
-
-<section class="slide light" id="vspec" data-section="3 · Engine features" data-time="1.5" data-title="Speculative decoding checks a cheap guess">
-  <div class="hd">
-    <div class="eyebrow">4 · Speculative decoding</div>
-    <h2>A cheap guess, checked in one large pass</h2>
-  </div>
-  <div class="abs vd-row" style="left:120px;top:240px;width:1680px"><small>Large model only</small><div class="vd-s"><b class="vd-l">pass</b><i>the</i><b class="vd-l">pass</b><i>cat</i><b class="vd-l">pass</b><i>sat</i></div><span class="vd-r"><b>3</b> large passes, 3 tokens</span></div>
-  <div class="abs vd-row" data-s="1" style="left:120px;top:370px;width:1680px"><small>1 · Draft</small><div class="vd-s"><b class="vd-d">small proposer</b><i class="g">the</i><i class="g">cat</i><i class="g">ran</i></div><span class="vd-r">proposes <b>k = 3</b> tokens, cheaply</span></div>
-  <div class="abs card vd-t" data-s="2" style="left:120px;top:490px;width:1100px">
-    <small>2 · Verify: one large pass over the guess, then left to right</small>
-    <table>
-      <tr><th>Token</th><th>p large</th><th>p draft</th><th>Decision</th></tr>
-      <tr class="ok"><td>the</td><td>0.6</td><td>0.4</td><td>large ≥ draft: accept</td></tr>
-      <tr class="ok"><td>cat</td><td>0.3</td><td>0.5</td><td>accept with chance 0.3 / 0.5: accepted</td></tr>
-      <tr class="no"><td>ran</td><td>0.1</td><td>0.5</td><td>accept with chance 0.1 / 0.5: rejected, stop</td></tr>
-    </table>
-  </div>
-  <div class="abs card vd-res" data-s="3" style="left:1260px;top:490px;width:540px"><small>3 · Result</small><div class="vd-s"><i>the</i><i>cat</i><i class="n">sat</i></div><p><b>3 tokens from 1 large pass.</b> After a rejection, one new token is sampled from a corrected distribution.</p></div>
-  <p class="abs t" data-s="3" style="left:120px;top:850px;width:1680px;font-size:29px">In expectation the output has <b>the same distribution</b> as the large model alone. vLLM V1 proposes with n-gram, EAGLE or Medusa.</p>
-  <div class="src">Source: A. Gordić, Inside vLLM (2025); Chen et al. (2023). Probabilities are illustrative.</div>
-  <aside class="notes">
-    <p>Problem: every token needs a full pass of a large model, reading all its weights. Three tokens cost three passes.</p>
-    <p data-step="1">Idea: let something cheap guess several tokens ahead. Here it proposes three: the, cat, ran.</p>
-    <p data-step="2">Then the large model runs once over the context and all the guessed tokens together, and now we have its probability at each position. Go left to right. If the large model likes a token at least as much as the draft did, accept it. If not, accept it with probability equal to the ratio. Here "the" is accepted. "cat" is a coin flip at 0.6, and happens to pass. "ran" has only a 0.2 chance, and is rejected, so we stop there.</p>
-    <p data-step="3">At the rejected position we sample a replacement from a corrected distribution: large minus draft, floored at zero, then normalized. If all were accepted, we get one more for free. So one large pass gave three tokens. The accept rule is chosen so the result has exactly the distribution of the large model on its own. This is one of those results worth reading the proof of. vLLM V1 does not use a small LLM as the draft; it uses cheaper methods: n-gram lookup in the existing text, EAGLE and Medusa.</p>
-  </aside>
-</section>
-
-<section class="slide light" id="vpd" data-section="3 · Engine features" data-time="0.8" data-title="Disaggregated prefill and decode">
-  <div class="hd">
-    <div class="eyebrow">5 · Disaggregated prefill and decode</div>
-    <h2>Two kinds of work can run on separate machines</h2>
-  </div>
-  <div class="abs vw-flow" style="left:120px;top:270px;width:1680px">
-    <div class="vw-col"><small>N prefill instances</small><div class="card vw-n o">vLLM · GPU</div><div class="card vw-n o">vLLM · GPU</div><p>Long and bursty.<br>Limited by compute.</p></div>
-    <span class="vw-ar" data-s="1">writes KV →</span>
-    <div class="card vw-kv" data-s="1"><b>KV cache service</b><span>through a connector, for example LMCache</span></div>
-    <span class="vw-ar" data-s="1">reads KV →</span>
-    <div class="vw-col"><small>M decode instances</small><div class="card vw-n b">vLLM · GPU</div><div class="card vw-n b">vLLM · GPU</div><p>Steady and latency-sensitive.<br>Limited by memory bandwidth.</p></div>
-  </div>
-  <p class="abs t" data-s="2" style="left:120px;top:740px;width:1680px;font-size:32px">Separating them gives tighter control of TTFT and ITL, and each side can scale with the live mix of requests.</p>
-  <div class="src">Source: A. Gordić, Inside vLLM (2025)</div>
-  <aside class="notes">
-    <p>Remember the two phases. Prefill is limited by compute and comes in bursts. Decode is limited by memory bandwidth and is steady, and users notice any stall. Running both on one GPU means a burst of prefill can disturb decode.</p>
-    <p data-step="1">So run them apart. N instances only do prefill and write the KV cache to a shared service. M instances read it and do the decoding. A piece of code called a connector moves the data. That interface is still changing, so treat this as the idea rather than a stable API.</p>
-    <p data-step="2">It costs extra machinery, and pays off when you are serving at large scale. A one-sentence takeaway from these five features: chunked prefill and prefix caching change how prefill runs, guided and speculative decoding change how decode runs, and this one separates the two. All five sit on the loop from Part 2.</p>
-  </aside>
-</section>
-
-<section class="slide dark" id="vsec4" data-section="4 · Serving at scale" data-time="0.2" data-title="Part 4 · From one GPU to a service">
-  <div class="dv-num">4</div>
-  <div class="dv-eb">Part 4</div>
-  <div class="dv-h">From one GPU to a service</div>
-  <div class="dv-line"></div>
-  <div class="dv-q">What changes when the model is too big, or the users too many?</div>
-  <aside class="notes"><p>So far: one process, one GPU, no network. Now we scale up to several GPUs, scale out to several machines, and put a web server in front. Watch how much of the engine has to change. The answer is almost none of it.</p></aside>
-</section>
-
-<section class="slide light" id="vpar" data-steps="0" data-section="4 · Serving at scale" data-time="1.2" data-title="Three ways to spread a model over GPUs">
-  <div class="hd">
-    <div class="eyebrow">Parallelism</div>
-    <h2>Three ways to spread a model over GPUs</h2>
-  </div>
-  <div class="abs" style="left:120px;top:236px;width:1680px;display:grid;grid-template-columns:repeat(3,1fr);gap:30px">
-    <div class="card vy-c"><h3>Tensor (TP)</h3><svg id="vy-tp" viewBox="0 0 500 270"></svg><p>Each GPU holds a slice of every layer, on one node.</p><div class="vy-w"><small>Use when</small>the model does not fit on one GPU.</div></div>
-    <div class="card vy-c"><h3>Pipeline (PP)</h3><svg id="vy-pp" viewBox="0 0 500 270"></svg><p>Each node holds some of the layers.</p><div class="vy-w"><small>Use when</small>it does not fit on one node either.</div></div>
-    <div class="card vy-c"><h3>Data (DP)</h3><svg id="vy-dp" viewBox="0 0 500 270"></svg><p>Each replica holds the whole model.</p><div class="vy-w"><small>Use when</small>you need more throughput.</div></div>
-  </div>
-  <div class="src">Source: A. Gordić, Inside vLLM (2025)</div>
-  <aside class="notes">
-    <p>There are three ways to use more than one GPU, each answering a different problem. Tensor parallelism: the model does not fit on one GPU, so each GPU holds a slice of every layer, inside one node. Pipeline parallelism: it does not even fit on one node, so the layers themselves are split across nodes. Bandwidth inside a node is far higher than between nodes, which is why tensor parallelism is usually tried first. Data parallelism: the model fits, but you need more throughput, so you run whole copies and spread the requests.</p>
-    <p>A warning about words. Pipeline parallelism here means splitting a model's layers. Later, in Patram-Ingest, you will hear pipeline parallel used for something else: different models in a workflow all running at the same time. Same words, different ideas. The field reuses words.</p>
-  </aside>
-</section>
-
-<section class="slide light" id="vmp" data-steps="3" data-section="4 · Serving at scale" data-time="1.2" data-title="One process per GPU, and the same engine">
-  <div class="hd">
-    <div class="eyebrow">Multiple GPUs</div>
-    <h2>One process per GPU, and the same engine</h2>
-  </div>
-  <div class="abs card vn-e" style="left:120px;top:300px;width:330px;height:440px"><small>Engine core</small><code>execute_model()</code><span>MultiProcExecutor</span></div>
-  <div class="abs vn-q q1" style="left:510px;top:310px;width:320px"><b><code>rpc_broadcast_mq</code></b><span>shared memory: every worker reads each message</span></div>
-  <div class="abs vn-q q2" style="left:510px;top:560px;width:320px"><b><code>worker_response_mq</code></b><span>one queue per worker: results come back</span></div>
-  <div class="abs vn-w" id="vn-w" style="left:890px;top:300px;width:910px;height:440px"></div>
-  <div class="abs vn-say" style="left:120px;top:780px;width:1680px">
-    <p data-h="1">The executor starts one daemon process per GPU. Each builds its own worker and loads its slice.</p>
-    <p data-s="1" data-h="2"><b>Broadcast:</b> the engine puts the work on one shared queue, without blocking.</p>
-    <p data-s="2" data-h="3"><b>Run:</b> each worker wakes up and runs its part of the forward pass. Workers exchange data between GPUs.</p>
-    <p data-s="3"><b>Collect:</b> the engine waits on the output worker's queue only, and gets the result.</p>
-  </div>
-  <div class="src">Source: A. Gordić, Inside vLLM (2025). TP = 8 shown.</div>
-  <aside class="notes">
-    <p>Say tensor parallelism across 8 GPUs. Each GPU gets its own process. The class MultiProcExecutor starts them, and each goes through the same init device and load model steps we saw before. At start-up they hand back their response queue handles, and then each sits in a loop, blocked waiting for work.</p>
-    <p data-step="1">The engine calls execute_model, as always. The executor puts the work on one broadcast queue in shared memory. It is implemented with shared memory, so all the workers on the node can read the same message.</p>
-    <p data-step="2">All 8 wake up and run their slice, exchanging tensors between themselves.</p>
-    <p data-step="3">The engine waits on the queue of the one worker that holds the final output. And here is the point: the scheduler, the blocks and the loop did not change at all. Only the object behind execute_model changed. That is an interface doing its job, and it is why we said the client and executor design was a lesson in itself.</p>
-  </aside>
-</section>
-
-<section class="slide light" id="kinds" data-steps="0" data-section="4 · From one GPU to a service" data-time="1.5" data-title="Processes, threads and event loops">
-  <div class="hd">
-    <div class="eyebrow">Background</div>
-    <h2>Three kinds of concurrency in Python</h2>
-  </div>
-  <div class="abs" style="left:120px;top:228px;width:1680px;display:grid;grid-template-columns:repeat(3,1fr);gap:30px">
-    <div class="card kd3 p">
-      <small>Process</small><h3>Separate programs</h3>
-      <svg viewBox="0 0 480 150">
-        <g font-family="IBM Plex Sans" font-size="18" font-weight="600" fill="#1F4FA8">
-          <rect x="4" y="6" width="144" height="104" rx="14" fill="#fff" stroke="#2A63C9" stroke-width="3"/>
-          <rect x="168" y="6" width="144" height="104" rx="14" fill="#fff" stroke="#2A63C9" stroke-width="3"/>
-          <rect x="332" y="6" width="144" height="104" rx="14" fill="#fff" stroke="#2A63C9" stroke-width="3"/>
-          <text x="20" y="34">own memory</text><text x="184" y="34">own memory</text><text x="348" y="34">own memory</text>
-          <rect x="20" y="56" width="112" height="30" rx="8" fill="#E4ECFA"/><rect x="184" y="56" width="112" height="30" rx="8" fill="#E4ECFA"/><rect x="348" y="56" width="112" height="30" rx="8" fill="#E4ECFA"/>
-          <rect x="20" y="56" width="112" height="30" rx="8" fill="#F28C28"/>
-          <rect x="184" y="56" width="112" height="30" rx="8" fill="#F28C28"/>
-          <rect x="348" y="56" width="112" height="30" rx="8" fill="#F28C28"/>
-        </g>
-        <text x="4" y="140" font-family="IBM Plex Sans" font-size="21" font-weight="600" fill="#5B6785">all three compute at the same time</text>
-      </svg>
-      <ul><li class="y">Truly parallel, even for Python code</li><li class="y">A crash stays inside it</li><li class="n">Heavier, and data is copied between them</li></ul>
-      <div class="use"><b>Use for</b>CPU-heavy work, anything that may crash, anything that owns a GPU</div>
-    </div>
-    <div class="card kd3 t">
-      <small>Thread</small><h3>Helpers in one program</h3>
-      <svg viewBox="0 0 480 150">
-        <rect x="4" y="6" width="472" height="104" rx="14" fill="#fff" stroke="#6B4BB8" stroke-width="3"/>
-        <text x="20" y="32" font-family="IBM Plex Sans" font-size="18" font-weight="600" fill="#6B4BB8">shared memory</text>
-        <g>
-          <rect x="20" y="44" width="300" height="16" rx="8" fill="#F28C28"/>
-          <rect x="20" y="66" width="300" height="16" rx="8" fill="#ECE6F8"/>
-          <rect x="20" y="88" width="300" height="16" rx="8" fill="#ECE6F8"/>
-          <g>
-            <rect x="344" y="40" width="112" height="24" rx="12" fill="#0E1A3A"/><text x="400" y="58" font-family="IBM Plex Mono" font-size="16" font-weight="700" fill="#fff" text-anchor="middle">GIL</text>
-          </g>
-        </g>
-        <text x="4" y="140" font-family="IBM Plex Sans" font-size="21" font-weight="600" fill="#5B6785">only one runs Python at a time</text>
-      </svg>
-      <ul><li class="y">Easiest: they share memory, so a hand-off is just passing an object</li><li class="n">One at a time in Python (the GIL)</li><li class="n">A crash takes the whole program down</li></ul>
-      <div class="use"><b>Use for</b>waiting on the disk, the network or the database</div>
-    </div>
-    <div class="card kd3 e">
-      <small>Event loop</small><h3>One thread, many waits</h3>
-      <svg viewBox="0 0 480 150">
-        <g transform="translate(80 58)">
-          <circle r="36" fill="#FFF4E2" stroke="#F28C28" stroke-width="3"/>
-          <text y="6" font-family="IBM Plex Sans" font-size="16" font-weight="700" fill="#B85C0A" text-anchor="middle">1 thread</text>
-          <g>
-            <g fill="#F28C28"><circle cx="0" cy="-48" r="7"/><circle cx="42" cy="-24" r="7"/><circle cx="42" cy="24" r="7"/><circle cx="0" cy="48" r="7"/><circle cx="-42" cy="24" r="7"/><circle cx="-42" cy="-24" r="7"/></g>
-          </g>
-        </g>
-        <g font-family="IBM Plex Sans" font-size="20" fill="#42506B">
-          <text x="200" y="40">each call waits for</text><text x="200" y="66">its answer, and the</text><text x="200" y="92">thread runs the others</text>
-        </g>
-        <text x="4" y="140" font-family="IBM Plex Sans" font-size="21" font-weight="600" fill="#5B6785">many calls in flight, one thread</text>
-      </svg>
-      <ul><li class="y">Hundreds of calls in flight, almost free</li><li class="y">No locks: one thing runs at a time</li><li class="n">One slow step blocks every call</li></ul>
-      <div class="use"><b>Use for</b>many model calls at once</div>
-    </div>
-  </div>
-  <div class="abs kd3r" style="left:120px;top:916px;width:1680px">
-    <div class="p"><small>Rule of thumb</small>computing → <em>process</em></div>
-    <div class="t"><small>Rule of thumb</small>waiting → <em>thread</em></div>
-    <div class="e"><small>Rule of thumb</small>many waits → <em>event loop</em></div>
-  </div>
-  <aside class="notes">
-    <p>vLLM is now many pieces running at the same time, and this is the part of the lecture that is most directly about programming. Before we look at how vLLM arranges those pieces, the first principles. There are three ways to have a computer do many things at once, and each is good at one thing. We will use these three again for Patram-Ingest.</p>
-    <p>A process is a separate program with its own memory and its own Python interpreter. Processes really run in parallel, even Python code, and if one crashes the others keep going. The cost: they are heavier, and data has to be copied between them. So processes are for CPU-heavy work, for anything that might crash, and for anything that owns a GPU.</p>
-    <p>Threads are helpers inside one program. They are the easy option, because they share memory: handing a result to another thread is just passing an object, nothing is copied. The catch in Python is the GIL: only one thread runs Python at a time. That is fine while a thread is waiting on the disk, the network or the database, because waiting releases the GIL, but it is bad for CPU work. And a crash takes the whole program down. So threads are for waiting.</p>
-    <p>An event loop is one thread that juggles many waits. Each call starts, waits for its answer, and while it waits the loop runs the others. Hundreds of calls can be in flight almost for free, and there are no locks because only one thing runs at a time. But one slow step that does not wait properly blocks every call. So event loops are for many model calls at once.</p>
-    <p>Rule of thumb, under each column: computing, a process; waiting, a thread; many waits at once, an event loop.</p>
-  </aside>
-</section>
-
-<section class="slide light" id="vthree" data-section="4 · Serving at scale" data-time="1.5" data-title="vLLM uses all three">
-  <div class="hd">
-    <div class="eyebrow">Concurrency in vLLM</div>
-    <h2>vLLM uses all three, each where it fits</h2>
-  </div>
-  <div class="abs vu-p api" style="left:120px;top:240px;width:540px;height:560px">
-    <small class="pc">Process · API server</small>
-    <div class="vu-el"><small class="ec">Event loop</small><ul><li>one task per client request</li><li><code>process_outputs_socket</code></li><li><code>output_handler</code></li><li><code>run_engine_stats_update_task</code></li></ul></div>
-    <p>Hundreds of open requests, mostly waiting.</p>
-  </div>
-  <div class="abs vu-ar" data-s="1" style="left:668px;top:470px">ZMQ<br>↔</div>
-  <div class="abs vu-p eng" data-s="1" style="left:740px;top:240px;width:540px;height:560px">
-    <small class="pc">Process · Engine core</small>
-    <div class="vu-th"><small class="tc">Input thread</small><span>blocks on the socket</span></div>
-    <div class="vu-d">↓ <code>input_queue</code></div>
-    <div class="vu-th m"><small class="tc">Main thread</small><span>runs the engine loop</span></div>
-    <div class="vu-d">↓ <code>output_queue</code></div>
-    <div class="vu-th"><small class="tc">Output thread</small><span>sends results back</span></div>
-  </div>
-  <div class="abs vu-ar" data-s="2" style="left:1288px;top:470px">shm<br>↔</div>
-  <div class="abs vu-w" data-s="2" style="left:1360px;top:240px;width:440px;height:560px">
-    <div class="vu-g"><b>Process</b><span>GPU 0</span></div><div class="vu-g"><b>Process</b><span>GPU 1</span></div><div class="vu-g"><b>Process</b><span>GPU 2</span></div><div class="vu-g"><b>Process</b><span>GPU 3</span></div>
-    <p>Real parallelism, and one owner per GPU.</p>
-  </div>
-  <div class="abs vu-leg" style="left:120px;top:830px;width:1680px"><span class="p"><i></i>Process: computing</span><span class="t"><i></i>Thread: waiting</span><span class="e"><i></i>Event loop: many waits</span></div>
-  <p class="abs t" data-s="2" style="left:120px;top:890px;width:1680px;font-size:29px">The threads exist so that <b>the engine loop never blocks on the network</b>.</p>
-  <div class="src">Source: A. Gordić, Inside vLLM (2025)</div>
-  <aside class="notes">
-    <p>Here is how vLLM uses those three tools. Start on the left: the API server. Each client request is a task on one asyncio event loop, because a request spends almost all of its time waiting for tokens. Remember: asyncio is concurrent, not parallel. One thread can hold hundreds of open requests.</p>
-    <p data-step="1">In the middle, the engine core process. The main thread runs the loop you already know. If it had to read and write network sockets it could stall, and a stalled loop is an idle GPU. So there are two more threads. The input thread blocks on the socket, and when something arrives it puts it on a queue. The output thread does the reverse. These threads spend their lives waiting, which is exactly what threads are good at in Python. Two plain queues join them to the main thread.</p>
-    <p data-step="2">On the right, one process per GPU. Heavy computation, full parallelism, and one owner per GPU. So: event loop for many waits, threads for waiting, processes for computing. These are the choices you would make from the rule of thumb on the last slide. Keep this picture in mind; in Part 6 you get to make these choices yourself.</p>
-  </aside>
-</section>
-
-<section class="slide light" id="vserve" data-steps="0" data-section="4 · Serving at scale" data-time="1" data-title="Two nodes, four engines">
-  <div class="hd">
-    <div class="eyebrow">Scaling out</div>
-    <h2>Two nodes, four engines of four GPUs each</h2>
-  </div>
-  <div class="abs card vv-n" style="left:120px;top:236px;width:820px;height:390px"><small>Node 1 · headless</small><div class="vv-eg" id="vv-1"></div></div>
-  <div class="abs card vv-n" style="left:980px;top:236px;width:820px;height:390px"><small>Node 2 · with the API server</small><div class="vv-eg" id="vv-2"></div><div class="vv-api"><b>API server</b><b>DP coordinator</b></div></div>
-  <div class="abs code" style="left:120px;top:650px;width:1680px;font-size:25px;line-height:1.5"><span class="c"># node 1</span>
-vllm serve &lt;model-name&gt; --tensor-parallel-size <span class="n">4</span> --data-parallel-size <span class="n">4</span> --data-parallel-size-local <span class="n">2</span> \
-  --data-parallel-start-rank <span class="n">0</span> --data-parallel-address &lt;master-ip&gt; --data-parallel-rpc-port <span class="n">13345</span> <span class="k">--headless</span>
-<span class="c"># node 2: the same command, with --data-parallel-start-rank 2 and without --headless</span></div>
-  <div class="src">Source: A. Gordić, Inside vLLM (2025). Example: two 8-GPU H100 nodes.</div>
-  <aside class="notes">
-    <p>Here is a concrete deployment. Two nodes with eight GPUs each, a model that needs tensor parallelism of 4, and four replicas. So TP 4 and DP 4, with two engines on each node. Each small group is one engine core process with its four GPU worker processes under it.</p>
-    <p>You start this with the same command on both machines. On the first node, add headless, so no API server runs there. On the second node, change the start rank to 2 and drop headless. The API server and a small DP coordinator run on that second node. The processes do a handshake over the network, then settle into the steady state we just drew.</p>
-  </aside>
-</section>
-
-<section class="slide light" id="vlb" data-steps="1" data-section="4 · Serving at scale" data-time="0.8" data-title="Your turn: which engine gets the next request?">
-  <div class="hd">
-    <div class="eyebrow">Your turn</div>
-    <h2>Which engine gets the next request?</h2>
-  </div>
-  <div class="abs code" style="left:120px;top:240px;width:1680px;font-size:34px;text-align:center">score = len(waiting) * <span class="n">4</span> + len(running)     <span class="c"># lowest score wins</span></div>
-  <div class="abs card vlb-t" style="left:120px;top:370px;width:1680px">
-    <table>
-      <tr><th>Engine</th><th>Waiting</th><th>Running</th><th class="vlb-s">Score</th></tr>
-      <tr><td>Engine 0</td><td>2</td><td>10</td><td class="vlb-s"><b data-s="1">18</b></td></tr>
-      <tr><td>Engine 1</td><td>0</td><td>20</td><td class="vlb-s"><b data-s="1">20</b></td></tr>
-      <tr class="win"><td>Engine 2</td><td>1</td><td>9</td><td class="vlb-s"><b data-s="1">13 ← chosen</b></td></tr>
-      <tr><td>Engine 3</td><td>3</td><td>2</td><td class="vlb-s"><b data-s="1">14</b></td></tr>
-    </table>
-  </div>
-  <p class="abs t" data-s="1" style="left:120px;top:800px;width:1680px;font-size:30px">A waiting request has not even started, so it counts four times as much. The coordinator keeps these numbers fresh.</p>
-  <div class="src">Source: A. Gordić, Inside vLLM (2025). Queue lengths are illustrative.</div>
-  <aside class="notes">
-    <p>With four engines, someone must choose one for each new request. The rule is one line. Here are four engines. Ask the room: which gets the next request? Give them a moment to do the sum. Some will pick engine 3 because it has the fewest running.</p>
-    <p data-step="1">Engine 2 wins with 13, ahead of engine 3 at 14, even though engine 3 has fewer running. A waiting request means that engine is out of room, so it is penalized heavily. This simple formula does useful work. Notice how much of a real distributed system comes down to a one-line heuristic. The DP coordinator process periodically sends the queue lengths to the API server.</p>
-  </aside>
-</section>
-
-<section class="slide light" id="vcurl" data-steps="7" data-section="4 · Serving at scale" data-time="1.5" data-title="One curl, from start to finish">
-  <div class="hd">
-    <div class="eyebrow">Request lifecycle</div>
-    <h2>One curl, from start to finish</h2>
-  </div>
-  <div class="abs code" style="left:120px;top:222px;width:1680px;font-size:24px;line-height:1.4;padding:18px 32px">curl -X POST http://localhost:8000/v1/completions -H <span class="s">"Content-Type: application/json"</span> \
-  -d <span class="s">'{"model": "TinyLlama/TinyLlama-1.1B-Chat-v1.0", "prompt": "The capital of France is", "max_tokens": 50}'</span></div>
-  <div class="abs vx-rt" id="vx-rt" style="left:120px;top:340px;width:1680px;height:360px"></div>
-  <div class="abs card vx-d" id="vx-d" style="left:120px;top:730px;width:1680px;height:180px"></div>
-  <div class="src">Source: A. Gordić, Inside vLLM (2025)</div>
-  <aside class="notes">
-    <p>Now all of it together, following one request. Press next to step through it. You send one curl command from your terminal.</p>
-    <p data-step="1">It reaches FastAPI, served by Uvicorn, which handles the route on the event loop.</p>
-    <p data-step="2">The prompt is tokenized and packed with sampling settings and a request ID. Then AsyncLLM takes over, on the same path as the offline engine.</p>
-    <p data-step="3">Load balancing: the score from the last slide picks an engine, and the request is sent to that engine's socket.</p>
-    <p data-step="4">The engine's input thread wakes up, decodes the message and puts it on the input queue.</p>
-    <p data-step="5">The main thread picks it up and calls step repeatedly. Schedule, forward pass and postprocess: everything from Part 2, possibly with worker processes on many GPUs below it.</p>
-    <p data-step="6">The output thread sends results back through its socket.</p>
-    <p data-step="7">Two asyncio tasks in the API server receive them, and FastAPI returns the response to your terminal, with the finish reason and usage. A whole distributed machine, behind one curl. Any questions on this picture before we discuss how to measure it?</p>
-  </aside>
-</section>
-
-<section class="slide light" id="vmetrics" data-steps="0" data-section="4 · Serving at scale" data-time="1.2" data-title="What to measure">
-  <div class="hd">
-    <div class="eyebrow">Measuring</div>
-    <h2>What to measure on an inference system</h2>
-  </div>
-  <svg class="abs" viewBox="0 0 1680 230" style="left:120px;top:232px;width:1680px;height:230px">
-    <line x1="60" y1="130" x2="1620" y2="130" stroke="#9DB3DC" stroke-width="3"/>
-    <g fill="#F28C28"><circle cx="520" cy="130" r="13"/><circle cx="700" cy="130" r="13"/><circle cx="880" cy="130" r="13"/><circle cx="1060" cy="130" r="13"/><circle cx="1240" cy="130" r="13"/><circle cx="1420" cy="130" r="13"/></g>
-    <circle cx="60" cy="130" r="13" fill="#0E1A3A"/>
-    <g font-family="IBM Plex Sans" font-size="23" fill="#42506B"><text x="0" y="176">request sent</text><text x="520" y="176" text-anchor="middle">first token</text><text x="1420" y="176" text-anchor="middle">last token</text></g>
-    <g stroke="#0E1A3A" stroke-width="2" fill="none"><path d="M60 92V70H520V92"/><path d="M700 106V90H880V106"/><path d="M60 210V200H1420V210"/></g>
-    <g font-family="IBM Plex Sans" font-size="24" font-weight="600" fill="#0E1A3A" text-anchor="middle"><text x="290" y="56">TTFT</text><text x="790" y="76">ITL</text><text x="740" y="226" style="paint-order:stroke" stroke="#EDF2FA" stroke-width="10">End-to-end latency</text></g>
-  </svg>
-  <div class="abs" style="left:120px;top:486px;width:1680px;display:grid;grid-template-columns:repeat(2,1fr);gap:24px 30px">
-    <div class="card vme-c"><b>TTFT</b><span>Time to first token: from sending the request to the first output token.</span></div>
-    <div class="card vme-c"><b>ITL and TPOT</b><span>Inter-token latency: the gap between two tokens. Time per output token is its average.</span></div>
-    <div class="card vme-c"><b>End-to-end latency</b><span>The time from sending the request to the last token.</span></div>
-    <div class="card vme-c"><b>Throughput</b><span>Tokens or requests processed per second.</span></div>
-    <div class="card vme-c w"><b>Goodput</b><span>Throughput that meets your targets. Tokens from a request that misses its target do not count.</span></div>
-  </div>
-  <div class="src">Source: A. Gordić, Inside vLLM (2025)</div>
-  <aside class="notes">
-    <p>So far we have looked inside. How do you judge the whole system? From the outside, one request looks like this line. Time to first token is the wait for the first dot. It is mostly prefill and queueing. Inter-token latency is the gap between dots, and time per output token is its average. End-to-end is the whole thing.</p>
-    <p>Those are latencies, about one request. Throughput is about the system: tokens or requests per second. The last one is the most honest: goodput counts throughput only for requests that met your targets. A system that does a lot of work with every user timing out has high throughput and zero goodput. When you report numbers for a project, say which of these you measured.</p>
-  </aside>
-</section>
-
-<section class="slide light" id="vroof" data-section="4 · Serving at scale" data-time="1.5" data-title="Latency and throughput pull against each other">
-  <div class="hd">
-    <div class="eyebrow">The trade-off</div>
-    <h2>Latency and throughput pull against each other</h2>
-  </div>
-  <div class="abs card vo-ch" style="left:120px;top:236px;width:820px;height:560px"><h3>Time per decode step</h3><svg id="vr-a" viewBox="0 0 760 450"></svg></div>
-  <div class="abs card vo-ch" style="left:980px;top:236px;width:820px;height:560px"><h3>Throughput</h3><svg id="vr-b" viewBox="0 0 760 450"></svg></div>
-  <div class="abs" id="vr-pl" style="left:120px;top:960px;width:560px"></div>
-  <div class="abs note" style="left:720px;top:960px;font-size:21px">Illustrative shape, not a measurement. Simplified: short sequences.</div>
-  <div class="abs vr-cap" style="left:120px;top:822px;width:1680px">
-    <div data-s="1" class="c1"><b>Interactive use</b> needs low latency: stay at or below the saturation point.</div>
-    <div data-s="1" class="c2"><b>Offline batch work</b>, such as synthetic data generation, needs throughput: run at the saturation point.</div>
-  </div>
-  <div class="src">Source: A. Gordić, Inside vLLM (2025): roofline performance model</div>
-  <aside class="notes">
-    <p>Why do these compete? Look at one decode step as the batch size grows. Drag the slider or let it play. On the left, time per step. At small batches it is nearly flat, because most of the time is streaming weights from memory, and computing one token or ten takes about the same. Past a saturation point the GPU runs out of compute, and step time grows with the batch. On the right, throughput climbs while batching is free, and then flattens: the roof of what is called a roofline model.</p>
-    <p data-step="1">So what you choose depends on the job. A chatbot sits on the left, where tokens come quickly. Offline batch work does not care about any one request, only about the total. This is exactly the setting the blog names for high throughput: synthetic data generation and offline processing. That is our job, and it is what the second half is about.</p>
-  </aside>
-</section>
-
-<section class="slide light" id="vbench" data-steps="0" data-section="4 · Serving at scale" data-time="0.6" data-title="vLLM has a benchmark tool">
-  <div class="hd">
-    <div class="eyebrow">Benchmarks</div>
-    <h2>vLLM has a benchmark tool built in</h2>
-  </div>
-  <div class="abs" style="left:120px;top:240px;width:1680px;display:flex;flex-direction:column;gap:22px">
-    <div class="card vbn-c"><code>vllm bench latency</code><p>A short input and 128 output tokens, in a small batch. Reports end-to-end latency.</p></div>
-    <div class="card vbn-c"><code>vllm bench throughput</code><p>A fixed set of prompts, all at once. Reports tokens and requests per second.</p></div>
-    <div class="card vbn-c"><code>vllm bench serve</code><p>Starts a server and sends requests with realistic arrival times. Measures every metric from the last slide.</p></div>
-  </div>
-  <div class="abs code" style="left:120px;top:620px;width:1680px;font-size:28px">vllm bench latency --model &lt;model-name&gt; --input-tokens <span class="n">32</span> --output-tokens <span class="n">128</span> --batch-size <span class="n">8</span></div>
-  <p class="abs t" style="left:120px;top:750px;width:1680px;font-size:29px">An auto-tune script drives <code>serve</code> to find settings that meet a target, such as “maximize throughput with p99 end-to-end under 500 ms”.</p>
-  <div class="src">Source: A. Gordić, Inside vLLM (2025)</div>
-  <aside class="notes">
-    <p>You can measure all of this yourself, today, with no extra tools. The latency command uses a short input and small batch. The throughput command sends a fixed set of prompts at once. The serve command launches a server and simulates real traffic, with random gaps between requests. There is also an auto-tune script that searches for settings that meet a target you give it. A good exercise: run these on a small model and change one setting at a time.</p>
-  </aside>
-</section>
-
-<section class="slide light" id="vbridge" data-section="4 · Serving at scale" data-time="1" data-title="What vLLM handles, and what is left to you">
-  <div class="hd">
-    <div class="eyebrow">Halfway</div>
+    <div class="eyebrow">From vLLM to our system</div>
     <h2>What vLLM handles, and what is left to you</h2>
   </div>
   <div class="abs card vbr-c" style="left:120px;top:240px;width:820px;height:490px">
     <h3>vLLM handles</h3>
-    <ul class="y"><li>Scheduling requests on each pass</li><li>GPU memory for the KV cache</li><li>Batching and reuse of shared prompts</li><li>Spreading a model across GPUs</li><li>An HTTP server and load balancing</li></ul>
+    <ul class="y"><li>Picking requests on each pass</li><li>GPU memory</li><li>Batching</li><li>Using several GPUs</li><li>A web server</li></ul>
   </div>
   <div class="abs card vbr-c me" data-s="1" style="left:980px;top:240px;width:820px;height:490px">
     <h3>You still need to decide</h3>
@@ -3432,21 +2816,21 @@ vllm serve &lt;model-name&gt; --tensor-parallel-size <span class="n">4</span> --
   </div>
   <p class="abs t" data-s="1" style="left:120px;top:770px;width:1680px;font-size:32px">vLLM answers one request very well. Nothing in it knows about your whole job.</p>
   <aside class="notes">
-    <p>Let us stop and take stock. That was the system experts built. It handles scheduling, memory, batching, multiple GPUs and serving, and you get all of it from one command. We could not have built this ourselves, and we did not need to.</p>
-    <p data-step="1">But look at what happens when you actually have a job to do. In our case, generate training data from a hundred million pages. vLLM does not know that. It sees one request at a time. Which prompt comes next, whether an answer is usable, what happens to a page when a node dies, which model a page should go to next: none of that belongs in an inference engine, and rightly so. That is a second program, and you have to write it. This is the part you are most likely to do yourself in your career. It is also where the second half begins.</p>
+    <p>That is the system experts built, and using it takes one command to start a server. It does much more than we showed, and if you are curious, the Inside vLLM walkthrough is the place to read about it. We could not have built this ourselves, and we did not need to.</p>
+    <p data-step="1">But look at what happens when you have a real job to do. In our case, generating training data from a hundred million pages. vLLM does not know that. It sees one request at a time. Which prompt comes next, whether an answer is usable, what happens to a page when a node dies: none of that belongs in an engine. That is a second program, and you have to write it. It is also the program you are most likely to write yourself. That is Patram-Ingest.</p>
   </aside>
 </section>
 
-<section class="slide dark" id="sec1" data-section="5 · The system around vLLM" data-time="0.2" data-title="Part 5 · The system around vLLM">
-  <div class="dv-num">5</div>
-  <div class="dv-eb">Part 5</div>
+<section class="slide dark" id="sec1" data-section="3 · The system around vLLM" data-time="0.2" data-title="Part 3 · The system around vLLM">
+  <div class="dv-num">3</div>
+  <div class="dv-eb">Part 3</div>
   <div class="dv-h">The system around vLLM</div>
   <div class="dv-line"></div>
   <div class="dv-q">What does it take to use vLLM for weeks at a time?</div>
   <aside class="notes"><p>The rest of the lecture is about one real system built around vLLM. You saw at the start what we use it for: training data at a very large scale. First, why that needs more than a fast model server, and then the design, in three parts.</p></aside>
 </section>
 
-<section class="slide light" id="probs" data-steps="0" data-section="5 · The system around vLLM" data-time="1.2" data-title="Three things that interrupt a weeks-long run">
+<section class="slide light" id="probs" data-steps="0" data-section="3 · The system around vLLM" data-time="1.2" data-title="Three things that interrupt a weeks-long run">
   <div class="hd">
     <div class="eyebrow">On a shared cluster</div>
     <h2>Three things that interrupt a weeks-long run</h2>
@@ -3538,7 +2922,7 @@ vllm serve &lt;model-name&gt; --tensor-parallel-size <span class="n">4</span> --
   </aside>
 </section>
 
-<section class="slide light" id="needs" data-steps="0" data-section="5 · The system around vLLM" data-time="0.8" data-title="Three requirements for the engine">
+<section class="slide light" id="needs" data-steps="0" data-section="3 · The system around vLLM" data-time="0.8" data-title="Three requirements for the engine">
   <div class="hd">
     <div class="eyebrow">Requirements</div>
     <h2>Three requirements for the engine</h2>
@@ -3592,23 +2976,23 @@ vllm serve &lt;model-name&gt; --tensor-parallel-size <span class="n">4</span> --
   </div>
   <aside class="notes">
     <p>From those problems come three needs, and we take them in order.</p>
-    <p>First, busy GPUs. The GPUs are the expensive part of the cluster, and Part 6 is about never letting them wait for anything: not the host, not the disk, not another step.</p>
-    <p>Second, crash safety. Nodes die and GPUs come and go, and when the dust settles the output must still hold every record exactly once, without a person cleaning up. That is Part 7. Normally this need is expensive, because engines that survive crashes write every step to a database; Part 7 shows how we avoid that.</p>
-    <p>Third, any workflow with very little code. Once someone can picture a pipeline, with steps that branch and merge on what the data contains, getting it running across every node should take a few lines of code and one command. Coordination, retries and scaling should come for free. That is Part 8.</p>
+    <p>First, busy GPUs. The GPUs are the expensive part of the cluster, and Part 4 is about never letting them wait for anything: not the host, not the disk, not another step.</p>
+    <p>Second, crash safety. Nodes die and GPUs come and go, and when the dust settles the output must still hold every record exactly once, without a person cleaning up. That is Part 5. Normally this need is expensive, because engines that survive crashes write every step to a database; Part 5 shows how we avoid that.</p>
+    <p>Third, any workflow with very little code. Once someone can picture a pipeline, with steps that branch and merge on what the data contains, getting it running across every node should take a few lines of code and one command. Coordination, retries and scaling should come for free. That is Part 6.</p>
     <p>First, busy GPUs.</p>
   </aside>
 </section>
 
-<section class="slide dark" id="sec2" data-section="6 · Keeping the GPUs busy" data-time="0.2" data-title="Part 6 · Keeping the GPUs busy">
-  <div class="dv-num">6</div>
-  <div class="dv-eb">Part 6</div>
+<section class="slide dark" id="sec2" data-section="4 · Keeping the GPUs busy" data-time="0.2" data-title="Part 4 · Keeping the GPUs busy">
+  <div class="dv-num">4</div>
+  <div class="dv-eb">Part 4</div>
   <div class="dv-h">Keeping the GPUs busy</div>
   <div class="dv-line"></div>
   <div class="dv-q">The GPU is the expensive part. How do we keep it from waiting?</div>
   <aside class="notes"><p>We have the problem and the three needs. We take the first one first: how to keep the GPUs busy. This is the part where we build up from first principles: what a GPU is waiting for, and how a program should wait.</p></aside>
 </section>
 
-<section class="slide light" id="gpu2" data-steps="1" data-section="6 · Keeping the GPUs busy" data-time="1.0" data-title="The model run is one of three steps">
+<section class="slide light" id="gpu2" data-steps="1" data-section="4 · Keeping the GPUs busy" data-time="1.0" data-title="The model run is one of three steps">
   <div class="hd">
     <div class="eyebrow">Where the time goes</div>
     <h2>The model run is one of three steps</h2>
@@ -3638,7 +3022,7 @@ vllm serve &lt;model-name&gt; --tensor-parallel-size <span class="n">4</span> --
   </aside>
 </section>
 
-<section class="slide light" id="arch" data-steps="0" data-section="6 · Keeping the GPUs busy" data-time="1.1" data-title="Inside one node">
+<section class="slide light" id="arch" data-steps="0" data-section="4 · Keeping the GPUs busy" data-time="1.1" data-title="Inside one node">
   <div class="hd">
     <div class="eyebrow">The architecture</div>
     <h2>Inside one node</h2>
@@ -3650,11 +3034,86 @@ vllm serve &lt;model-name&gt; --tensor-parallel-size <span class="n">4</span> --
     <p>On the left, the orchestrator process. It has four jobs. Prepare claims samples and builds the model requests. Collect gathers the results as they come back. Write saves them to disk and then marks them done. Upload moves finished files to the object store.</p>
     <p>In the middle, the worker pool: the worker processes that run the models. A dispatcher hands each request to a worker. There is one worker per model server, GPU, browser or CPU slot, and each worker calls a backend. A supervisor restarts any worker that dies.</p>
     <p>On the right, the backends a worker can call: vLLM servers, Hugging Face models, a CPU process such as page rendering, or any classic model such as SAM3 or YOLO. And around everything, a small watcher restarts the whole program if it exits or the node reboots.</p>
-    <p>All of these pieces must run at the same time, or the GPU waits, as we just saw. So for each one we have to choose the right kind of parallelism, and you have already seen the three options, in vLLM.</p>
+    <p>All of these pieces must run at the same time, or the GPU waits, as we just saw. So for each one we have to choose the right kind of parallelism, and there are three options.</p>
   </aside>
 </section>
 
-<section class="slide light" id="askpar" data-steps="0" data-section="6 · Keeping the GPUs busy" data-time="0.8" data-title="Your turn: which parallelism where?">
+<section class="slide light" id="kinds" data-steps="0" data-section="4 · Keeping the GPUs busy" data-time="1.5" data-title="Processes, threads and event loops">
+  <div class="hd">
+    <div class="eyebrow">Background</div>
+    <h2>Three kinds of concurrency in Python</h2>
+  </div>
+  <div class="abs" style="left:120px;top:228px;width:1680px;display:grid;grid-template-columns:repeat(3,1fr);gap:30px">
+    <div class="card kd3 p">
+      <small>Process</small><h3>Separate programs</h3>
+      <svg viewBox="0 0 480 150">
+        <g font-family="IBM Plex Sans" font-size="18" font-weight="600" fill="#1F4FA8">
+          <rect x="4" y="6" width="144" height="104" rx="14" fill="#fff" stroke="#2A63C9" stroke-width="3"/>
+          <rect x="168" y="6" width="144" height="104" rx="14" fill="#fff" stroke="#2A63C9" stroke-width="3"/>
+          <rect x="332" y="6" width="144" height="104" rx="14" fill="#fff" stroke="#2A63C9" stroke-width="3"/>
+          <text x="20" y="34">own memory</text><text x="184" y="34">own memory</text><text x="348" y="34">own memory</text>
+          <rect x="20" y="56" width="112" height="30" rx="8" fill="#E4ECFA"/><rect x="184" y="56" width="112" height="30" rx="8" fill="#E4ECFA"/><rect x="348" y="56" width="112" height="30" rx="8" fill="#E4ECFA"/>
+          <rect x="20" y="56" width="112" height="30" rx="8" fill="#F28C28"/>
+          <rect x="184" y="56" width="112" height="30" rx="8" fill="#F28C28"/>
+          <rect x="348" y="56" width="112" height="30" rx="8" fill="#F28C28"/>
+        </g>
+        <text x="4" y="140" font-family="IBM Plex Sans" font-size="21" font-weight="600" fill="#5B6785">all three compute at the same time</text>
+      </svg>
+      <ul><li class="y">Truly parallel, even for Python code</li><li class="y">A crash stays inside it</li><li class="n">Heavier, and data is copied between them</li></ul>
+      <div class="use"><b>Use for</b>CPU-heavy work, anything that may crash, anything that owns a GPU</div>
+    </div>
+    <div class="card kd3 t">
+      <small>Thread</small><h3>Helpers in one program</h3>
+      <svg viewBox="0 0 480 150">
+        <rect x="4" y="6" width="472" height="104" rx="14" fill="#fff" stroke="#6B4BB8" stroke-width="3"/>
+        <text x="20" y="32" font-family="IBM Plex Sans" font-size="18" font-weight="600" fill="#6B4BB8">shared memory</text>
+        <g>
+          <rect x="20" y="44" width="300" height="16" rx="8" fill="#F28C28"/>
+          <rect x="20" y="66" width="300" height="16" rx="8" fill="#ECE6F8"/>
+          <rect x="20" y="88" width="300" height="16" rx="8" fill="#ECE6F8"/>
+          <g>
+            <rect x="344" y="40" width="112" height="24" rx="12" fill="#0E1A3A"/><text x="400" y="58" font-family="IBM Plex Mono" font-size="16" font-weight="700" fill="#fff" text-anchor="middle">GIL</text>
+          </g>
+        </g>
+        <text x="4" y="140" font-family="IBM Plex Sans" font-size="21" font-weight="600" fill="#5B6785">only one runs Python at a time</text>
+      </svg>
+      <ul><li class="y">Easiest: they share memory, so a hand-off is just passing an object</li><li class="n">One at a time in Python (the GIL)</li><li class="n">A crash takes the whole program down</li></ul>
+      <div class="use"><b>Use for</b>waiting on the disk, the network or the database</div>
+    </div>
+    <div class="card kd3 e">
+      <small>Event loop</small><h3>One thread, many waits</h3>
+      <svg viewBox="0 0 480 150">
+        <g transform="translate(80 58)">
+          <circle r="36" fill="#FFF4E2" stroke="#F28C28" stroke-width="3"/>
+          <text y="6" font-family="IBM Plex Sans" font-size="16" font-weight="700" fill="#B85C0A" text-anchor="middle">1 thread</text>
+          <g>
+            <g fill="#F28C28"><circle cx="0" cy="-48" r="7"/><circle cx="42" cy="-24" r="7"/><circle cx="42" cy="24" r="7"/><circle cx="0" cy="48" r="7"/><circle cx="-42" cy="24" r="7"/><circle cx="-42" cy="-24" r="7"/></g>
+          </g>
+        </g>
+        <g font-family="IBM Plex Sans" font-size="20" fill="#42506B">
+          <text x="200" y="40">each call waits for</text><text x="200" y="66">its answer, and the</text><text x="200" y="92">thread runs the others</text>
+        </g>
+        <text x="4" y="140" font-family="IBM Plex Sans" font-size="21" font-weight="600" fill="#5B6785">many calls in flight, one thread</text>
+      </svg>
+      <ul><li class="y">Hundreds of calls in flight, almost free</li><li class="y">No locks: one thing runs at a time</li><li class="n">One slow step blocks every call</li></ul>
+      <div class="use"><b>Use for</b>many model calls at once</div>
+    </div>
+  </div>
+  <div class="abs kd3r" style="left:120px;top:916px;width:1680px">
+    <div class="p"><small>Rule of thumb</small>computing → <em>process</em></div>
+    <div class="t"><small>Rule of thumb</small>waiting → <em>thread</em></div>
+    <div class="e"><small>Rule of thumb</small>many waits → <em>event loop</em></div>
+  </div>
+  <aside class="notes">
+    <p>This is the part of the lecture that is most directly about programming. First, the basics. There are three ways to have a computer do many things at once, and each is good at one thing.</p>
+    <p>A process is a separate program with its own memory and its own Python interpreter. Processes really run in parallel, even Python code, and if one crashes the others keep going. The cost: they are heavier, and data has to be copied between them. So processes are for CPU-heavy work, for anything that might crash, and for anything that owns a GPU.</p>
+    <p>Threads are helpers inside one program. They are the easy option, because they share memory: handing a result to another thread is just passing an object, nothing is copied. The catch in Python is the GIL: only one thread runs Python at a time. That is fine while a thread is waiting on the disk, the network or the database, because waiting releases the GIL, but it is bad for CPU work. And a crash takes the whole program down. So threads are for waiting.</p>
+    <p>An event loop is one thread that juggles many waits. Each call starts, waits for its answer, and while it waits the loop runs the others. Hundreds of calls can be in flight almost for free, and there are no locks because only one thing runs at a time. But one slow step that does not wait properly blocks every call. So event loops are for many model calls at once.</p>
+    <p>Rule of thumb, under each column: computing, a process; waiting, a thread; many waits at once, an event loop.</p>
+  </aside>
+</section>
+
+<section class="slide light" id="askpar" data-steps="0" data-section="4 · Keeping the GPUs busy" data-time="0.8" data-title="Your turn: which parallelism where?">
   <div class="hd">
     <div class="eyebrow">Your turn</div>
     <h2>Which kind of parallelism for each piece?</h2>
@@ -3666,11 +3125,11 @@ vllm serve &lt;model-name&gt; --tensor-parallel-size <span class="n">4</span> --
     <div class="e"><b>Event loop?</b>one thread, many calls in flight</div>
   </div>
   <aside class="notes">
-    <p>You met the three options in Part 4: process for computing, thread for waiting, event loop for many waits. Here is the node again. Every one of these boxes has to run at the same time. Over to you: which ones would you make processes, which threads, and which an event loop? A hint: ask of each box whether it computes, whether it mostly waits, or whether it juggles many calls at once. Take a few answers from the room before moving on.</p>
+    <p>You just met the three options: process for computing, thread for waiting, event loop for many waits. Here is the node again. Every one of these boxes has to run at the same time. Over to you: which ones would you make processes, which threads, and which an event loop? A hint: ask of each box whether it computes, whether it mostly waits, or whether it juggles many calls at once. Take a few answers from the room before moving on.</p>
   </aside>
 </section>
 
-<section class="slide light" id="where" data-steps="0" data-section="6 · Keeping the GPUs busy" data-time="1.0" data-title="What we chose for each piece">
+<section class="slide light" id="where" data-steps="0" data-section="4 · Keeping the GPUs busy" data-time="1.0" data-title="What we chose for each piece">
   <div class="hd">
     <div class="eyebrow">Our choice</div>
     <h2>What we chose for each piece</h2>
@@ -3689,7 +3148,7 @@ vllm serve &lt;model-name&gt; --tensor-parallel-size <span class="n">4</span> --
   </aside>
 </section>
 
-<section class="slide light" id="share" data-steps="1" data-section="6 · Keeping the GPUs busy" data-time="1.1" data-title="Sharing work through one queue">
+<section class="slide light" id="share" data-steps="1" data-section="4 · Keeping the GPUs busy" data-time="1.1" data-title="Sharing work through one queue">
   <div class="hd">
     <div class="eyebrow">Load balancing</div>
     <h2>Sharing requests between workers</h2>
@@ -3732,7 +3191,7 @@ vllm serve &lt;model-name&gt; --tensor-parallel-size <span class="n">4</span> --
   </aside>
 </section>
 
-<section class="slide light" id="inbox" data-steps="2" data-section="6 · Keeping the GPUs busy" data-time="1.1" data-title="A private inbox per worker">
+<section class="slide light" id="inbox" data-steps="2" data-section="4 · Keeping the GPUs busy" data-time="1.1" data-title="A private inbox per worker">
   <div class="hd">
     <div class="eyebrow">What we changed</div>
     <h2>One inbox per worker</h2>
@@ -3788,7 +3247,7 @@ vllm serve &lt;model-name&gt; --tensor-parallel-size <span class="n">4</span> --
   </aside>
 </section>
 
-<section class="slide light" id="backends" data-steps="0" data-section="6 · Keeping the GPUs busy" data-time="1.0" data-title="A worker can run any backend">
+<section class="slide light" id="backends" data-steps="0" data-section="4 · Keeping the GPUs busy" data-time="1.0" data-title="A worker can run any backend">
   <div class="hd">
     <div class="eyebrow">What runs in a worker</div>
     <h2>A worker can call any backend</h2>
@@ -3823,16 +3282,16 @@ vllm serve &lt;model-name&gt; --tensor-parallel-size <span class="n">4</span> --
   </aside>
 </section>
 
-<section class="slide dark" id="sec3" data-section="7 · Crash safe" data-time="0.2" data-title="Part 7 · Crash safe">
-  <div class="dv-num">7</div>
-  <div class="dv-eb">Part 7</div>
+<section class="slide dark" id="sec3" data-section="5 · Crash safe" data-time="0.2" data-title="Part 5 · Crash safe">
+  <div class="dv-num">5</div>
+  <div class="dv-eb">Part 5</div>
   <div class="dv-h">Crash safe</div>
   <div class="dv-line"></div>
   <div class="dv-q">Any process can die at any moment. What happens next?</div>
-  <aside class="notes"><p>Busy GPUs are only useful if the work survives. Part 7 is how the engine stays crash safe: it loses nothing and repeats nothing, even when processes and machines die.</p></aside>
+  <aside class="notes"><p>Busy GPUs are only useful if the work survives. Part 5 is how the engine stays crash safe: it loses nothing and repeats nothing, even when processes and machines die.</p></aside>
 </section>
 
-<section class="slide light" id="queue2" data-steps="4" data-section="7 · Crash safe" data-time="1.6" data-title="Nodes take work from one table">
+<section class="slide light" id="queue2" data-steps="4" data-section="5 · Crash safe" data-time="1.6" data-title="Nodes take work from one table">
   <div class="hd">
     <div class="eyebrow">Many nodes</div>
     <h2>Coordinating across nodes, with minimal overhead</h2>
@@ -3851,7 +3310,7 @@ vllm serve &lt;model-name&gt; --tensor-parallel-size <span class="n">4</span> --
   </aside>
 </section>
 
-<section class="slide light" id="fleet" data-steps="8" data-section="7 · Crash safe" data-time="3.2" data-title="Recovery and scaling without intervention">
+<section class="slide light" id="fleet" data-steps="8" data-section="5 · Crash safe" data-time="3.2" data-title="Recovery and scaling without intervention">
   <div class="hd">
     <div class="eyebrow">Problems 1 and 2, revisited</div>
     <h2>Recovery and scaling without intervention</h2>
@@ -3966,7 +3425,7 @@ vllm serve &lt;model-name&gt; --tensor-parallel-size <span class="n">4</span> --
   </aside>
 </section>
 
-<section class="slide light" id="err3" data-steps="0" data-section="7 · Crash safe" data-time="1.0" data-title="Every error is followed through">
+<section class="slide light" id="err3" data-steps="0" data-section="5 · Crash safe" data-time="1.0" data-title="Every error is followed through">
   <div class="hd">
     <div class="eyebrow">Errors</div>
     <h2>Every error is followed through</h2>
@@ -3995,16 +3454,16 @@ vllm serve &lt;model-name&gt; --tensor-parallel-size <span class="n">4</span> --
   </aside>
 </section>
 
-<section class="slide dark" id="sec4" data-section="8 · Graphs of stages" data-time="0.2" data-title="Part 8 · Graphs of stages">
-  <div class="dv-num">8</div>
-  <div class="dv-eb">Part 8</div>
+<section class="slide dark" id="sec4" data-section="6 · Graphs of stages" data-time="0.2" data-title="Part 6 · Graphs of stages">
+  <div class="dv-num">6</div>
+  <div class="dv-eb">Part 6</div>
   <div class="dv-h">Graphs of stages</div>
   <div class="dv-line"></div>
   <div class="dv-q">Each page takes its own path through many models. How do we describe such a workflow, and run it across nodes?</div>
-  <aside class="notes"><p>Until now we treated a stage on its own. But a good training example is never the work of one model. Part 8 is how a page moves through many models, each page on its own path, and how the engine runs that across machines without a coordinator.</p></aside>
+  <aside class="notes"><p>Until now we treated a stage on its own. But a good training example is never the work of one model. Part 6 is how a page moves through many models, each page on its own path, and how the engine runs that across machines without a coordinator.</p></aside>
 </section>
 
-<section class="slide light" id="route4" data-steps="0" data-section="8 · Graphs of stages" data-time="1.2" data-title="One pipeline, a different route for every page">
+<section class="slide light" id="route4" data-steps="0" data-section="6 · Graphs of stages" data-time="1.2" data-title="One pipeline, a different route for every page">
   <div class="hd">
     <div class="eyebrow">One example needs many models</div>
     <h2>One pipeline, a different route for every page</h2>
@@ -4014,13 +3473,13 @@ vllm serve &lt;model-name&gt; --tensor-parallel-size <span class="n">4</span> --
     <div class="rt4-bot"><p class="route-out"></p><button class="rt4-b" type="button" data-act="all" tabindex="-1">▶ Play all six</button></div>
   </div>
   <aside class="notes">
-    <p>Here is the problem Part 8 solves. A good training example is never the output of a single model. Six pages enter the same pipeline of seventeen agents. Understand reads each page and decides where it goes next, and later agents keep deciding too.</p>
+    <p>Here is the problem Part 6 solves. A good training example is never the output of a single model. Six pages enter the same pipeline of seventeen agents. Understand reads each page and decides where it goes next, and later agents keep deciding too.</p>
     <p>A chart is read, then re-read by a second model to catch wrong numbers. A table is rebuilt as HTML and rendered in a browser to check it matches. A form has one field hidden, so the questions test whether the model notices it is missing. A text page goes through key-fact extraction, and if Verify rejects the answer a larger teacher model writes the final one. A scan is straightened first, then handled like any text page. A blank page is dropped straight away, so no expensive stage runs on it.</p>
     <p>All six run together, each on its own route. You can click any page to replay just its route; the line at the bottom shows the route it took, which every output records.</p>
   </aside>
 </section>
 
-<section class="slide light" id="gph" data-steps="4" data-section="8 · Graphs of stages" data-time="2.0" data-title="The whole pipeline is a graph">
+<section class="slide light" id="gph" data-steps="4" data-section="6 · Graphs of stages" data-time="2.0" data-title="The whole pipeline is a graph">
   <div class="hd">
     <div class="eyebrow">The full pipeline</div>
     <h2>The whole pipeline is one graph</h2>
@@ -4041,7 +3500,7 @@ vllm serve &lt;model-name&gt; --tensor-parallel-size <span class="n">4</span> --
   </aside>
 </section>
 
-<section class="slide light" id="dag" data-steps="1" data-section="8 · Graphs of stages" data-time="0.8" data-title="A dynamic DAG fits our workloads">
+<section class="slide light" id="dag" data-steps="1" data-section="6 · Graphs of stages" data-time="0.8" data-title="A dynamic DAG fits our workloads">
   <div class="hd">
     <div class="eyebrow">What our pipelines have in common</div>
     <h2 class="h2sw"><span data-h="1">Three properties shared by all our pipelines</span><span data-s="1" class="fade">A dynamic DAG covers almost all our workloads</span></h2>
@@ -4068,7 +3527,7 @@ vllm serve &lt;model-name&gt; --tensor-parallel-size <span class="n">4</span> --
   </aside>
 </section>
 
-<section class="slide light" data-deep id="bmwhy" data-steps="2" data-section="8 · Graphs of stages" data-time="0.7" data-title="Stages need a shared record of each page">
+<section class="slide light" data-deep id="bmwhy" data-steps="2" data-section="6 · Graphs of stages" data-time="0.7" data-title="Stages need a shared record of each page">
   <div class="hd">
     <div class="eyebrow">How the engine runs a graph</div>
     <h2>Stages need a shared record of each page</h2>
@@ -4105,7 +3564,7 @@ vllm serve &lt;model-name&gt; --tensor-parallel-size <span class="n">4</span> --
   </aside>
 </section>
 
-<section class="slide light" data-deep id="bmbits" data-steps="2" data-section="8 · Graphs of stages" data-time="0.8" data-title="The record is one switch per stage">
+<section class="slide light" data-deep id="bmbits" data-steps="2" data-section="6 · Graphs of stages" data-time="0.8" data-title="The record is one switch per stage">
   <div class="hd">
     <div class="eyebrow">How the engine runs a graph</div>
     <h2>The record is one switch per stage</h2>
@@ -4124,7 +3583,7 @@ vllm serve &lt;model-name&gt; --tensor-parallel-size <span class="n">4</span> --
   </aside>
 </section>
 
-<section class="slide light" data-deep id="bmtwo" data-steps="2" data-section="8 · Graphs of stages" data-time="0.8" data-title="Two rows per page: Finished and Ready">
+<section class="slide light" data-deep id="bmtwo" data-steps="2" data-section="6 · Graphs of stages" data-time="0.8" data-title="Two rows per page: Finished and Ready">
   <div class="hd">
     <div class="eyebrow">How the engine runs a graph</div>
     <h2>Two rows per page: Finished and Ready</h2>
@@ -4147,7 +3606,7 @@ vllm serve &lt;model-name&gt; --tensor-parallel-size <span class="n">4</span> --
   </aside>
 </section>
 
-<section class="slide light" data-deep id="bmwalk" data-steps="5" data-section="8 · Graphs of stages" data-time="2.2" data-title="Following one page through the graph">
+<section class="slide light" data-deep id="bmwalk" data-steps="5" data-section="6 · Graphs of stages" data-time="2.2" data-title="Following one page through the graph">
   <div class="hd">
     <div class="eyebrow">How the engine runs a graph</div>
     <h2>Following one page through the graph</h2>
@@ -4175,7 +3634,7 @@ vllm serve &lt;model-name&gt; --tensor-parallel-size <span class="n">4</span> --
   </aside>
 </section>
 
-<section class="slide light" data-deep id="bmrule" data-steps="2" data-section="8 · Graphs of stages" data-time="1.1" data-title="When the sweep lets a stage start">
+<section class="slide light" data-deep id="bmrule" data-steps="2" data-section="6 · Graphs of stages" data-time="1.1" data-title="When the sweep lets a stage start">
   <div class="hd">
     <div class="eyebrow">How the engine runs a graph</div>
     <h2>When the sweep lets a stage start</h2>
@@ -4195,7 +3654,7 @@ vllm serve &lt;model-name&gt; --tensor-parallel-size <span class="n">4</span> --
   </aside>
 </section>
 
-<section class="slide light" data-deep id="bmonce" data-steps="2" data-section="8 · Graphs of stages" data-time="1.0" data-title="Ready makes a stage start exactly once">
+<section class="slide light" data-deep id="bmonce" data-steps="2" data-section="6 · Graphs of stages" data-time="1.0" data-title="Ready makes a stage start exactly once">
   <div class="hd">
     <div class="eyebrow">How the engine runs a graph</div>
     <h2>Ready makes a stage start exactly once</h2>
@@ -4233,7 +3692,7 @@ vllm serve &lt;model-name&gt; --tensor-parallel-size <span class="n">4</span> --
   </aside>
 </section>
 
-<section class="slide light" data-deep id="bmcrash" data-steps="2" data-section="8 · Graphs of stages" data-time="1.2" data-title="A crash between writes never loses a page">
+<section class="slide light" data-deep id="bmcrash" data-steps="2" data-section="6 · Graphs of stages" data-time="1.2" data-title="A crash between writes never loses a page">
   <div class="hd">
     <div class="eyebrow">How the engine runs a graph</div>
     <h2>A crash between writes never loses a page</h2>
@@ -4265,12 +3724,12 @@ vllm serve &lt;model-name&gt; --tensor-parallel-size <span class="n">4</span> --
   <div class="abs bm-cap g" data-s="2" style="left:120px;top:850px;width:1680px"><b>Hand the page on first, mark yourself finished last</b>, and make every write safe to repeat.</div>
   <aside class="notes">
     <p>One more thing we need: crashes. When a stage finishes a page it makes three writes to the DB. It puts the page in the next stage's queue. It switches on Ready for that stage. And it switches on its own Finished. A machine can die between any two of them, so which order do we use? On the right is the reverse order, for comparison.</p>
-    <p data-step="1">Suppose the machine crashes in the middle. In our order, on the left, the page has been handed on but the stage's own Finished is still off. Remember the recovery rule from Part 7: anything not marked finished is picked up and run again. So after the restart the page is run again and the three writes repeat. That is fine because every write is safe to repeat: the queue row already exists, the Ready switch is already on, and switching on a switch twice changes nothing. On the right, Finished is switched on first. Crash straight after, and the record says this stage is finished, so nobody runs it again, while the next stage was never given the page. The page is lost. The same ordering applies when the sweep starts a stage: queue first, then Ready, so a crash between them just means the next sweep does it again.</p>
-    <p data-step="2">So the rule is: hand the page on first, mark yourself finished last, and make every write safe to repeat. It is the same save-first rule from Part 7, applied between stages.</p>
+    <p data-step="1">Suppose the machine crashes in the middle. In our order, on the left, the page has been handed on but the stage's own Finished is still off. Remember the recovery rule from Part 5: anything not marked finished is picked up and run again. So after the restart the page is run again and the three writes repeat. That is fine because every write is safe to repeat: the queue row already exists, the Ready switch is already on, and switching on a switch twice changes nothing. On the right, Finished is switched on first. Crash straight after, and the record says this stage is finished, so nobody runs it again, while the next stage was never given the page. The page is lost. The same ordering applies when the sweep starts a stage: queue first, then Ready, so a crash between them just means the next sweep does it again.</p>
+    <p data-step="2">So the rule is: hand the page on first, mark yourself finished last, and make every write safe to repeat. It is the same save-first rule from Part 5, applied between stages.</p>
   </aside>
 </section>
 
-<section class="slide light" id="author2" data-steps="0" data-section="8 · Graphs of stages" data-time="0.8" data-title="From idea to a running pipeline">
+<section class="slide light" id="author2" data-steps="0" data-section="6 · Graphs of stages" data-time="0.8" data-title="From idea to a running pipeline">
   <div class="hd">
     <div class="eyebrow">Writing a pipeline</div>
     <h2>Define it, then run any workload</h2>
@@ -4289,7 +3748,7 @@ vllm serve &lt;model-name&gt; --tensor-parallel-size <span class="n">4</span> --
   </aside>
 </section>
 
-<section class="slide light" id="pp2" data-steps="0" data-section="8 · Graphs of stages" data-time="1.2" data-title="All stages at once">
+<section class="slide light" id="pp2" data-steps="0" data-section="6 · Graphs of stages" data-time="1.2" data-title="All stages at once">
   <div class="hd">
     <div class="eyebrow">Pipeline parallelism</div>
     <h2>All stages at once, or one stage at a time</h2>
@@ -4310,7 +3769,7 @@ vllm serve &lt;model-name&gt; --tensor-parallel-size <span class="n">4</span> --
   </aside>
 </section>
 
-<section class="slide light" id="swcap" data-steps="0" data-section="8 · Graphs of stages" data-time="0.6" data-title="What Patram-Ingest supports">
+<section class="slide light" id="swcap" data-steps="0" data-section="6 · Graphs of stages" data-time="0.6" data-title="What Patram-Ingest supports">
   <div class="hd">
     <div class="eyebrow">Summary</div>
     <h2>What Patram-Ingest supports</h2>
@@ -4334,7 +3793,7 @@ vllm serve &lt;model-name&gt; --tensor-parallel-size <span class="n">4</span> --
   </aside>
 </section>
 
-<section class="slide light" id="scale2" data-steps="0" data-section="8 · Graphs of stages" data-time="1.5" data-title="Scaling compared with DBOS and Temporal">
+<section class="slide light" id="scale2" data-steps="0" data-section="6 · Graphs of stages" data-time="1.5" data-title="Scaling compared with DBOS and Temporal">
   <div class="hd">
     <div class="eyebrow">Evaluation · same DB, same model servers</div>
     <h2>Scaling compared with DBOS and Temporal</h2>
@@ -4353,7 +3812,7 @@ vllm serve &lt;model-name&gt; --tensor-parallel-size <span class="n">4</span> --
   </aside>
 </section>
 
-<section class="slide light" id="lessons" data-steps="0" data-section="9 · Wrap-up" data-time="1.0" data-title="Key takeaways">
+<section class="slide light" id="lessons" data-steps="0" data-section="7 · Wrap-up" data-time="1.0" data-title="Key takeaways">
   <div class="hd">
     <div class="eyebrow">Wrap-up</div>
     <h2>Key takeaways</h2>
@@ -4395,7 +3854,7 @@ vllm serve &lt;model-name&gt; --tensor-parallel-size <span class="n">4</span> --
   </aside>
 </section>
 
-<section class="slide light" id="state1" data-steps="0" data-section="9 · Wrap-up" data-time="0.8" data-title="The DB is the single source of truth">
+<section class="slide light" id="state1" data-steps="0" data-section="7 · Wrap-up" data-time="0.8" data-title="The DB is the single source of truth">
   <div class="hd">
     <div class="eyebrow">Above all</div>
     <h2>The DB is the single source of truth</h2>
@@ -4436,7 +3895,7 @@ vllm serve &lt;model-name&gt; --tensor-parallel-size <span class="n">4</span> --
   </aside>
 </section>
 
-<section class="slide light" id="eco2" data-steps="2" data-section="9 · Wrap-up" data-time="1.2" data-title="Where Patram-Ingest sits in the stack">
+<section class="slide light" id="eco2" data-steps="2" data-section="7 · Wrap-up" data-time="1.2" data-title="Where Patram-Ingest sits in the stack">
   <div class="hd">
     <div class="eyebrow">Context</div>
     <h2>Where Patram-Ingest sits in the stack</h2>
@@ -4451,67 +3910,18 @@ vllm serve &lt;model-name&gt; --tensor-parallel-size <span class="n">4</span> --
     <div class="py-t st" style="top:585px;left:0px;width:1000px;clip-path:polygon(55px 0,945px 0,100% 100%,0 100%)"><h3>Storage</h3><p>Patram-FS · Patram-DB</p></div>
   </div>
   <div class="abs eco2-col" style="left:1220px;top:300px;width:580px">
-    <div class="card eco2-c me"><small>Parts 5 to 8</small><b>Patram-Ingest</b><span>turns raw pages into training data, on a shared cluster, for weeks at a time.</span></div>
+    <div class="card eco2-c me"><small>Parts 3 to 6</small><b>Patram-Ingest</b><span>turns raw pages into training data, on a shared cluster, for weeks at a time.</span></div>
     <div class="card eco2-c" data-s="1"><small>Below it</small><b>Storage and raw data</b><span>Patram-FS and Patram-DB hold everything. The scraper and synthetic docs feed it; DarshinAI lets us annotate and look at it.</span></div>
     <div class="card eco2-c" data-s="2"><small>Above it</small><b>From corpus to models</b><span>Patram-Core turns that data into our training corpus, and trains the Patram Suite of foundation models.</span></div>
   </div>
   <aside class="notes">
-    <p>To step back: Patram-Ingest, everything in the second half, is just one part of the infrastructure we have.</p>
+    <p>To step back: Patram-Ingest, everything after vLLM, is just one part of the infrastructure we have.</p>
     <p data-step="1">There is a lot supporting it from below: our storage layer, Patram-FS and Patram-DB, the scraper and our synthetic documents that bring raw data in, and DarshinAI for annotation and visualization.</p>
     <p data-step="2">And above it, Patram-Core takes this data, our training corpus, and makes it possible to train models. Using all of this, we have trained many foundation models, the Patram Suite, and evaluated them on our own benchmarks. These are internal models as of now; we plan to release the Patram series soon, and the sign-up form is on the next slide.</p>
   </aside>
 </section>
 
-<section class="slide light" id="both" data-steps="0" data-section="9 · Wrap-up" data-time="1.5" data-title="The same ideas in both systems">
-  <div class="hd">
-    <div class="eyebrow">Comparing the two</div>
-    <h2>The same ideas appear in both systems</h2>
-  </div>
-  <div class="abs card bh-t" style="left:120px;top:232px;width:1680px">
-    <table>
-      <tr><th></th><th>vLLM</th><th>Patram-Ingest</th></tr>
-      <tr><td>Where work waits</td><td>Waiting and running queues, in memory</td><td>A table in the DB, one row per sample</td></tr>
-      <tr><td>Who picks work</td><td>The scheduler, on every pass</td><td>Each node claims rows when it is free</td></tr>
-      <tr><td>Load balancing</td><td><code>waiting * 4 + running</code></td><td>A fast node simply takes more</td></tr>
-      <tr><td>Concurrency</td><td>Event loop, I/O threads, a process per GPU</td><td>Worker processes, threads for waiting, an event loop in each worker</td></tr>
-      <tr><td>Messages</td><td>Shared-memory queues and ZMQ sockets</td><td>A private inbox per worker; the DB between nodes</td></tr>
-      <tr><td>Bit masks</td><td>Which tokens are allowed next</td><td>Which models have finished a page</td></tr>
-      <tr><td>Optimized for</td><td>Each request, at high throughput</td><td>The whole run, through failures, for weeks</td></tr>
-    </table>
-  </div>
-  <aside class="notes">
-    <p>Here are the two systems side by side. You do not need to remember the table. The point is that the rows are the same. Both have to decide where work waits, who picks it up, how to balance load, which kind of concurrency to use and how pieces communicate. These are the questions of systems programming, and they do not change when the workload is AI.</p>
-    <p>The answers differ because the goals differ, as the last row shows. vLLM keeps its queues in memory because it must be fast for each request. We keep ours in a DB because a run has to survive machines dying. Neither is the right answer in general. Each one is right for its goal. When you design your next system, start with that last row.</p>
-  </aside>
-</section>
-
-<section class="slide light" id="tryit" data-steps="0" data-section="9 · Wrap-up" data-time="1" data-title="Try it yourself">
-  <div class="hd">
-    <div class="eyebrow">Next steps</div>
-    <h2>Try it yourself</h2>
-  </div>
-  <div class="abs" style="left:120px;top:236px;width:1040px;display:flex;flex-direction:column;gap:22px">
-    <div class="card nx-c"><i>1</i><div><h3>Measure the trade-off</h3><p>Run <code>vllm bench latency</code> on a small model. Change the batch size. Plot latency and tokens per second.</p></div></div>
-    <div class="card nx-c"><i>2</i><div><h3>Step through the engine</h3><p>Set a breakpoint in <code>llm.generate</code> and follow one request through <code>schedule</code> and <code>allocate_slots</code>.</p></div></div>
-    <div class="card nx-c"><i>3</i><div><h3>Hang a worker pool</h3><p>Build a pool on one <code>multiprocessing.Queue</code>. Kill a worker with <code>SIGKILL</code> until the pool stops. Then fix it with one inbox per worker.</p></div></div>
-    <div class="card nx-c"><i>4</i><div><h3>Survive a crash</h3><p>Claim rows from a DB table with <code>FOR UPDATE SKIP LOCKED</code>. Kill a process mid-batch and check that nothing is lost.</p></div></div>
-  </div>
-  <div class="abs card nx-r" style="left:1200px;top:236px;width:600px">
-    <small>Read next</small>
-    <ul>
-      <li><b>Inside vLLM</b><span>Aleksa Gordić, 2025<br>aleksagordic.com/blog/vllm</span></li>
-      <li><b>PagedAttention</b><span>Kwon et al., SOSP 2023<br>arxiv.org/abs/2309.06180</span></li>
-      <li><b>Orca</b><span>Yu et al., OSDI 2022</span></li>
-      <li><b>Patram-Ingest blog</b><span>sriharib128.github.io/patram-ingest</span></li>
-    </ul>
-  </div>
-  <aside class="notes">
-    <p>If you want to take this further, here are four exercises, from easy to harder. The first needs a GPU and a small model. The second only needs patience with a debugger; the author of the walkthrough says that is the best way to learn this codebase, and we agree. The third and fourth need no GPU at all, and teach you the two failure lessons from Patram-Ingest in about a hundred lines of Python each. The third will hang intermittently, so you may have to run it many times, just as we did.</p>
-    <p>On the right is what to read. Start with the Inside vLLM walkthrough. We followed it closely for the first half, and it goes much deeper than we could today.</p>
-  </aside>
-</section>
-
-<section data-nobrand class="slide dark" id="close" data-steps="0" data-section="9 · Wrap-up" data-time="0.6" data-title="Thank you">
+<section data-nobrand class="slide dark" id="close" data-steps="0" data-section="7 · Wrap-up" data-time="0.6" data-title="Thank you">
   <canvas class="abs" width="1920" height="1080" style="left:0;top:0;width:1920px;height:1080px"></canvas>
   <div class="abs" style="left:120px;top:78px;width:1680px">
     <div class="eyebrow">In summary</div>
@@ -4682,7 +4092,7 @@ vllm serve &lt;model-name&gt; --tensor-parallel-size <span class="n">4</span> --
     for (const b of [$('#brandtl')]) if (b) b.classList.toggle('hide', el.hasAttribute('data-nobrand'));   // the title and thank-you slides carry the logo themselves
     const acts = $('#acts');
     if (acts) {
-      if (!acts.children.length) { const sp = document.createElement('span'); sp.dataset.part = 'title'; sp.className = 'ttl'; sp.title = 'Go to the title slide'; sp.innerHTML = '<b>Title</b>'; acts.appendChild(sp); } if (acts.children.length === 1) ['Why it is hard', 'The vLLM engine', 'Engine features', 'Serving at scale', 'Around vLLM', 'Busy GPUs', 'Crash safe', 'Graphs', 'Wrap-up'].forEach((n, k) => { const sp = document.createElement('span'); sp.dataset.part = k + 1; sp.title = 'Go to part ' + (k + 1) + ': ' + n; sp.innerHTML = '<b>' + (k + 1) + '</b><u>' + n + '</u>'; acts.appendChild(sp); });
+      if (!acts.children.length) { const sp = document.createElement('span'); sp.dataset.part = 'title'; sp.className = 'ttl'; sp.title = 'Go to the title slide'; sp.innerHTML = '<b>Title</b>'; acts.appendChild(sp); } if (acts.children.length === 1) ['Why it is hard', 'How vLLM works', 'Around vLLM', 'Busy GPUs', 'Crash safe', 'Graphs', 'Wrap-up'].forEach((n, k) => { const sp = document.createElement('span'); sp.dataset.part = k + 1; sp.title = 'Go to part ' + (k + 1) + ': ' + n; sp.innerHTML = '<b>' + (k + 1) + '</b><u>' + n + '</u>'; acts.appendChild(sp); });
       const m = /^(\d) ·/.exec(el.dataset.section || ''), n = m ? +m[1] : -1;   // the number in data-section picks the part
       acts.classList.toggle('hide', state.i === 0); [...acts.children].forEach(c => c.classList.toggle('on', c.dataset.part === String(n)));
     }

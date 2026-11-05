@@ -1,4 +1,4 @@
-<section class="slide light" id="vmem" data-section="1 · Why it is hard" data-time="1.2" data-title="Reserving for the longest answer wastes memory">
+<section class="slide light" id="vmem" data-section="1 · Why it is hard" data-time="1.5" data-title="Reserving for the longest answer wastes memory">
   <div class="hd">
     <div class="eyebrow">KV cache memory</div>
     <h2>Reserving for the longest answer wastes memory</h2>
@@ -9,11 +9,11 @@
     <div class="vm-leg"><span><i class="u"></i>holds a token</span><span><i class="r"></i>reserved, unused</span><span><i class="f"></i>free</span></div>
   </div>
   <div class="abs vm-c" data-s="1" style="left:120px;top:510px;width:1680px"><div class="vm-new" id="vm-new"></div><p><b>Request C</b> needs room for 16 tokens in one piece. Only 8 are left, though most of the memory holds nothing.</p></div>
-  <div class="abs card vm-stat" data-s="2" style="left:120px;top:690px;width:1680px"><b>20.4% to 38.2%</b><p>of KV cache memory held actual token states, in the existing systems the vLLM authors profiled.</p></div>
+  <div class="abs card vm-stat" data-s="2" style="left:120px;top:690px;width:1680px"><b>20.4% to 38.2%</b><p>of the KV cache memory actually held data, in the existing systems the vLLM authors measured.</p></div>
   <div class="src">Source: Kwon et al., PagedAttention, SOSP 2023</div>
   <aside class="notes">
-    <p>The simple approach is what you would do for a tensor: one contiguous block per request. But we do not know how long an answer will be, so we must reserve room for the longest one it could be. Each request here reserves 16 slots. A has used 5 and B has used 6.</p>
-    <p data-step="1">Request C arrives. It needs 16 slots in one piece, and only 8 remain. So C has to wait, even though most of the memory holds nothing. Memory now limits the batch size, and the batch size limits throughput.</p>
-    <p data-step="2">This is not a small effect. The authors of vLLM profiled the existing systems and found that only about 20 to 38 percent of the cache memory held actual token states. The rest was wasted.</p>
+<p>The simple approach is one piece of memory per request. But we do not know how long an answer will be, so we reserve room for the longest it could be. It is like booking a hall for 16 people every time, even if 5 turn up. A has used 5 places and B has used 6.</p>
+    <p data-step="1">Request C arrives. It needs 16 places in one piece, and only 8 are left. So C waits, even though most of the memory holds nothing.</p>
+    <p data-step="2">This is not a small effect. The authors of vLLM measured existing systems, and only about 20 to 38 percent of this memory held real data.</p>
   </aside>
 </section>

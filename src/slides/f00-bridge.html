@@ -1,11 +1,11 @@
-<section class="slide light" id="vbridge" data-section="4 · Serving at scale" data-time="1" data-title="What vLLM handles, and what is left to you">
+<section class="slide light" id="vbridge" data-section="2 · How vLLM works" data-time="1" data-title="What vLLM handles, and what is left to you">
   <div class="hd">
-    <div class="eyebrow">Halfway</div>
+    <div class="eyebrow">From vLLM to our system</div>
     <h2>What vLLM handles, and what is left to you</h2>
   </div>
   <div class="abs card vbr-c" style="left:120px;top:240px;width:820px;height:490px">
     <h3>vLLM handles</h3>
-    <ul class="y"><li>Scheduling requests on each pass</li><li>GPU memory for the KV cache</li><li>Batching and reuse of shared prompts</li><li>Spreading a model across GPUs</li><li>An HTTP server and load balancing</li></ul>
+    <ul class="y"><li>Picking requests on each pass</li><li>GPU memory</li><li>Batching</li><li>Using several GPUs</li><li>A web server</li></ul>
   </div>
   <div class="abs card vbr-c me" data-s="1" style="left:980px;top:240px;width:820px;height:490px">
     <h3>You still need to decide</h3>
@@ -13,7 +13,7 @@
   </div>
   <p class="abs t" data-s="1" style="left:120px;top:770px;width:1680px;font-size:32px">vLLM answers one request very well. Nothing in it knows about your whole job.</p>
   <aside class="notes">
-    <p>Let us stop and take stock. That was the system experts built. It handles scheduling, memory, batching, multiple GPUs and serving, and you get all of it from one command. We could not have built this ourselves, and we did not need to.</p>
-    <p data-step="1">But look at what happens when you actually have a job to do. In our case, generate training data from a hundred million pages. vLLM does not know that. It sees one request at a time. Which prompt comes next, whether an answer is usable, what happens to a page when a node dies, which model a page should go to next: none of that belongs in an inference engine, and rightly so. That is a second program, and you have to write it. This is the part you are most likely to do yourself in your career. It is also where the second half begins.</p>
+    <p>That is the system experts built, and using it takes one command to start a server. It does much more than we showed, and if you are curious, the Inside vLLM walkthrough is the place to read about it. We could not have built this ourselves, and we did not need to.</p>
+    <p data-step="1">But look at what happens when you have a real job to do. In our case, generating training data from a hundred million pages. vLLM does not know that. It sees one request at a time. Which prompt comes next, whether an answer is usable, what happens to a page when a node dies: none of that belongs in an engine. That is a second program, and you have to write it. It is also the program you are most likely to write yourself. That is Patram-Ingest.</p>
   </aside>
 </section>

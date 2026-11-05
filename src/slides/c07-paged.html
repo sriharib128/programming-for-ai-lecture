@@ -1,19 +1,19 @@
-<section class="slide light" id="vpaged" data-steps="0" data-section="2 · The vLLM engine" data-time="2" data-title="Continuous batching on paged memory">
+<section class="slide light" id="vpaged" data-steps="0" data-section="2 · How vLLM works" data-time="2" data-title="Memory is handed out in small blocks">
   <div class="hd">
-    <div class="eyebrow">Putting it together</div>
-    <h2>Continuous batching on paged memory</h2>
+    <div class="eyebrow">vLLM running</div>
+    <h2>Memory is handed out in small blocks</h2>
   </div>
   <div class="abs card vg-r" id="vg-r" style="left:120px;top:236px;width:640px;height:610px"></div>
   <div class="abs card vg-m" style="left:800px;top:236px;width:1000px;height:610px">
-    <div class="vg-top"><small>GPU memory: KV blocks</small><span id="vg-st"></span></div>
+    <div class="vg-top"><small>GPU memory, split into blocks</small><span id="vg-st"></span></div>
     <div class="vg-g" id="vg-g"></div>
   </div>
-  <p class="abs t" style="left:120px;top:870px;width:1680px;font-size:29px">A finished request frees its blocks at once, and a waiting request joins on the next pass. A request's blocks need not be adjacent.</p>
+  <p class="abs t" style="left:120px;top:870px;width:1680px;font-size:30px">A finished request frees its blocks at once, and a waiting request joins on the next pass.</p>
   <div class="abs" id="vg-pl" style="left:120px;top:960px;width:560px"></div>
   <div class="abs note" style="left:720px;top:960px;font-size:21px">Simulated. Blocks hold 4 tokens here for drawing; the default is 16.</div>
   <aside class="notes">
-    <p>Here are the last few slides running together. On the left are five requests. On the right is GPU memory divided into blocks, and each dot is one token's keys and values. Each tick of the player is one call to step.</p>
-    <p>A, B and C arrive at the start and each get the blocks they need for their prompts. As they decode, each takes one more dot per pass, and takes a new block when one fills. Watch the colours mix: a request's blocks are not next to each other, and that does not matter.</p>
-    <p>When C finishes, its blocks go back to the free queue immediately. D and E arrive while others are running, and they join on the next pass. No request ever waited for a batch to end, and no memory was reserved for tokens that do not exist yet. Pause here and ask if anyone has questions, because everything in Part 3 builds on this picture.</p>
+    <p>Here is everything together. On the left are five requests. On the right is GPU memory, split into blocks, and each dot is one token's saved work. Each tick is one pass of the loop.</p>
+    <p>Each request takes a block only when it needs one. Watch the colours mix: a request's blocks are not next to each other, and that does not matter.</p>
+    <p>When a request finishes, its blocks are free immediately, and a waiting request joins on the next pass. Nobody waits for a batch to end, and no memory is reserved for tokens that do not exist yet. Those were our two problems, and this one picture solves both.</p>
   </aside>
 </section>
