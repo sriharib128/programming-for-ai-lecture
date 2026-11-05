@@ -1,21 +1,21 @@
-<section class="slide light" id="vstep" data-steps="0" data-section="2 · How vLLM works" data-time="1" data-title="The engine is one loop with three steps">
+<section class="slide light" id="vstep" data-steps="0" data-section="2 · How vLLM solves it" data-time="1" data-title="Both answers fit in one simple loop">
   <div class="hd">
-    <div class="eyebrow">The engine loop</div>
-    <h2>The engine is one loop with three steps</h2>
+    <div class="eyebrow">Together</div>
+    <h2>Both answers fit in one simple loop</h2>
   </div>
   <div class="abs vt-row" style="left:120px;top:250px;width:1680px">
-    <div class="card vt-c c1"><i>1</i><h3>Pick</h3><p>Choose which requests run in this pass, and give them memory.</p></div>
+    <div class="card vt-c c1"><i>1</i><h3>Pick</h3><p>Fill any free places from the waiting requests, and give them blocks.</p></div>
     <span class="vt-ar">→</span>
     <div class="card vt-c c2"><i>2</i><h3>Run the model</h3><p>Get one new token for each request.</p></div>
     <span class="vt-ar">→</span>
-    <div class="card vt-c c3"><i>3</i><h3>Clean up</h3><p>Add the new tokens. If a request is finished, free its memory.</p></div>
+    <div class="card vt-c c3"><i>3</i><h3>Clean up</h3><p>Add the new tokens. If a request is finished, free its blocks.</p></div>
   </div>
   <div class="abs vt-back" style="left:120px;top:560px;width:1680px"><span>repeat while any request is unfinished</span></div>
-  <p class="abs t" style="left:120px;top:690px;width:1680px;font-size:34px">It is the same idea you saw earlier, <span class="hi">now for many requests at once</span>.</p>
+  <p class="abs t" style="left:120px;top:690px;width:1680px;font-size:34px">It is the same idea as for one person, <span class="hi">now for many requests at once</span>.</p>
   <div class="src">Source: A. Gordić, Inside vLLM (2025)</div>
   <aside class="notes">
-    <p>The whole engine is this one loop, and it is the same idea you saw at the start of Part 1, only for many requests at once.</p>
-    <p>First it picks: which requests take part in this pass, and do they have memory? Then it runs the model and gets one new token for each. Then it cleans up: it adds the tokens and checks whether any request is finished. A finished request gives its memory back immediately.</p>
-    <p>Because the picking happens again on every pass, a new request can join on the very next one. That is continuous batching, and you can see it needs no special machinery. It follows from this loop.</p>
+<p>Here is the nice part: the two answers need very little machinery. vLLM repeats one loop, and it is the same idea you saw for one person, only for many requests at once.</p>
+    <p>First it picks: any free places are filled from the waiting requests, and they get blocks. That is answer one happening. Then it runs the model and gets one new token for each request. Then it cleans up: it adds the tokens, and a finished request gives back its blocks. That is answer two happening.</p>
+    <p>Because this repeats on every pass, nobody waits for a batch to end, and memory comes back immediately.</p>
   </aside>
 </section>

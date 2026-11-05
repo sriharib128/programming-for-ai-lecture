@@ -1,6 +1,6 @@
-<section class="slide light" id="vmem" data-section="1 · Why it is hard" data-time="1.5" data-title="Reserving for the longest answer wastes memory">
+<section class="slide light" id="vmem" data-section="1 · Why it is hard" data-time="1.2" data-title="Reserving for the longest answer wastes memory">
   <div class="hd">
-    <div class="eyebrow">KV cache memory</div>
+    <div class="eyebrow">Problem 2 · Memory</div>
     <h2>Reserving for the longest answer wastes memory</h2>
   </div>
   <div class="abs" style="left:120px;top:256px;width:1680px">
@@ -12,8 +12,8 @@
   <div class="abs card vm-stat" data-s="2" style="left:120px;top:690px;width:1680px"><b>20.4% to 38.2%</b><p>of the KV cache memory actually held data, in the existing systems the vLLM authors measured.</p></div>
   <div class="src">Source: Kwon et al., PagedAttention, SOSP 2023</div>
   <aside class="notes">
-<p>The simple approach is one piece of memory per request. But we do not know how long an answer will be, so we reserve room for the longest it could be. It is like booking a hall for 16 people every time, even if 5 turn up. A has used 5 places and B has used 6.</p>
+<p>Problem two. Each request needs memory for its saved work, and we do not know how long its answer will be. So the simple approach reserves room for the longest it could be, in one piece. It is like booking a hall for 16 people every time, even if 5 turn up. A has used 5 places and B has used 6.</p>
     <p data-step="1">Request C arrives. It needs 16 places in one piece, and only 8 are left. So C waits, even though most of the memory holds nothing.</p>
-    <p data-step="2">This is not a small effect. The authors of vLLM measured existing systems, and only about 20 to 38 percent of this memory held real data.</p>
+    <p data-step="2">This is not a small effect. The authors of vLLM measured existing systems, and only about 20 to 38 percent of this memory held real data. So those are our two problems: wasted time and wasted memory. Next, how vLLM answers them.</p>
   </aside>
 </section>

@@ -82,7 +82,7 @@
   Deck.on('vbatch', {
     enter(ctx) {
       const s = simFixed(), c = simCont(), COLS = s.T;
-      ctx.__ds = batchPanel(ctx.q('#vb-s'), 'Fixed batches', s, COLS);
+      ctx.__ds = batchPanel(ctx.q('#vb-s'), 'One batch at a time', s, COLS);
       ctx.__dc = batchPanel(ctx.q('#vb-c'), 'Continuous batching', c, COLS);
       ctx.__T = COLS;
     },
@@ -90,6 +90,14 @@
       const TICK = 480, render = t => { const k = Math.floor(t / TICK); ctx.__ds(k); ctx.__dc(k); };
       if (!ctx.__pl) ctx.__pl = Deck.player(ctx, ctx.q('#vb-pl'), { dur: TICK * ctx.__T + 300, mini: true, fmt: done, render });
       else if (st !== p) ctx.__pl.replay();
+    },
+  });
+
+  Deck.on('vfixed', {
+    enter(ctx) {
+      const s = simFixed(), draw = batchPanel(ctx.q('#vb-f'), 'One batch at a time', s, s.T), TICK = 480;
+      ctx.__pl && ctx.__pl.replay();
+      if (!ctx.__pl) ctx.__pl = Deck.player(ctx, ctx.q('#vb-fl'), { dur: TICK * s.T + 300, mini: true, fmt: done, render: t => draw(Math.floor(t / TICK)) });
     },
   });
 

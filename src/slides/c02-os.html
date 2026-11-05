@@ -1,7 +1,7 @@
-<section class="slide light" id="vos" data-section="1 · Why it is hard" data-time="2" data-title="Your turn: where have you seen this problem?">
+<section class="slide light" id="vos" data-section="2 · How vLLM solves it" data-time="1.5" data-title="Your turn: where have you seen the memory problem?">
   <div class="hd">
     <div class="eyebrow">Your turn</div>
-    <h2>Where have you seen this problem before?</h2>
+    <h2>Where have you seen the memory problem before?</h2>
   </div>
   <div class="abs card vo-q" style="left:120px;top:240px;width:680px;height:640px">
     <ul>
@@ -19,8 +19,8 @@
   </div>
   <div class="src">Source: Kwon et al., PagedAttention, SOSP 2023</div>
   <aside class="notes">
-<p>Forget about GPUs for a moment and read these four lines. Ask the room: you have met this exact problem before. In which course? Take a few answers.</p>
+<p>Before the second answer, a question. Forget about GPUs for a moment and read these four lines. This is our memory problem, in general words. You have met it before. In which course? Take a few answers.</p>
     <p data-step="1">Operating systems. An OS splits memory into small pages. A program's pages can sit anywhere, and it gets a new page only when it needs one. The program still sees one continuous range.</p>
-    <p>The vLLM authors used the same idea for the KV cache. A request's memory is split into small blocks that can sit anywhere, and it takes a new block only when the last one is full. Nothing is reserved in advance. They called it PagedAttention. So an idea from your operating systems course made a large difference in AI.</p>
+    <p>The vLLM authors used the same idea for GPU memory: a request is the process, a token is the byte, and a small block is the page. So an idea from your operating systems course made a large difference in AI. Let us see it running.</p>
   </aside>
 </section>

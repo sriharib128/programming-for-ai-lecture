@@ -1,0 +1,19 @@
+<section class="slide light" id="vpaged" data-steps="0" data-section="2 · How vLLM solves it" data-time="1.5" data-title="Memory is handed out in small blocks">
+  <div class="hd">
+    <div class="eyebrow">Answer 2 · Memory</div>
+    <h2>Memory is handed out in small blocks</h2>
+  </div>
+  <div class="abs card vg-r" id="vg-r" style="left:120px;top:236px;width:640px;height:610px"></div>
+  <div class="abs card vg-m" style="left:800px;top:236px;width:1000px;height:610px">
+    <div class="vg-top"><small>GPU memory, split into blocks</small><span id="vg-st"></span></div>
+    <div class="vg-g" id="vg-g"></div>
+  </div>
+  <p class="abs t" style="left:120px;top:870px;width:1680px;font-size:30px">A request takes a block only when it needs one, and frees them all when it finishes.</p>
+  <div class="abs" id="vg-pl" style="left:120px;top:960px;width:560px"></div>
+  <div class="abs note" style="left:720px;top:960px;font-size:21px">Simulated. Blocks hold 4 tokens here for drawing; the default is 16.</div>
+  <aside class="notes">
+<p>Answer two. On the left are five requests. On the right is GPU memory, split into small blocks, and each dot is one token's saved work. Each tick is one pass of the model.</p>
+    <p>Nothing is reserved in advance. A request takes a new block only when its last one is full. Watch the colours mix: a request's blocks are not next to each other, and that does not matter.</p>
+    <p>When a request finishes, its blocks are free immediately, and a waiting request can use them. No memory is held for tokens that do not exist yet. So that is memory solved as well. How do the two answers fit together?</p>
+  </aside>
+</section>

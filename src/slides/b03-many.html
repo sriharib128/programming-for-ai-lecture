@@ -1,0 +1,21 @@
+<section class="slide light" id="vmany" data-steps="0" data-section="1 · Why it is hard" data-time="0.8" data-title="One GPU has to serve many people at once">
+  <div class="hd">
+    <div class="eyebrow">Many people</div>
+    <h2>One GPU has to serve many people at once</h2>
+  </div>
+  <div class="abs vmy-f" style="left:120px;top:250px;width:1680px">
+    <div class="vmy-r"><b>A</b><b>B</b><b>C</b><b>D</b><b>E</b><b>F</b><b>G</b><b>H</b><span>many requests, of different lengths</span></div>
+    <i>→</i>
+    <div class="vmy-g">One GPU</div>
+  </div>
+  <div class="abs" style="left:120px;top:480px;width:1680px;display:grid;grid-template-columns:1fr 1fr;gap:30px">
+    <div class="card vmy-c"><small>Problem 1 · Time</small><h3>Some requests finish early</h3><p>The GPU should never sit idle while others wait.</p></div>
+    <div class="card vmy-c"><small>Problem 2 · Memory</small><h3>Nobody knows how long an answer will be</h3><p>So how much memory should each request get?</p></div>
+  </div>
+  <p class="abs t" style="left:120px;top:800px;width:1680px;font-size:32px">One person was easy. Many people at once raises <span class="hi">two problems</span>.</p>
+  <aside class="notes">
+    <p>So far there was one person. That was the easy case. Now imagine many people sending requests to the same GPU at the same time, some asking for one line and some asking for a whole essay.</p>
+    <p>This raises two problems. The first is about time: some requests finish early, and the GPU should never sit idle while others are waiting. The second is about memory: remember that the saved work grows with every token, and nobody knows in advance how long an answer will be.</p>
+    <p>We look at these two problems one at a time, and then at how vLLM answers them.</p>
+  </aside>
+</section>

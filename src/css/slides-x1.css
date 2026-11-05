@@ -440,3 +440,14 @@ code{font-family:'IBM Plex Mono',monospace;font-size:.92em}
 .vf-s i{flex:none;width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--blue-pale);color:var(--blue);font:700 26px Sora,sans-serif;font-style:normal}
 .vf-s p{font-size:31px;font-weight:500;color:var(--ink)}
 .vf-s.hl{border-color:var(--orange)}
+
+/* many people, one GPU */
+.vmy-f{display:flex;align-items:center;gap:40px}
+.vmy-r{flex:1;display:flex;flex-wrap:wrap;align-items:center;gap:14px}
+.vmy-r b{width:84px;height:84px;border-radius:16px;display:flex;align-items:center;justify-content:center;background:var(--blue-pale);color:var(--blue);font:700 30px Sora,sans-serif}
+.vmy-r span{width:100%;font-size:26px;color:var(--muted);margin-top:4px}
+.vmy-f>i{font:600 72px Sora,sans-serif;font-style:normal;color:var(--blue-soft)}
+.vmy-g{width:360px;height:150px;border-radius:20px;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;font:700 38px Sora,sans-serif}
+.vmy-c{padding:28px 36px}
+.vmy-c small{display:block;font-size:23px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--orange-deep)}
+.vmy-c h3{font-size:34px;margin:12px 0 10px}.vmy-c p{font-size:28px;line-height:1.35;color:var(--body)}

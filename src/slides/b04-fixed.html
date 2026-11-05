@@ -1,0 +1,14 @@
+<section class="slide light" id="vfixed" data-steps="0" data-section="1 · Why it is hard" data-time="1" data-title="One long request keeps the whole batch waiting">
+  <div class="hd">
+    <div class="eyebrow">Problem 1 · Time</div>
+    <h2>One long request keeps the whole batch waiting</h2>
+  </div>
+  <div class="abs card vb-p" id="vb-f" style="left:120px;top:250px;width:1680px;height:352px"></div>
+  <p class="abs t" style="left:120px;top:650px;width:1680px;font-size:32px">A finished request's place <span class="hi">stays empty</span> until the whole batch is done.</p>
+  <div class="abs" id="vb-fl" style="left:120px;top:960px;width:560px"></div>
+  <div class="abs note" style="left:720px;top:960px;font-size:21px">Illustrative: 8 requests of different lengths, 4 places at a time.</div>
+  <aside class="notes">
+    <p>A GPU can work on many requests together, which is called a batch. Here it has room for 4 at a time. Each column is one pass of the model. The obvious way: take four requests, run until all four are done, then take the next four.</p>
+    <p>Watch the striped cells. A short request finishes, but its place stays empty until the longest one is done. Think of a restaurant that seats nobody new until the whole room has finished eating. That is problem one. Now problem two.</p>
+  </aside>
+</section>

@@ -1,0 +1,14 @@
+<section class="slide light" id="vbatch" data-steps="0" data-section="2 · How vLLM solves it" data-time="1.2" data-title="A free place is filled straight away">
+  <div class="hd">
+    <div class="eyebrow">Answer 1 · Time</div>
+    <h2>A free place is filled straight away</h2>
+  </div>
+  <div class="abs card vb-p" id="vb-s" style="left:120px;top:226px;width:1680px;height:352px"></div>
+  <div class="abs card vb-p" id="vb-c" style="left:120px;top:596px;width:1680px;height:352px"></div>
+  <div class="abs" id="vb-pl" style="left:120px;top:962px;width:560px"></div>
+  <div class="abs note" style="left:720px;top:962px;font-size:21px">Illustrative: 8 requests of different lengths, 4 places at a time.</div>
+  <aside class="notes">
+    <p>Answer one: do not decide the batch once. Decide it again on every pass. As soon as a request finishes, the next one takes its place, like seating the next guest as soon as a table is free.</p>
+    <p>On top is the old way, and below is the new way, with the same requests and the same GPU. The bottom has empty places only at the very end, when nothing is left to run, and it finishes earlier. This is called continuous batching. That takes care of time. Now memory.</p>
+  </aside>
+</section>

@@ -2460,6 +2460,17 @@ code{font-family:'IBM Plex Mono',monospace;font-size:.92em}
 .vf-s i{flex:none;width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--blue-pale);color:var(--blue);font:700 26px Sora,sans-serif;font-style:normal}
 .vf-s p{font-size:31px;font-weight:500;color:var(--ink)}
 .vf-s.hl{border-color:var(--orange)}
+
+/* many people, one GPU */
+.vmy-f{display:flex;align-items:center;gap:40px}
+.vmy-r{flex:1;display:flex;flex-wrap:wrap;align-items:center;gap:14px}
+.vmy-r b{width:84px;height:84px;border-radius:16px;display:flex;align-items:center;justify-content:center;background:var(--blue-pale);color:var(--blue);font:700 30px Sora,sans-serif}
+.vmy-r span{width:100%;font-size:26px;color:var(--muted);margin-top:4px}
+.vmy-f>i{font:600 72px Sora,sans-serif;font-style:normal;color:var(--blue-soft)}
+.vmy-g{width:360px;height:150px;border-radius:20px;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;font:700 38px Sora,sans-serif}
+.vmy-c{padding:28px 36px}
+.vmy-c small{display:block;font-size:23px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--orange-deep)}
+.vmy-c h3{font-size:34px;margin:12px 0 10px}.vmy-c p{font-size:28px;line-height:1.35;color:var(--body)}
 </style></head>
 <body>
 <div id="stage-wrap"><div id="stage">
@@ -2586,8 +2597,8 @@ code{font-family:'IBM Plex Mono',monospace;font-size:.92em}
   <div class="abs card ag-c b" style="left:120px;top:236px;width:820px;height:444px">
     <small>First</small><h3>vLLM: the engine that runs the model</h3>
     <ol class="ag-w">
-      <li><i>1</i><div><b>Why running a model is hard</b><span>One token at a time, batching and memory</span></div></li>
-      <li><i>2</i><div><b>How vLLM works</b><span>One loop, and memory in small blocks</span></div></li>
+      <li><i>1</i><div><b>Why running a model is hard</b><span>From one person to many: two problems</span></div></li>
+      <li><i>2</i><div><b>How vLLM solves it</b><span>Two answers, and what they leave to you</span></div></li>
     </ol>
   </div>
   <div class="abs card ag-c o" style="left:980px;top:236px;width:820px;height:444px">
@@ -2602,7 +2613,7 @@ code{font-family:'IBM Plex Mono',monospace;font-size:.92em}
   <div class="abs ag-f" style="left:120px;top:716px;width:1680px"><i>7</i><p><b>Wrap-up:</b> the main lessons from both.</p></div>
   <p class="abs t" style="left:120px;top:816px;width:1680px;font-size:29px">Please stop us with questions at any time. A few slides will ask you for an answer.</p>
   <aside class="notes">
-    <p>Here is the plan. We start with vLLM, and we keep it short. Why is running a model for many people hard at all, and how does vLLM solve that? We leave out most of its features, because the ideas are what matter.</p>
+    <p>Here is the plan. We start with vLLM, and we keep it short. First one person, then many people at once, which raises two problems. Then the two answers vLLM gives. We leave out most of its features, because the ideas are what matter.</p>
     <p>Then comes most of the lecture: Patram-Ingest, the system we built around vLLM to generate the training data you just saw. We explain what can interrupt a run that lasts for weeks, and then three problems in turn: keeping the GPUs busy, losing no work when machines die, and sending each page through many models on its own route.</p>
     <p>Please interrupt us at any time; this works better as a conversation. A few slides will ask you for an answer, so stay ready. Let us start with Part 1.</p>
   </aside>
@@ -2613,14 +2624,14 @@ code{font-family:'IBM Plex Mono',monospace;font-size:.92em}
   <div class="dv-eb">Part 1</div>
   <div class="dv-h">Why running a model is hard</div>
   <div class="dv-line"></div>
-  <div class="dv-q">What happens between a prompt and its answer?</div>
-  <aside class="notes"><p>Part 1. We start with how a model writes an answer. Then we see why that gets hard as soon as many people want to use it.</p></aside>
+  <div class="dv-q">What changes when many people use one model?</div>
+  <aside class="notes"><p>Part 1. We start with one person, and how a model writes one answer. Then we see what goes wrong when many people use it at once.</p></aside>
 </section>
 
-<section class="slide light" id="vloop" data-steps="0" data-section="1 · Why it is hard" data-time="1.5" data-title="A model produces one token at a time">
+<section class="slide light" id="vloop" data-steps="0" data-section="1 · Why it is hard" data-time="1.5" data-title="A model writes one token at a time">
   <div class="hd">
-    <div class="eyebrow">Generation</div>
-    <h2>A model produces one token at a time</h2>
+    <div class="eyebrow">One person</div>
+    <h2>A model writes one token at a time</h2>
   </div>
   <div class="abs vf-f" style="left:120px;top:250px;width:860px">
     <div class="card vf-s l-a"><i>1</i><p>Read all the tokens so far</p></div>
@@ -2646,10 +2657,10 @@ code{font-family:'IBM Plex Mono',monospace;font-size:.92em}
   </aside>
 </section>
 
-<section class="slide light" id="vcache" data-section="1 · Why it is hard" data-time="2" data-title="Saving earlier work avoids repeating it">
+<section class="slide light" id="vcache" data-section="1 · Why it is hard" data-time="1.5" data-title="Saving earlier work makes it fast">
   <div class="hd">
-    <div class="eyebrow">KV cache</div>
-    <h2>Saving earlier work avoids repeating it</h2>
+    <div class="eyebrow">One person</div>
+    <h2>Saving earlier work makes it fast</h2>
   </div>
   <div class="abs card vc-p" style="left:120px;top:240px;width:820px;height:560px">
     <h3>Without a cache</h3><div class="vc-g" id="vc-a"></div>
@@ -2660,33 +2671,53 @@ code{font-family:'IBM Plex Mono',monospace;font-size:.92em}
     <div class="vc-t"><b class="hg">10</b> token computations for the same 6 tokens</div>
   </div>
   <div class="abs vc-leg" style="left:120px;top:822px"><i class="c"></i>computed in this pass<span data-s="1" style="display:inline-flex;align-items:center;gap:12px;margin-left:36px"><i class="r"></i>read from the cache</span></div>
-  <p class="abs t" data-s="1" style="left:120px;top:890px;width:1680px;font-size:32px">The cost: the cache lives in GPU memory, and <span class="hi">it grows with every token</span>.</p>
+  <p class="abs t" data-s="1" style="left:120px;top:890px;width:1680px;font-size:32px">The cost: this saved work, the KV cache, fills GPU memory and <span class="hi">grows with every token</span>.</p>
   <aside class="notes">
 <p>For each token, the model works out some numbers. The numbers for old tokens never change, so working them out again is a waste. On the left, nothing is saved: 45 computations for 6 new tokens.</p>
-    <p data-step="1">So we save them, like taking notes instead of re-reading the book. Those numbers are called keys and values, so this is the KV cache. You do not need the details, only this: the same 6 tokens now take 10 computations. Keep the last line in mind. The cache lives in GPU memory, and it grows with every token. Most of what follows is about this one piece of memory.</p>
+    <p data-step="1">So we save them, like taking notes instead of re-reading the book. This saved work is called the KV cache. You do not need the details, only this: the same 6 tokens now take 10 computations. So for one person, the problem is solved. Keep the last line in mind, though: the saved work sits in GPU memory, and it grows with every token. That matters on the next slide, when one person becomes many.</p>
   </aside>
 </section>
 
-<section class="slide light" id="vbatch" data-section="1 · Why it is hard" data-time="2" data-title="Requests finish at different times">
+<section class="slide light" id="vmany" data-steps="0" data-section="1 · Why it is hard" data-time="0.8" data-title="One GPU has to serve many people at once">
   <div class="hd">
-    <div class="eyebrow">Batching</div>
-    <h2>Requests finish at different times</h2>
+    <div class="eyebrow">Many people</div>
+    <h2>One GPU has to serve many people at once</h2>
   </div>
-  <div class="abs card vb-p" id="vb-s" style="left:120px;top:226px;width:1680px;height:352px"></div>
-  <div class="abs card vb-p" id="vb-c" data-s="1" style="left:120px;top:596px;width:1680px;height:352px"></div>
-  <div class="abs" id="vb-pl" style="left:120px;top:962px;width:560px"></div>
-  <div class="abs note" style="left:720px;top:962px;font-size:21px">Illustrative: 8 requests of different lengths, 4 slots.</div>
+  <div class="abs vmy-f" style="left:120px;top:250px;width:1680px">
+    <div class="vmy-r"><b>A</b><b>B</b><b>C</b><b>D</b><b>E</b><b>F</b><b>G</b><b>H</b><span>many requests, of different lengths</span></div>
+    <i>→</i>
+    <div class="vmy-g">One GPU</div>
+  </div>
+  <div class="abs" style="left:120px;top:480px;width:1680px;display:grid;grid-template-columns:1fr 1fr;gap:30px">
+    <div class="card vmy-c"><small>Problem 1 · Time</small><h3>Some requests finish early</h3><p>The GPU should never sit idle while others wait.</p></div>
+    <div class="card vmy-c"><small>Problem 2 · Memory</small><h3>Nobody knows how long an answer will be</h3><p>So how much memory should each request get?</p></div>
+  </div>
+  <p class="abs t" style="left:120px;top:800px;width:1680px;font-size:32px">One person was easy. Many people at once raises <span class="hi">two problems</span>.</p>
   <aside class="notes">
-<p>A GPU can work on many requests at once, so we batch them. Here are 8 requests and room for 4 at a time. Each column is one pass of the model. The first idea: take four, run until all four are done, then take the next four.</p>
-    <p>Watch the hatched cells. A short request finishes, but its place stays empty until the longest one is done. Think of a restaurant that seats nobody new until the whole room has finished eating.</p>
-    <p data-step="1">The fix: when a request finishes, the next one takes its place straight away, like seating the next guest as soon as a table is free. This is called continuous batching. The same requests finish much earlier on the same hardware.</p>
-    <p>But requests now come and go at every pass, and each one has a cache that grows. Where does all that memory go?</p>
+    <p>So far there was one person. That was the easy case. Now imagine many people sending requests to the same GPU at the same time, some asking for one line and some asking for a whole essay.</p>
+    <p>This raises two problems. The first is about time: some requests finish early, and the GPU should never sit idle while others are waiting. The second is about memory: remember that the saved work grows with every token, and nobody knows in advance how long an answer will be.</p>
+    <p>We look at these two problems one at a time, and then at how vLLM answers them.</p>
   </aside>
 </section>
 
-<section class="slide light" id="vmem" data-section="1 · Why it is hard" data-time="1.5" data-title="Reserving for the longest answer wastes memory">
+<section class="slide light" id="vfixed" data-steps="0" data-section="1 · Why it is hard" data-time="1" data-title="One long request keeps the whole batch waiting">
   <div class="hd">
-    <div class="eyebrow">KV cache memory</div>
+    <div class="eyebrow">Problem 1 · Time</div>
+    <h2>One long request keeps the whole batch waiting</h2>
+  </div>
+  <div class="abs card vb-p" id="vb-f" style="left:120px;top:250px;width:1680px;height:352px"></div>
+  <p class="abs t" style="left:120px;top:650px;width:1680px;font-size:32px">A finished request's place <span class="hi">stays empty</span> until the whole batch is done.</p>
+  <div class="abs" id="vb-fl" style="left:120px;top:960px;width:560px"></div>
+  <div class="abs note" style="left:720px;top:960px;font-size:21px">Illustrative: 8 requests of different lengths, 4 places at a time.</div>
+  <aside class="notes">
+    <p>A GPU can work on many requests together, which is called a batch. Here it has room for 4 at a time. Each column is one pass of the model. The obvious way: take four requests, run until all four are done, then take the next four.</p>
+    <p>Watch the striped cells. A short request finishes, but its place stays empty until the longest one is done. Think of a restaurant that seats nobody new until the whole room has finished eating. That is problem one. Now problem two.</p>
+  </aside>
+</section>
+
+<section class="slide light" id="vmem" data-section="1 · Why it is hard" data-time="1.2" data-title="Reserving for the longest answer wastes memory">
+  <div class="hd">
+    <div class="eyebrow">Problem 2 · Memory</div>
     <h2>Reserving for the longest answer wastes memory</h2>
   </div>
   <div class="abs" style="left:120px;top:256px;width:1680px">
@@ -2698,16 +2729,42 @@ code{font-family:'IBM Plex Mono',monospace;font-size:.92em}
   <div class="abs card vm-stat" data-s="2" style="left:120px;top:690px;width:1680px"><b>20.4% to 38.2%</b><p>of the KV cache memory actually held data, in the existing systems the vLLM authors measured.</p></div>
   <div class="src">Source: Kwon et al., PagedAttention, SOSP 2023</div>
   <aside class="notes">
-<p>The simple approach is one piece of memory per request. But we do not know how long an answer will be, so we reserve room for the longest it could be. It is like booking a hall for 16 people every time, even if 5 turn up. A has used 5 places and B has used 6.</p>
+<p>Problem two. Each request needs memory for its saved work, and we do not know how long its answer will be. So the simple approach reserves room for the longest it could be, in one piece. It is like booking a hall for 16 people every time, even if 5 turn up. A has used 5 places and B has used 6.</p>
     <p data-step="1">Request C arrives. It needs 16 places in one piece, and only 8 are left. So C waits, even though most of the memory holds nothing.</p>
-    <p data-step="2">This is not a small effect. The authors of vLLM measured existing systems, and only about 20 to 38 percent of this memory held real data.</p>
+    <p data-step="2">This is not a small effect. The authors of vLLM measured existing systems, and only about 20 to 38 percent of this memory held real data. So those are our two problems: wasted time and wasted memory. Next, how vLLM answers them.</p>
   </aside>
 </section>
 
-<section class="slide light" id="vos" data-section="1 · Why it is hard" data-time="2" data-title="Your turn: where have you seen this problem?">
+<section class="slide dark" id="vsec2" data-section="2 · How vLLM solves it" data-time="0.2" data-title="Part 2 · How vLLM solves it">
+  <div class="dv-num">2</div>
+  <div class="dv-eb">Part 2</div>
+  <div class="dv-h">How vLLM solves it</div>
+  <div class="dv-line"></div>
+  <div class="dv-q">Two problems, two answers.</div>
+  <aside class="notes">
+<p>Two problems, wasted time and wasted memory, so two answers. Then we see how simply they fit together.</p>
+  </aside>
+</section>
+
+<section class="slide light" id="vbatch" data-steps="0" data-section="2 · How vLLM solves it" data-time="1.2" data-title="A free place is filled straight away">
+  <div class="hd">
+    <div class="eyebrow">Answer 1 · Time</div>
+    <h2>A free place is filled straight away</h2>
+  </div>
+  <div class="abs card vb-p" id="vb-s" style="left:120px;top:226px;width:1680px;height:352px"></div>
+  <div class="abs card vb-p" id="vb-c" style="left:120px;top:596px;width:1680px;height:352px"></div>
+  <div class="abs" id="vb-pl" style="left:120px;top:962px;width:560px"></div>
+  <div class="abs note" style="left:720px;top:962px;font-size:21px">Illustrative: 8 requests of different lengths, 4 places at a time.</div>
+  <aside class="notes">
+    <p>Answer one: do not decide the batch once. Decide it again on every pass. As soon as a request finishes, the next one takes its place, like seating the next guest as soon as a table is free.</p>
+    <p>On top is the old way, and below is the new way, with the same requests and the same GPU. The bottom has empty places only at the very end, when nothing is left to run, and it finishes earlier. This is called continuous batching. That takes care of time. Now memory.</p>
+  </aside>
+</section>
+
+<section class="slide light" id="vos" data-section="2 · How vLLM solves it" data-time="1.5" data-title="Your turn: where have you seen the memory problem?">
   <div class="hd">
     <div class="eyebrow">Your turn</div>
-    <h2>Where have you seen this problem before?</h2>
+    <h2>Where have you seen the memory problem before?</h2>
   </div>
   <div class="abs card vo-q" style="left:120px;top:240px;width:680px;height:640px">
     <ul>
@@ -2725,16 +2782,58 @@ code{font-family:'IBM Plex Mono',monospace;font-size:.92em}
   </div>
   <div class="src">Source: Kwon et al., PagedAttention, SOSP 2023</div>
   <aside class="notes">
-<p>Forget about GPUs for a moment and read these four lines. Ask the room: you have met this exact problem before. In which course? Take a few answers.</p>
+<p>Before the second answer, a question. Forget about GPUs for a moment and read these four lines. This is our memory problem, in general words. You have met it before. In which course? Take a few answers.</p>
     <p data-step="1">Operating systems. An OS splits memory into small pages. A program's pages can sit anywhere, and it gets a new page only when it needs one. The program still sees one continuous range.</p>
-    <p>The vLLM authors used the same idea for the KV cache. A request's memory is split into small blocks that can sit anywhere, and it takes a new block only when the last one is full. Nothing is reserved in advance. They called it PagedAttention. So an idea from your operating systems course made a large difference in AI.</p>
+    <p>The vLLM authors used the same idea for GPU memory: a request is the process, a token is the byte, and a small block is the page. So an idea from your operating systems course made a large difference in AI. Let us see it running.</p>
   </aside>
 </section>
 
-<section class="slide light" id="vabout" data-steps="0" data-section="1 · Why it is hard" data-time="0.8" data-title="vLLM began with that idea">
+<section class="slide light" id="vpaged" data-steps="0" data-section="2 · How vLLM solves it" data-time="1.5" data-title="Memory is handed out in small blocks">
+  <div class="hd">
+    <div class="eyebrow">Answer 2 · Memory</div>
+    <h2>Memory is handed out in small blocks</h2>
+  </div>
+  <div class="abs card vg-r" id="vg-r" style="left:120px;top:236px;width:640px;height:610px"></div>
+  <div class="abs card vg-m" style="left:800px;top:236px;width:1000px;height:610px">
+    <div class="vg-top"><small>GPU memory, split into blocks</small><span id="vg-st"></span></div>
+    <div class="vg-g" id="vg-g"></div>
+  </div>
+  <p class="abs t" style="left:120px;top:870px;width:1680px;font-size:30px">A request takes a block only when it needs one, and frees them all when it finishes.</p>
+  <div class="abs" id="vg-pl" style="left:120px;top:960px;width:560px"></div>
+  <div class="abs note" style="left:720px;top:960px;font-size:21px">Simulated. Blocks hold 4 tokens here for drawing; the default is 16.</div>
+  <aside class="notes">
+<p>Answer two. On the left are five requests. On the right is GPU memory, split into small blocks, and each dot is one token's saved work. Each tick is one pass of the model.</p>
+    <p>Nothing is reserved in advance. A request takes a new block only when its last one is full. Watch the colours mix: a request's blocks are not next to each other, and that does not matter.</p>
+    <p>When a request finishes, its blocks are free immediately, and a waiting request can use them. No memory is held for tokens that do not exist yet. So that is memory solved as well. How do the two answers fit together?</p>
+  </aside>
+</section>
+
+<section class="slide light" id="vstep" data-steps="0" data-section="2 · How vLLM solves it" data-time="1" data-title="Both answers fit in one simple loop">
+  <div class="hd">
+    <div class="eyebrow">Together</div>
+    <h2>Both answers fit in one simple loop</h2>
+  </div>
+  <div class="abs vt-row" style="left:120px;top:250px;width:1680px">
+    <div class="card vt-c c1"><i>1</i><h3>Pick</h3><p>Fill any free places from the waiting requests, and give them blocks.</p></div>
+    <span class="vt-ar">→</span>
+    <div class="card vt-c c2"><i>2</i><h3>Run the model</h3><p>Get one new token for each request.</p></div>
+    <span class="vt-ar">→</span>
+    <div class="card vt-c c3"><i>3</i><h3>Clean up</h3><p>Add the new tokens. If a request is finished, free its blocks.</p></div>
+  </div>
+  <div class="abs vt-back" style="left:120px;top:560px;width:1680px"><span>repeat while any request is unfinished</span></div>
+  <p class="abs t" style="left:120px;top:690px;width:1680px;font-size:34px">It is the same idea as for one person, <span class="hi">now for many requests at once</span>.</p>
+  <div class="src">Source: A. Gordić, Inside vLLM (2025)</div>
+  <aside class="notes">
+<p>Here is the nice part: the two answers need very little machinery. vLLM repeats one loop, and it is the same idea you saw for one person, only for many requests at once.</p>
+    <p>First it picks: any free places are filled from the waiting requests, and they get blocks. That is answer one happening. Then it runs the model and gets one new token for each request. Then it cleans up: it adds the tokens, and a finished request gives back its blocks. That is answer two happening.</p>
+    <p>Because this repeats on every pass, nobody waits for a batch to end, and memory comes back immediately.</p>
+  </aside>
+</section>
+
+<section class="slide light" id="vabout" data-steps="0" data-section="2 · How vLLM solves it" data-time="0.7" data-title="These two answers are the core of vLLM">
   <div class="hd">
     <div class="eyebrow">vLLM</div>
-    <h2>vLLM began with that idea</h2>
+    <h2>These two answers are the core of vLLM</h2>
   </div>
   <img class="abs" src="assets/vllm-logo-text-light.png" alt="vLLM" style="right:120px;top:120px;height:84px">
   <div class="abs" style="left:120px;top:270px;width:1680px;display:grid;grid-template-columns:repeat(3,1fr);gap:30px">
@@ -2745,63 +2844,12 @@ code{font-family:'IBM Plex Mono',monospace;font-size:.92em}
   <div class="abs card va-g" style="left:120px;top:640px;width:1680px"><small>To read more</small><p>Aleksa Gordić, <b>Inside vLLM: Anatomy of a High-Throughput LLM Inference System</b> (August 2025). It goes much deeper than we will today.</p></div>
   <div class="src">Sources: Kwon et al., SOSP 2023 · github.com/vllm-project/vllm · aleksagordic.com/blog/vllm</div>
   <aside class="notes">
-<p>That idea became vLLM. The original paper reported two to four times the throughput of the best systems of the time, without making each request slower. It started at UC Berkeley, and today more than two thousand people have contributed to it. This is the system built by experts that we mentioned at the start.</p>
-    <p>If you want the details, read the walkthrough by Aleksa Gordić after this lecture. We leave out almost all of it today.</p>
+<p>And that is the core of vLLM. Continuous batching came from an earlier system called Orca, and the blocks came from the vLLM authors. Together, the original paper reported two to four times the throughput of the best systems of the time, without making each request slower. It started at UC Berkeley, and today more than two thousand people have contributed to it. This is the system built by experts that we mentioned at the start.</p>
+    <p>If you want the details, read the walkthrough by Aleksa Gordić after this lecture. It covers much more than we have today.</p>
   </aside>
 </section>
 
-<section class="slide dark" id="vsec2" data-section="2 · How vLLM works" data-time="0.2" data-title="Part 2 · How vLLM works">
-  <div class="dv-num">2</div>
-  <div class="dv-eb">Part 2</div>
-  <div class="dv-h">How vLLM works</div>
-  <div class="dv-line"></div>
-  <div class="dv-q">What does the engine actually do?</div>
-  <aside class="notes"><p>We now know the problems. Here is how vLLM puts the answers together. We keep this simple: one loop, and memory in small blocks.</p></aside>
-</section>
-
-<section class="slide light" id="vstep" data-steps="0" data-section="2 · How vLLM works" data-time="1" data-title="The engine is one loop with three steps">
-  <div class="hd">
-    <div class="eyebrow">The engine loop</div>
-    <h2>The engine is one loop with three steps</h2>
-  </div>
-  <div class="abs vt-row" style="left:120px;top:250px;width:1680px">
-    <div class="card vt-c c1"><i>1</i><h3>Pick</h3><p>Choose which requests run in this pass, and give them memory.</p></div>
-    <span class="vt-ar">→</span>
-    <div class="card vt-c c2"><i>2</i><h3>Run the model</h3><p>Get one new token for each request.</p></div>
-    <span class="vt-ar">→</span>
-    <div class="card vt-c c3"><i>3</i><h3>Clean up</h3><p>Add the new tokens. If a request is finished, free its memory.</p></div>
-  </div>
-  <div class="abs vt-back" style="left:120px;top:560px;width:1680px"><span>repeat while any request is unfinished</span></div>
-  <p class="abs t" style="left:120px;top:690px;width:1680px;font-size:34px">It is the same idea you saw earlier, <span class="hi">now for many requests at once</span>.</p>
-  <div class="src">Source: A. Gordić, Inside vLLM (2025)</div>
-  <aside class="notes">
-    <p>The whole engine is this one loop, and it is the same idea you saw at the start of Part 1, only for many requests at once.</p>
-    <p>First it picks: which requests take part in this pass, and do they have memory? Then it runs the model and gets one new token for each. Then it cleans up: it adds the tokens and checks whether any request is finished. A finished request gives its memory back immediately.</p>
-    <p>Because the picking happens again on every pass, a new request can join on the very next one. That is continuous batching, and you can see it needs no special machinery. It follows from this loop.</p>
-  </aside>
-</section>
-
-<section class="slide light" id="vpaged" data-steps="0" data-section="2 · How vLLM works" data-time="2" data-title="Memory is handed out in small blocks">
-  <div class="hd">
-    <div class="eyebrow">vLLM running</div>
-    <h2>Memory is handed out in small blocks</h2>
-  </div>
-  <div class="abs card vg-r" id="vg-r" style="left:120px;top:236px;width:640px;height:610px"></div>
-  <div class="abs card vg-m" style="left:800px;top:236px;width:1000px;height:610px">
-    <div class="vg-top"><small>GPU memory, split into blocks</small><span id="vg-st"></span></div>
-    <div class="vg-g" id="vg-g"></div>
-  </div>
-  <p class="abs t" style="left:120px;top:870px;width:1680px;font-size:30px">A finished request frees its blocks at once, and a waiting request joins on the next pass.</p>
-  <div class="abs" id="vg-pl" style="left:120px;top:960px;width:560px"></div>
-  <div class="abs note" style="left:720px;top:960px;font-size:21px">Simulated. Blocks hold 4 tokens here for drawing; the default is 16.</div>
-  <aside class="notes">
-    <p>Here is everything together. On the left are five requests. On the right is GPU memory, split into blocks, and each dot is one token's saved work. Each tick is one pass of the loop.</p>
-    <p>Each request takes a block only when it needs one. Watch the colours mix: a request's blocks are not next to each other, and that does not matter.</p>
-    <p>When a request finishes, its blocks are free immediately, and a waiting request joins on the next pass. Nobody waits for a batch to end, and no memory is reserved for tokens that do not exist yet. Those were our two problems, and this one picture solves both.</p>
-  </aside>
-</section>
-
-<section class="slide light" id="vbridge" data-section="2 · How vLLM works" data-time="1" data-title="What vLLM handles, and what is left to you">
+<section class="slide light" id="vbridge" data-section="2 · How vLLM solves it" data-time="1" data-title="What vLLM handles, and what is left to you">
   <div class="hd">
     <div class="eyebrow">From vLLM to our system</div>
     <h2>What vLLM handles, and what is left to you</h2>
@@ -4092,7 +4140,7 @@ code{font-family:'IBM Plex Mono',monospace;font-size:.92em}
     for (const b of [$('#brandtl')]) if (b) b.classList.toggle('hide', el.hasAttribute('data-nobrand'));   // the title and thank-you slides carry the logo themselves
     const acts = $('#acts');
     if (acts) {
-      if (!acts.children.length) { const sp = document.createElement('span'); sp.dataset.part = 'title'; sp.className = 'ttl'; sp.title = 'Go to the title slide'; sp.innerHTML = '<b>Title</b>'; acts.appendChild(sp); } if (acts.children.length === 1) ['Why it is hard', 'How vLLM works', 'Around vLLM', 'Busy GPUs', 'Crash safe', 'Graphs', 'Wrap-up'].forEach((n, k) => { const sp = document.createElement('span'); sp.dataset.part = k + 1; sp.title = 'Go to part ' + (k + 1) + ': ' + n; sp.innerHTML = '<b>' + (k + 1) + '</b><u>' + n + '</u>'; acts.appendChild(sp); });
+      if (!acts.children.length) { const sp = document.createElement('span'); sp.dataset.part = 'title'; sp.className = 'ttl'; sp.title = 'Go to the title slide'; sp.innerHTML = '<b>Title</b>'; acts.appendChild(sp); } if (acts.children.length === 1) ['Why it is hard', 'How vLLM solves it', 'Around vLLM', 'Busy GPUs', 'Crash safe', 'Graphs', 'Wrap-up'].forEach((n, k) => { const sp = document.createElement('span'); sp.dataset.part = k + 1; sp.title = 'Go to part ' + (k + 1) + ': ' + n; sp.innerHTML = '<b>' + (k + 1) + '</b><u>' + n + '</u>'; acts.appendChild(sp); });
       const m = /^(\d) ·/.exec(el.dataset.section || ''), n = m ? +m[1] : -1;   // the number in data-section picks the part
       acts.classList.toggle('hide', state.i === 0); [...acts.children].forEach(c => c.classList.toggle('on', c.dataset.part === String(n)));
     }
@@ -6996,7 +7044,7 @@ Deck.on('author2', {
   Deck.on('vbatch', {
     enter(ctx) {
       const s = simFixed(), c = simCont(), COLS = s.T;
-      ctx.__ds = batchPanel(ctx.q('#vb-s'), 'Fixed batches', s, COLS);
+      ctx.__ds = batchPanel(ctx.q('#vb-s'), 'One batch at a time', s, COLS);
       ctx.__dc = batchPanel(ctx.q('#vb-c'), 'Continuous batching', c, COLS);
       ctx.__T = COLS;
     },
@@ -7004,6 +7052,14 @@ Deck.on('author2', {
       const TICK = 480, render = t => { const k = Math.floor(t / TICK); ctx.__ds(k); ctx.__dc(k); };
       if (!ctx.__pl) ctx.__pl = Deck.player(ctx, ctx.q('#vb-pl'), { dur: TICK * ctx.__T + 300, mini: true, fmt: done, render });
       else if (st !== p) ctx.__pl.replay();
+    },
+  });
+
+  Deck.on('vfixed', {
+    enter(ctx) {
+      const s = simFixed(), draw = batchPanel(ctx.q('#vb-f'), 'One batch at a time', s, s.T), TICK = 480;
+      ctx.__pl && ctx.__pl.replay();
+      if (!ctx.__pl) ctx.__pl = Deck.player(ctx, ctx.q('#vb-fl'), { dur: TICK * s.T + 300, mini: true, fmt: done, render: t => draw(Math.floor(t / TICK)) });
     },
   });
 

@@ -11,54 +11,56 @@ Generated from the deck. Keys: → next · ← back · F fullscreen · O overvie
 | 5 | A model, the engine that runs it, and the system around it | 1.5 | 4.4 |
 | 6 | What we will talk about today | 1 | 5.4 |
 | 7 | Part 1 · Why running a model is hard | 0.2 | 5.6 |
-| 8 | A model produces one token at a time | 1.5 | 7.1 |
-| 9 | Saving earlier work avoids repeating it | 2 | 9.1 |
-| 10 | Requests finish at different times | 2 | 11.1 |
-| 11 | Reserving for the longest answer wastes memory | 1.5 | 12.6 |
-| 12 | Your turn: where have you seen this problem? | 2 | 14.6 |
-| 13 | vLLM began with that idea | 0.8 | 15.4 |
-| 14 | Part 2 · How vLLM works | 0.2 | 15.6 |
-| 15 | The engine is one loop with three steps | 1 | 16.6 |
-| 16 | Memory is handed out in small blocks | 2 | 18.6 |
-| 17 | What vLLM handles, and what is left to you | 1 | 19.6 |
-| 18 | Part 3 · The system around vLLM | 0.2 | 19.8 |
-| 19 | Three things that interrupt a weeks-long run | 1.2 | 21.0 |
-| 20 | Three requirements for the engine | 0.8 | 21.8 |
-| 21 | Part 4 · Keeping the GPUs busy | 0.2 | 22.0 |
-| 22 | The model run is one of three steps | 1 | 23.0 |
-| 23 | Inside one node | 1.1 | 24.1 |
-| 24 | Processes, threads and event loops | 1.5 | 25.6 |
-| 25 | Your turn: which parallelism where? | 0.8 | 26.4 |
-| 26 | What we chose for each piece | 1 | 27.4 |
-| 27 | Sharing work through one queue | 1.1 | 28.5 |
-| 28 | A private inbox per worker | 1.1 | 29.6 |
-| 29 | A worker can run any backend | 1 | 30.6 |
-| 30 | Part 5 · Crash safe | 0.2 | 30.8 |
-| 31 | Nodes take work from one table | 1.6 | 32.4 |
-| 32 | Recovery and scaling without intervention | 3.2 | 35.6 |
-| 33 | Every error is followed through | 1 | 36.6 |
-| 34 | Part 6 · Graphs of stages | 0.2 | 36.8 |
-| 35 | One pipeline, a different route for every page | 1.2 | 38.0 |
-| 36 | The whole pipeline is a graph | 2 | 40.0 |
-| 37 | A dynamic DAG fits our workloads | 0.8 | 40.8 |
-| 38 | Stages need a shared record of each page *(deep dive)* | 0.7 | - |
-| 39 | The record is one switch per stage *(deep dive)* | 0.8 | - |
-| 40 | Two rows per page: Finished and Ready *(deep dive)* | 0.8 | - |
-| 41 | Following one page through the graph *(deep dive)* | 2.2 | - |
-| 42 | When the sweep lets a stage start *(deep dive)* | 1.1 | - |
-| 43 | Ready makes a stage start exactly once *(deep dive)* | 1 | - |
-| 44 | A crash between writes never loses a page *(deep dive)* | 1.2 | - |
-| 45 | From idea to a running pipeline | 0.8 | 41.6 |
-| 46 | All stages at once | 1.2 | 42.8 |
-| 47 | What Patram-Ingest supports | 0.6 | 43.4 |
-| 48 | Scaling compared with DBOS and Temporal | 1.5 | 44.9 |
-| 49 | Key takeaways | 1 | 45.9 |
-| 50 | The DB is the single source of truth | 0.8 | 46.7 |
-| 51 | Where Patram-Ingest sits in the stack | 1.2 | 47.9 |
-| 52 | Thank you | 0.6 | 48.5 |
+| 8 | A model writes one token at a time | 1.5 | 7.1 |
+| 9 | Saving earlier work makes it fast | 1.5 | 8.6 |
+| 10 | One GPU has to serve many people at once | 0.8 | 9.4 |
+| 11 | One long request keeps the whole batch waiting | 1 | 10.4 |
+| 12 | Reserving for the longest answer wastes memory | 1.2 | 11.6 |
+| 13 | Part 2 · How vLLM solves it | 0.2 | 11.8 |
+| 14 | A free place is filled straight away | 1.2 | 13.0 |
+| 15 | Your turn: where have you seen the memory problem? | 1.5 | 14.5 |
+| 16 | Memory is handed out in small blocks | 1.5 | 16.0 |
+| 17 | Both answers fit in one simple loop | 1 | 17.0 |
+| 18 | These two answers are the core of vLLM | 0.7 | 17.7 |
+| 19 | What vLLM handles, and what is left to you | 1 | 18.7 |
+| 20 | Part 3 · The system around vLLM | 0.2 | 18.9 |
+| 21 | Three things that interrupt a weeks-long run | 1.2 | 20.1 |
+| 22 | Three requirements for the engine | 0.8 | 20.9 |
+| 23 | Part 4 · Keeping the GPUs busy | 0.2 | 21.1 |
+| 24 | The model run is one of three steps | 1 | 22.1 |
+| 25 | Inside one node | 1.1 | 23.2 |
+| 26 | Processes, threads and event loops | 1.5 | 24.7 |
+| 27 | Your turn: which parallelism where? | 0.8 | 25.5 |
+| 28 | What we chose for each piece | 1 | 26.5 |
+| 29 | Sharing work through one queue | 1.1 | 27.6 |
+| 30 | A private inbox per worker | 1.1 | 28.7 |
+| 31 | A worker can run any backend | 1 | 29.7 |
+| 32 | Part 5 · Crash safe | 0.2 | 29.9 |
+| 33 | Nodes take work from one table | 1.6 | 31.5 |
+| 34 | Recovery and scaling without intervention | 3.2 | 34.7 |
+| 35 | Every error is followed through | 1 | 35.7 |
+| 36 | Part 6 · Graphs of stages | 0.2 | 35.9 |
+| 37 | One pipeline, a different route for every page | 1.2 | 37.1 |
+| 38 | The whole pipeline is a graph | 2 | 39.1 |
+| 39 | A dynamic DAG fits our workloads | 0.8 | 39.9 |
+| 40 | Stages need a shared record of each page *(deep dive)* | 0.7 | - |
+| 41 | The record is one switch per stage *(deep dive)* | 0.8 | - |
+| 42 | Two rows per page: Finished and Ready *(deep dive)* | 0.8 | - |
+| 43 | Following one page through the graph *(deep dive)* | 2.2 | - |
+| 44 | When the sweep lets a stage start *(deep dive)* | 1.1 | - |
+| 45 | Ready makes a stage start exactly once *(deep dive)* | 1 | - |
+| 46 | A crash between writes never loses a page *(deep dive)* | 1.2 | - |
+| 47 | From idea to a running pipeline | 0.8 | 40.7 |
+| 48 | All stages at once | 1.2 | 41.9 |
+| 49 | What Patram-Ingest supports | 0.6 | 42.5 |
+| 50 | Scaling compared with DBOS and Temporal | 1.5 | 44.0 |
+| 51 | Key takeaways | 1 | 45.0 |
+| 52 | The DB is the single source of truth | 0.8 | 45.8 |
+| 53 | Where Patram-Ingest sits in the stack | 1.2 | 47.0 |
+| 54 | Thank you | 0.6 | 47.6 |
 
 
-**Core path ≈ 48.5 min.** The bit-mask deep dive (reached from the button on the dynamic DAG slide) adds the remainder.
+**Core path ≈ 47.6 min.** The bit-mask deep dive (reached from the button on the dynamic DAG slide) adds the remainder.
 
 ## 1. vLLM and Patram-Ingest
 *Introduction · ~0.3 min · no steps*
@@ -100,7 +102,7 @@ So how do you get from a model to that scale? Here is the idea of the lecture as
 ## 6. What we will talk about today
 *Introduction · ~1 min · no steps*
 
-Here is the plan. We start with vLLM, and we keep it short. Why is running a model for many people hard at all, and how does vLLM solve that? We leave out most of its features, because the ideas are what matter.
+Here is the plan. We start with vLLM, and we keep it short. First one person, then many people at once, which raises two problems. Then the two answers vLLM gives. We leave out most of its features, because the ideas are what matter.
 
 Then comes most of the lecture: Patram-Ingest, the system we built around vLLM to generate the training data you just saw. We explain what can interrupt a run that lasts for weeks, and then three problems in turn: keeping the GPUs busy, losing no work when machines die, and sending each page through many models on its own route.
 
@@ -109,9 +111,9 @@ Please interrupt us at any time; this works better as a conversation. A few slid
 ## 7. Part 1 · Why running a model is hard
 *1 · Why it is hard · ~0.2 min · no steps*
 
-Part 1. We start with how a model writes an answer. Then we see why that gets hard as soon as many people want to use it.
+Part 1. We start with one person, and how a model writes one answer. Then we see what goes wrong when many people use it at once.
 
-## 8. A model produces one token at a time
+## 8. A model writes one token at a time
 *1 · Why it is hard · ~1.5 min · no steps*
 
 This is how a model writes an answer. A token is a word or a piece of a word. The model reads everything so far, predicts one new token, adds it to the end, and starts again until the answer is done.
@@ -120,85 +122,97 @@ Watch the counters. Each pass gives one token, and each pass reads everything ag
 
 Ask the room: what work is being repeated here?
 
-## 9. Saving earlier work avoids repeating it
-*1 · Why it is hard · ~2 min · reveal steps: 1*
+## 9. Saving earlier work makes it fast
+*1 · Why it is hard · ~1.5 min · reveal steps: 1*
 
 For each token, the model works out some numbers. The numbers for old tokens never change, so working them out again is a waste. On the left, nothing is saved: 45 computations for 6 new tokens.
 
-**[step 1]** So we save them, like taking notes instead of re-reading the book. Those numbers are called keys and values, so this is the KV cache. You do not need the details, only this: the same 6 tokens now take 10 computations. Keep the last line in mind. The cache lives in GPU memory, and it grows with every token. Most of what follows is about this one piece of memory.
+**[step 1]** So we save them, like taking notes instead of re-reading the book. This saved work is called the KV cache. You do not need the details, only this: the same 6 tokens now take 10 computations. So for one person, the problem is solved. Keep the last line in mind, though: the saved work sits in GPU memory, and it grows with every token. That matters on the next slide, when one person becomes many.
 
-## 10. Requests finish at different times
-*1 · Why it is hard · ~2 min · reveal steps: 1*
+## 10. One GPU has to serve many people at once
+*1 · Why it is hard · ~0.8 min · no steps*
 
-A GPU can work on many requests at once, so we batch them. Here are 8 requests and room for 4 at a time. Each column is one pass of the model. The first idea: take four, run until all four are done, then take the next four.
+So far there was one person. That was the easy case. Now imagine many people sending requests to the same GPU at the same time, some asking for one line and some asking for a whole essay.
 
-Watch the hatched cells. A short request finishes, but its place stays empty until the longest one is done. Think of a restaurant that seats nobody new until the whole room has finished eating.
+This raises two problems. The first is about time: some requests finish early, and the GPU should never sit idle while others are waiting. The second is about memory: remember that the saved work grows with every token, and nobody knows in advance how long an answer will be.
 
-**[step 1]** The fix: when a request finishes, the next one takes its place straight away, like seating the next guest as soon as a table is free. This is called continuous batching. The same requests finish much earlier on the same hardware.
+We look at these two problems one at a time, and then at how vLLM answers them.
 
-But requests now come and go at every pass, and each one has a cache that grows. Where does all that memory go?
+## 11. One long request keeps the whole batch waiting
+*1 · Why it is hard · ~1 min · no steps*
 
-## 11. Reserving for the longest answer wastes memory
-*1 · Why it is hard · ~1.5 min · reveal steps: 2*
+A GPU can work on many requests together, which is called a batch. Here it has room for 4 at a time. Each column is one pass of the model. The obvious way: take four requests, run until all four are done, then take the next four.
 
-The simple approach is one piece of memory per request. But we do not know how long an answer will be, so we reserve room for the longest it could be. It is like booking a hall for 16 people every time, even if 5 turn up. A has used 5 places and B has used 6.
+Watch the striped cells. A short request finishes, but its place stays empty until the longest one is done. Think of a restaurant that seats nobody new until the whole room has finished eating. That is problem one. Now problem two.
+
+## 12. Reserving for the longest answer wastes memory
+*1 · Why it is hard · ~1.2 min · reveal steps: 2*
+
+Problem two. Each request needs memory for its saved work, and we do not know how long its answer will be. So the simple approach reserves room for the longest it could be, in one piece. It is like booking a hall for 16 people every time, even if 5 turn up. A has used 5 places and B has used 6.
 
 **[step 1]** Request C arrives. It needs 16 places in one piece, and only 8 are left. So C waits, even though most of the memory holds nothing.
 
-**[step 2]** This is not a small effect. The authors of vLLM measured existing systems, and only about 20 to 38 percent of this memory held real data.
+**[step 2]** This is not a small effect. The authors of vLLM measured existing systems, and only about 20 to 38 percent of this memory held real data. So those are our two problems: wasted time and wasted memory. Next, how vLLM answers them.
 
-## 12. Your turn: where have you seen this problem?
-*1 · Why it is hard · ~2 min · reveal steps: 1*
+## 13. Part 2 · How vLLM solves it
+*2 · How vLLM solves it · ~0.2 min · no steps*
 
-Forget about GPUs for a moment and read these four lines. Ask the room: you have met this exact problem before. In which course? Take a few answers.
+Two problems, wasted time and wasted memory, so two answers. Then we see how simply they fit together.
+
+## 14. A free place is filled straight away
+*2 · How vLLM solves it · ~1.2 min · no steps*
+
+Answer one: do not decide the batch once. Decide it again on every pass. As soon as a request finishes, the next one takes its place, like seating the next guest as soon as a table is free.
+
+On top is the old way, and below is the new way, with the same requests and the same GPU. The bottom has empty places only at the very end, when nothing is left to run, and it finishes earlier. This is called continuous batching. That takes care of time. Now memory.
+
+## 15. Your turn: where have you seen the memory problem?
+*2 · How vLLM solves it · ~1.5 min · reveal steps: 1*
+
+Before the second answer, a question. Forget about GPUs for a moment and read these four lines. This is our memory problem, in general words. You have met it before. In which course? Take a few answers.
 
 **[step 1]** Operating systems. An OS splits memory into small pages. A program's pages can sit anywhere, and it gets a new page only when it needs one. The program still sees one continuous range.
 
-The vLLM authors used the same idea for the KV cache. A request's memory is split into small blocks that can sit anywhere, and it takes a new block only when the last one is full. Nothing is reserved in advance. They called it PagedAttention. So an idea from your operating systems course made a large difference in AI.
-
-## 13. vLLM began with that idea
-*1 · Why it is hard · ~0.8 min · no steps*
-
-That idea became vLLM. The original paper reported two to four times the throughput of the best systems of the time, without making each request slower. It started at UC Berkeley, and today more than two thousand people have contributed to it. This is the system built by experts that we mentioned at the start.
-
-If you want the details, read the walkthrough by Aleksa Gordić after this lecture. We leave out almost all of it today.
-
-## 14. Part 2 · How vLLM works
-*2 · How vLLM works · ~0.2 min · no steps*
-
-We now know the problems. Here is how vLLM puts the answers together. We keep this simple: one loop, and memory in small blocks.
-
-## 15. The engine is one loop with three steps
-*2 · How vLLM works · ~1 min · no steps*
-
-The whole engine is this one loop, and it is the same idea you saw at the start of Part 1, only for many requests at once.
-
-First it picks: which requests take part in this pass, and do they have memory? Then it runs the model and gets one new token for each. Then it cleans up: it adds the tokens and checks whether any request is finished. A finished request gives its memory back immediately.
-
-Because the picking happens again on every pass, a new request can join on the very next one. That is continuous batching, and you can see it needs no special machinery. It follows from this loop.
+The vLLM authors used the same idea for GPU memory: a request is the process, a token is the byte, and a small block is the page. So an idea from your operating systems course made a large difference in AI. Let us see it running.
 
 ## 16. Memory is handed out in small blocks
-*2 · How vLLM works · ~2 min · no steps*
+*2 · How vLLM solves it · ~1.5 min · no steps*
 
-Here is everything together. On the left are five requests. On the right is GPU memory, split into blocks, and each dot is one token's saved work. Each tick is one pass of the loop.
+Answer two. On the left are five requests. On the right is GPU memory, split into small blocks, and each dot is one token's saved work. Each tick is one pass of the model.
 
-Each request takes a block only when it needs one. Watch the colours mix: a request's blocks are not next to each other, and that does not matter.
+Nothing is reserved in advance. A request takes a new block only when its last one is full. Watch the colours mix: a request's blocks are not next to each other, and that does not matter.
 
-When a request finishes, its blocks are free immediately, and a waiting request joins on the next pass. Nobody waits for a batch to end, and no memory is reserved for tokens that do not exist yet. Those were our two problems, and this one picture solves both.
+When a request finishes, its blocks are free immediately, and a waiting request can use them. No memory is held for tokens that do not exist yet. So that is memory solved as well. How do the two answers fit together?
 
-## 17. What vLLM handles, and what is left to you
-*2 · How vLLM works · ~1 min · reveal steps: 1*
+## 17. Both answers fit in one simple loop
+*2 · How vLLM solves it · ~1 min · no steps*
+
+Here is the nice part: the two answers need very little machinery. vLLM repeats one loop, and it is the same idea you saw for one person, only for many requests at once.
+
+First it picks: any free places are filled from the waiting requests, and they get blocks. That is answer one happening. Then it runs the model and gets one new token for each request. Then it cleans up: it adds the tokens, and a finished request gives back its blocks. That is answer two happening.
+
+Because this repeats on every pass, nobody waits for a batch to end, and memory comes back immediately.
+
+## 18. These two answers are the core of vLLM
+*2 · How vLLM solves it · ~0.7 min · no steps*
+
+And that is the core of vLLM. Continuous batching came from an earlier system called Orca, and the blocks came from the vLLM authors. Together, the original paper reported two to four times the throughput of the best systems of the time, without making each request slower. It started at UC Berkeley, and today more than two thousand people have contributed to it. This is the system built by experts that we mentioned at the start.
+
+If you want the details, read the walkthrough by Aleksa Gordić after this lecture. It covers much more than we have today.
+
+## 19. What vLLM handles, and what is left to you
+*2 · How vLLM solves it · ~1 min · reveal steps: 1*
 
 That is the system experts built, and using it takes one command to start a server. It does much more than we showed, and if you are curious, the Inside vLLM walkthrough is the place to read about it. We could not have built this ourselves, and we did not need to.
 
 **[step 1]** But look at what happens when you have a real job to do. In our case, generating training data from a hundred million pages. vLLM does not know that. It sees one request at a time. Which prompt comes next, whether an answer is usable, what happens to a page when a node dies: none of that belongs in an engine. That is a second program, and you have to write it. It is also the program you are most likely to write yourself. That is Patram-Ingest.
 
-## 18. Part 3 · The system around vLLM
+## 20. Part 3 · The system around vLLM
 *3 · The system around vLLM · ~0.2 min · no steps*
 
 The rest of the lecture is about one real system built around vLLM. You saw at the start what we use it for: training data at a very large scale. First, why that needs more than a fast model server, and then the design, in three parts.
 
-## 19. Three things that interrupt a weeks-long run
+## 21. Three things that interrupt a weeks-long run
 *3 · The system around vLLM · ~1.2 min · no steps*
 
 At the start we said a run must keep going for weeks. On a real cluster, three things get in the way, and the engine has to handle all three by itself.
@@ -211,7 +225,7 @@ Three: complex workloads need pipeline parallelism. A page goes through several 
 
 If asked whether this really happens: in one run, nine of 24 nodes stopped working, and nobody noticed for six hours, because nothing was in place to notice.
 
-## 20. Three requirements for the engine
+## 22. Three requirements for the engine
 *3 · The system around vLLM · ~0.8 min · no steps*
 
 From those problems come three needs, and we take them in order.
@@ -224,19 +238,19 @@ Third, any workflow with very little code. Once someone can picture a pipeline, 
 
 First, busy GPUs.
 
-## 21. Part 4 · Keeping the GPUs busy
+## 23. Part 4 · Keeping the GPUs busy
 *4 · Keeping the GPUs busy · ~0.2 min · no steps*
 
 We have the problem and the three needs. We take the first one first: how to keep the GPUs busy. This is the part where we build up from first principles: what a GPU is waiting for, and how a program should wait.
 
-## 22. The model run is one of three steps
+## 24. The model run is one of three steps
 *4 · Keeping the GPUs busy · ~1 min · reveal steps: 1*
 
 Start with what the GPU actually does. For every batch of pages, the model run is one step. Before it, the host has to build prompts and read and check images. After it, the host has to parse and validate the answers, write them to disk and record that they are done. The GPU does only the middle part.
 
 **[step 1]** Two ways to run the same four batches, on one clock. Press play, or drag the slider. Top: one batch at a time. The host prepares, then the GPU runs, then the host finishes, and the GPU sits idle while the host works. Bottom: overlapped. The host prepares the next batch and finishes the last one while the GPU runs this one. The same host work is still done, but none of it is on the GPU's critical path, so the whole run ends sooner and the GPU lane is continuous. So the question is not how to make the host faster; it is how to make sure the host is always one batch ahead. That means many pieces of host code running at the same time as the GPU. Next: what those pieces are.
 
-## 23. Inside one node
+## 25. Inside one node
 *4 · Keeping the GPUs busy · ~1.1 min · no steps*
 
 Here is what runs on every node, before we talk about how. Every node runs the same program; there is no master node.
@@ -249,7 +263,7 @@ On the right, the backends a worker can call: vLLM servers, Hugging Face models,
 
 All of these pieces must run at the same time, or the GPU waits, as we just saw. So for each one we have to choose the right kind of parallelism, and there are three options.
 
-## 24. Processes, threads and event loops
+## 26. Processes, threads and event loops
 *4 · Keeping the GPUs busy · ~1.5 min · no steps*
 
 This is the part of the lecture that is most directly about programming. First, the basics. There are three ways to have a computer do many things at once, and each is good at one thing.
@@ -262,12 +276,12 @@ An event loop is one thread that juggles many waits. Each call starts, waits for
 
 Rule of thumb, under each column: computing, a process; waiting, a thread; many waits at once, an event loop.
 
-## 25. Your turn: which parallelism where?
+## 27. Your turn: which parallelism where?
 *4 · Keeping the GPUs busy · ~0.8 min · no steps*
 
 You just met the three options: process for computing, thread for waiting, event loop for many waits. Here is the node again. Every one of these boxes has to run at the same time. Over to you: which ones would you make processes, which threads, and which an event loop? A hint: ask of each box whether it computes, whether it mostly waits, or whether it juggles many calls at once. Take a few answers from the room before moving on.
 
-## 26. What we chose for each piece
+## 28. What we chose for each piece
 *4 · Keeping the GPUs busy · ~1 min · no steps*
 
 Here is what we chose: the same picture, coloured by kind.
@@ -278,7 +292,7 @@ Threads, in purple: inside the orchestrator, prepare, collect, write and upload 
 
 Event loops, in orange: inside each worker, one asyncio loop keeps many calls in flight, for example 24 requests per vLLM server, each handled as its answer arrives. One thread, no lock, many waits.
 
-## 27. Sharing work through one queue
+## 29. Sharing work through one queue
 *4 · Keeping the GPUs busy · ~1.1 min · reveal steps: 1*
 
 We now have several workers, and requests to hand out. How do we balance the load between them? The easiest way is one shared queue: put every request in it, and let each worker pull the next one when it is free. A fast worker simply pulls more often, so the load balances itself.
@@ -287,7 +301,7 @@ Look at what a pull does inside. The worker takes the queue's lock, pulls one re
 
 **[step 1]** Now a worker is killed, for example by an out-of-memory kill, at the moment it holds the lock. A killed process runs no cleanup, so the lock is never released. Every other worker is now waiting for a lock that nobody will ever give back. The supervisor restarts the dead worker, and the new one waits on the same lock. So the pool reports itself healthy, with every worker alive, but throughput is zero. There is no error and no timeout; the run just stops. This happened to us: in a test that killed one of two workers mid-request, the pool hung in three of eight trials.
 
-## 28. A private inbox per worker
+## 30. A private inbox per worker
 *4 · Keeping the GPUs busy · ~1.1 min · reveal steps: 2*
 
 The fix is not a safer lock. Holding a lock when you are killed is how the primitive works. The fix is to take the shared lock away from anything that can be killed. One dispatcher, a thread in the pool, is the only reader of the shared queue. It hands each request to a free worker by putting it in that worker's own inbox. Each worker reads only its own inbox.
@@ -296,7 +310,7 @@ The fix is not a safer lock. Holding a lock when you are killed is how the primi
 
 **[step 2]** The supervisor starts a new worker with a fresh, empty inbox, and the requests the dead worker owed come back as system errors and are sent again. The rule we took from this: never share a lock with a process that can die. Since the change, the same kill test has not hung once, and with one of four workers killed all 40 test images were committed. One limit we state honestly: results still travel back on shared queues, so the same kind of failure is possible there, in a much narrower window.
 
-## 29. A worker can run any backend
+## 31. A worker can run any backend
 *4 · Keeping the GPUs busy · ~1 min · no steps*
 
 So what actually runs inside one of those worker processes? Anything that fits three functions: initialise, call and terminate. The pool, the inboxes, the supervisor and the error handling are the same whatever the backend is.
@@ -305,12 +319,12 @@ Most of our work calls hosted vLLM servers over HTTP: shared servers that many p
 
 vLLM itself got here in steps. We started with batch generate inside the pipeline process, moved to vLLM's async engine for continuous batching, then found its outputs differed from vllm serve with the same arguments, so we now drive vllm serve over HTTP, and finally shared hosted servers. The lesson from that path: run the model the way vLLM itself serves it.
 
-## 30. Part 5 · Crash safe
+## 32. Part 5 · Crash safe
 *5 · Crash safe · ~0.2 min · no steps*
 
 Busy GPUs are only useful if the work survives. Part 5 is how the engine stays crash safe: it loses nothing and repeats nothing, even when processes and machines die.
 
-## 31. Nodes take work from one table
+## 33. Nodes take work from one table
 *5 · Crash safe · ~1.6 min · no steps*
 
 Busy GPUs are only useful if the work survives, so start with how many nodes share one run, with as little overhead as possible. Nodes do not talk to each other and there is no coordinator. Each step's queue is a table in the DB with one row per sample, drawn here as one box per image, and each row has a state: waiting, claimed, done or failed. A node that wants work sends the database one command that picks a few waiting rows, marks them as its own and writes its name on them, all in one step. A second node making the same request at the same instant skips those rows, so two nodes can never get the same image. Nothing is assigned in advance, so a fast node simply takes more work. Click the steps, or press next, to walk through one run.
@@ -323,7 +337,7 @@ Busy GPUs are only useful if the work survives, so start with how many nodes sha
 
 **[step 4]** Node D joins later. One image that cannot be read is marked failed without stopping the rest, and the table finishes with every image done once. To grow a run you start the same program on more nodes; to shrink it you stop some. The DB is deliberately one plain database on one machine, because every extra component is another way to fail.
 
-## 32. Recovery and scaling without intervention
+## 34. Recovery and scaling without intervention
 *5 · Crash safe · ~3.2 min · reveal steps: 8*
 
 Back to the first two problems from the start: nodes die, and GPUs come and go. The run handles both without anyone stepping in: it recovers, and it scales. First, recovery.
@@ -344,7 +358,7 @@ Back to the first two problems from the start: nodes die, and GPUs come and go. 
 
 **[step 8]** Here is what that looks like over one day, as in our blog; the shape is illustrative. One: we launched before the models were up, and work started as each server came online. Two: a colleague borrowed GPUs; the workers using them drained and waited. Three: the test finished, and those workers fetched from the database again. Four: a server crashed; its requests went back and it restarted. Five: free GPUs appeared and the run spread onto them. Nobody touched the run all day.
 
-## 33. Every error is followed through
+## 35. Every error is followed through
 *5 · Crash safe · ~1 min · no steps*
 
 At production scale, something fails every minute, and every error has to be followed through to the end: no error is dropped, and none is left vague. To do that, every error is sorted, where it happens, into one of two kinds.
@@ -357,12 +371,12 @@ When it is unclear, treat it as the system's fault, because the two mistakes do 
 
 *If asked: a fuse stops the whole run, failing nothing, after max(2b, 64) consecutive infrastructure failures with no success; and a request that fails as infrastructure more than five times while others succeed is failed as itself. Before this classification existed, a dead backend marched whole datasets into the failed state.*
 
-## 34. Part 6 · Graphs of stages
+## 36. Part 6 · Graphs of stages
 *6 · Graphs of stages · ~0.2 min · no steps*
 
 Until now we treated a stage on its own. But a good training example is never the work of one model. Part 6 is how a page moves through many models, each page on its own path, and how the engine runs that across machines without a coordinator.
 
-## 35. One pipeline, a different route for every page
+## 37. One pipeline, a different route for every page
 *6 · Graphs of stages · ~1.2 min · no steps*
 
 Here is the problem Part 6 solves. A good training example is never the output of a single model. Six pages enter the same pipeline of seventeen agents. Understand reads each page and decides where it goes next, and later agents keep deciding too.
@@ -371,7 +385,7 @@ A chart is read, then re-read by a second model to catch wrong numbers. A table 
 
 All six run together, each on its own route. You can click any page to replay just its route; the line at the bottom shows the route it took, which every output records.
 
-## 36. The whole pipeline is a graph
+## 38. The whole pipeline is a graph
 *6 · Graphs of stages · ~2 min · reveal steps: 4*
 
 Put all those routes together and you get one graph. A page enters at the left. Each box is a model, a tool or a check. Three rules decide where a page goes and when a box may start, and we will zoom into each.
@@ -384,14 +398,14 @@ Put all those routes together and you get one graph. A page enters at the left. 
 
 **[step 4]** Three rules: route the page, needs every input, one input is enough. Every pipeline we run is built from these.
 
-## 37. A dynamic DAG fits our workloads
+## 39. A dynamic DAG fits our workloads
 *6 · Graphs of stages · ~0.8 min · reveal steps: 1*
 
 Look at the pipelines we build. Every one of them has three things. It is a graph, declared once in code: each stage names its inputs, and the engine works out who feeds whom. Acyclic: no loops. Verification loops are common, but a cycle makes it impossible to say when a sample is finished, so a retry is a bounded decision inside a routing function, with a counter so it cannot go on forever. And dynamic: the graph is fixed, but each sample's route through it is decided while it runs, from what earlier stages found.
 
 **[step 1]** Put the three together and you get the conclusion: a dynamic directed acyclic graph fits almost every workload we have. Straight chains, branches by content, merges and early exits are all special cases of that one shape, so the engine only has to run one thing well. If the room wants to know how the engine tracks each page through such a graph, the Deep dive button opens seven slides on that; otherwise carry on.
 
-## 38. Stages need a shared record of each page (deep dive)
+## 40. Stages need a shared record of each page (deep dive)
 *6 · Graphs of stages · ~0.7 min · reveal steps: 2*
 
 We now go one level deeper: how does the engine actually run a graph like the one we just saw, on many machines? Here is the difficulty. Every stage is its own process, often on a different machine, and they share no memory.
@@ -400,7 +414,7 @@ We now go one level deeper: how does the engine actually run a graph like the on
 
 **[step 2]** So the engine keeps one small record for every page that is in flight, in the DB. Every stage reads it and writes to it. All the coordination between stages happens through this record. The next slides show what is in it. It is only two numbers.
 
-## 39. The record is one switch per stage (deep dive)
+## 41. The record is one switch per stage (deep dive)
 *6 · Graphs of stages · ~0.8 min · reveal steps: 2*
 
 Every stage in a graph gets a position, like a seat number: Understand is seat 0, Text is seat 1, Layout seat 2, Grounded Q&A seat 3. For each page, the record has one switch per seat. A switch is a bit: it is either 0 or 1, off or on. At the start they are all off.
@@ -409,7 +423,7 @@ Every stage in a graph gets a position, like a seat number: Understand is seat 0
 
 **[step 2]** The useful trick is that a row of switches can be stored as one ordinary number. Give each seat a value: seat 0 is worth 1, seat 1 is worth 2, seat 2 is worth 4, seat 3 is worth 8. Add up the switches that are on, 1 plus 2, and this row is the number 3. That is all a bit mask is: a row of switches kept as a single integer. It is tiny, it is cheap for the DB to store, and the DB can update one switch without touching the others.
 
-## 40. Two rows per page: Finished and Ready (deep dive)
+## 42. Two rows per page: Finished and Ready (deep dive)
 *6 · Graphs of stages · ~0.8 min · reveal steps: 2*
 
 Each page gets two such rows, so two numbers. The first is Finished: which stages have finished this page. It starts empty and fills up as the page moves through the graph.
@@ -418,7 +432,7 @@ Each page gets two such rows, so two numbers. The first is Finished: which stage
 
 **[step 2]** In the DB it is one row per page: the page, the Finished number and the Ready number. A new page starts with Finished at 0, nothing done, and Ready at 1: only seat 0, Understand, may start. When a page has finished its last stage the row is deleted, so the record only ever holds pages that are in flight, not the whole dataset.
 
-## 41. Following one page through the graph (deep dive)
+## 43. Following one page through the graph (deep dive)
 *6 · Graphs of stages · ~2.2 min · reveal steps: 5*
 
 Let us follow one page through a small graph, with the record on the right. Understand feeds Text and Layout, and Grounded Q&A needs both of them. Text runs on node 3, Layout on node 7, different machines.
@@ -435,7 +449,7 @@ One: a page arrives. Finished is 0, nothing is done. Ready is 1, only Understand
 
 **[step 5]** Six: Grounded Q&A runs and finishes. It is the last stage, so the page is complete and its row is deleted.
 
-## 42. When the sweep lets a stage start (deep dive)
+## 44. When the sweep lets a stage start (deep dive)
 *6 · Graphs of stages · ~1.1 min · reveal steps: 2*
 
 Here is exactly what the sweep checks. For every stage that has several inputs, the engine keeps a row of the inputs it needs. Grounded Q&A needs Text and Layout: seats 1 and 2, which is the number 6. The sweep takes the page's Finished row and keeps only the switches that are also needed. In the code that is a bitwise AND: Finished AND Needs. Here the page has Understand and Text finished, number 3. Keeping only the needed switches leaves Text alone. The third row does not match the first, so Layout is missing and the stage waits.
@@ -444,7 +458,7 @@ Here is exactly what the sweep checks. For every stage that has several inputs, 
 
 **[step 2]** The same row of switches handles the other rule, either one is enough. Write a question takes a table or a chart. A page is never both, so waiting for both would wait forever. For this kind of stage the sweep asks a weaker question: is at least one needed switch on? The chart finished, so yes, start now. Same record, same check, a slightly different question. This is why one mechanism covers every graph shape.
 
-## 43. Ready makes a stage start exactly once (deep dive)
+## 45. Ready makes a stage start exactly once (deep dive)
 *6 · Graphs of stages · ~1 min · reveal steps: 2*
 
 The sweep does not run once, it runs again and again, every few seconds. So we need to be sure it starts a stage once, not at every pass. Sweep one: Text is finished, Layout is not, so the stage waits. Sweep two: both finished and Ready is off, so the sweep switches Ready on and the page goes into the stage's queue. Exactly once so far.
@@ -453,7 +467,7 @@ The sweep does not run once, it runs again and again, every few seconds. So we n
 
 **[step 2]** Without the Ready switch, every sweep would match and the stage would start again and again, producing duplicates of the same page, which we would pay for in GPU time and train on. So the two rows divide the job: Finished says what the inputs have done. Ready remembers what has already been started. That is why a stage starts exactly once, whichever order its inputs finish in.
 
-## 44. A crash between writes never loses a page (deep dive)
+## 46. A crash between writes never loses a page (deep dive)
 *6 · Graphs of stages · ~1.2 min · reveal steps: 2*
 
 One more thing we need: crashes. When a stage finishes a page it makes three writes to the DB. It puts the page in the next stage's queue. It switches on Ready for that stage. And it switches on its own Finished. A machine can die between any two of them, so which order do we use? On the right is the reverse order, for comparison.
@@ -462,7 +476,7 @@ One more thing we need: crashes. When a stage finishes a page it makes three wri
 
 **[step 2]** So the rule is: hand the page on first, mark yourself finished last, and make every write safe to repeat. It is the same save-first rule from Part 5, applied between stages.
 
-## 45. From idea to a running pipeline
+## 47. From idea to a running pipeline
 *6 · Graphs of stages · ~0.8 min · no steps*
 
 So a DAG can describe almost any workload we have. And once you define it, running it is very simple. Two parts, then one command.
@@ -473,7 +487,7 @@ Part two: you define what each stage does: the prompt, and what a good answer lo
 
 And you run one command on every machine. After anything goes wrong, you run the same command again. There is no step for recovery, retries, coordination or scaling, because those were designed once and every pipeline shares them. The same engine has run transcription, HTML conversion, chart reading, question answering and dozens of other pipelines. And once the DAG is defined, the engine runs all of its stages in parallel. Here is what that buys.
 
-## 46. All stages at once
+## 48. All stages at once
 *6 · Graphs of stages · ~1.2 min · no steps*
 
 Once the DAG is defined, the engine runs all of its stages at the same time, automatically. Why does that matter? The obvious way is one stage at a time: run stage one over everything, wait, check, then launch stage two. It is simple and it is how most groups start. We did too. This is the same work on the same hardware, twice. Press play, or drag the slider to stop both runs anywhere.
@@ -482,7 +496,7 @@ Watch the big number on each side. On top, stage by stage: nothing usable exists
 
 If asked for a measured number: in the paper, a four-stage pipeline over 10 to the 5 pages on 16 emulated nodes produced its first thousand usable records after 10.7 minutes, against 81 minutes stage by stage. The counters on the slide are a simulation of a million examples.
 
-## 47. What Patram-Ingest supports
+## 49. What Patram-Ingest supports
 *6 · Graphs of stages · ~0.6 min · no steps*
 
 Putting it together, this is what the graph layer of Patram-Ingest supports; the cards appear on their own. A graph is a list of stage declarations: each stage names its upstream stages, a policy for waiting on them, and optionally a routing function. Stage authors never see the graph.
@@ -495,7 +509,7 @@ Failure propagation: if a stage fails a sample, every later stage marks it upstr
 
 Validation at start-up: acyclicity, reachability, routing-target isolation and the split between the two activation paths. And every output records the stages its sample passed through, so any record can be traced through the graph. Bit positions are stored in 64-bit integers; a wider bit string would serve any number of stages. Graphs are acyclic.
 
-## 48. Scaling compared with DBOS and Temporal
+## 50. Scaling compared with DBOS and Temporal
 *6 · Graphs of stages · ~1.5 min · no steps*
 
 Very few alternatives come close to these features. Among the 13 systems in our comparison, only DBOS and Temporal do: they already survive crashes, route per sample and run across machines. So we ran the same pipeline on both, on the same DB server and the same emulated model servers. We made the servers answer in 20 milliseconds, so inference could not be the limit, and added nodes until throughput stopped growing.
@@ -506,7 +520,7 @@ Ours kept growing with every added node, to 8,571 pages per second at 32 nodes, 
 
 And the overhead stays tiny as nodes are added. Against a bare client that reads prompts from a file and writes answers to local disk, with no database at all, we reach 98.9 to 99.7 percent of its throughput at every scale from 1 to 48 nodes. Throughput grew from 3.88 requests per second on one node to 183.6 on 48, which is 98.6 percent of linear. Caveat: this is one deployment of each system, each configuration ran once, and the servers were emulated.
 
-## 49. Key takeaways
+## 51. Key takeaways
 *7 · Wrap-up · ~1 min · no steps*
 
 If you take six things away from the Patram-Ingest half, these are the lessons we learned the hard way.
@@ -523,14 +537,14 @@ Five: match the parallelism to the job. Processes for computing, threads for wai
 
 Six: keep the database light. It holds only state; the results go to files on each node, written in groups, off the GPU's path. That is why the system keeps scaling as nodes are added.
 
-## 50. The DB is the single source of truth
+## 52. The DB is the single source of truth
 *7 · Wrap-up · ~0.8 min · no steps*
 
 If you remember one thing from this half of the lecture, make it this. Nowhere in the whole system, in the stage workers, the worker pools, the supervisors, the watchers, the model servers or the nodes, do we keep any state. Every one of them is stateless. The entire state of the run, what is waiting, claimed, done or failed, lives in one place: the DB. It is the single source of truth. Results go to files, and the DB says which ones count.
 
 That one decision is where the distributed-system guarantees come from. Any component can crash and restart at any moment, like the stage worker here, and we survive it, because it held nothing: it simply reads the DB and carries on. Nodes can join or leave at any time, because there is nothing to hand over. And recovery is just a query on the DB, not a procedure someone has to run.
 
-## 51. Where Patram-Ingest sits in the stack
+## 53. Where Patram-Ingest sits in the stack
 *7 · Wrap-up · ~1.2 min · reveal steps: 2*
 
 To step back: Patram-Ingest, everything after vLLM, is just one part of the infrastructure we have.
@@ -539,7 +553,7 @@ To step back: Patram-Ingest, everything after vLLM, is just one part of the infr
 
 **[step 2]** And above it, Patram-Core takes this data, our training corpus, and makes it possible to train models. Using all of this, we have trained many foundation models, the Patram Suite, and evaluated them on our own benchmarks. These are internal models as of now; we plan to release the Patram series soon, and the sign-up form is on the next slide.
 
-## 52. Thank you
+## 54. Thank you
 *7 · Wrap-up · ~0.6 min · no steps*
 
 To bring it together: experts built vLLM to run a model as well as the hardware allows, and we built Patram-Ingest around it to keep using it for weeks, on a cluster where nodes die and GPUs come and go. Both are made of ideas you are learning now: scheduling, memory, queues, processes, threads and databases. Thank you. There are two codes on the right: the first is the sign-up form for the Patram series, so we can let you know when it is released, and the second is our hiring form, which is open to students who enjoyed this. Scan whichever is useful. We are happy to take your questions.
